@@ -1,0 +1,15 @@
+language: python
+python: "2.7"
+
+install: pip install tox
+
+services:
+    - rabbitmq
+    - redis
+
+script:
+    - tox
+
+after_success:
+    - pip install coveralls
+    - coveralls

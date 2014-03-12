@@ -1,0 +1,9 @@
+celery
+flask
+flask-restful
+librabbitmq
+python-dateutil
+python-statsd
+redis
+requests
+simplejson

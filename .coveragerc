@@ -1,0 +1,6 @@
+[run]
+omit = ptero_petri/api/wsgi.py
+branch = True
+
+[report]
+show_missing = True
