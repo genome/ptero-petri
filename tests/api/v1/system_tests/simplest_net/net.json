@@ -1,0 +1,11 @@
+{
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "action": {
+                "type": "notify",
+                "url": "http://localhost:7777/simple/place"
+            }
+        }
+    ]
+}

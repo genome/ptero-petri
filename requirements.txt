@@ -1,9 +1,9 @@
-celery
 flask
 flask-restful
 librabbitmq
 python-dateutil
 python-statsd
+pyyaml
 redis
 requests
 simplejson
