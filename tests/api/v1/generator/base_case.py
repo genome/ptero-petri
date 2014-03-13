@@ -4,10 +4,15 @@ import jinja2
 import os
 import requests
 import simplejson
+import subprocess
+import time
 import urllib
 import urlparse
 import yaml
 
+
+_POLLING_DELAY = 0.05
+_TERMINATE_WAIT_TIME = 0.05
 
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
@@ -69,7 +74,13 @@ class TestCaseMixin(object):
                 self.api_port, net_key)
 
     def _wait(self):
-        pass
+        done = False
+        while not done:
+            stuff = self._callback_webserver.poll()
+            if stuff is not None:
+                done = True
+            if not done:
+                time.sleep(_POLLING_DELAY)
 
     def _verify_expected_callbacks(self):
         self._verify_callback_order(self.expected_callbacks,
@@ -144,6 +155,11 @@ class TestCaseMixin(object):
     def _expected_callbacks_path(self):
         return os.path.join(self.directory, 'expected_callbacks.yaml')
 
+    @property
+    def _total_expected_callbacks(self):
+        return sum(_get_expected_callback_counts(
+            self.expected_callbacks).itervalues())
+
 
     def _clear_memoized_data(self):
         self._actual_callbacks = None
@@ -164,17 +180,35 @@ class TestCaseMixin(object):
         pass
 
     def _start_callback_receipt_webserver(self):
-        pass
-
+        self._callback_webserver = subprocess.Popen(
+                [self._callback_webserver_path,
+                    '--expected-callbacks', str(self._total_expected_callbacks),
+                    '--stop-after', str(self._max_wait_time),
+                    ],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def _stop_callback_receipt_webserver(self):
-        pass
+        self._callback_webserver.send_signal(signal.SIGINT)
+        time.sleep(_TERMINATE_WAIT_TIME)
+        try:
+            self._callback_webserver.kill()
+        except OSError as e:
+            if e.errno != 3:  # errno 3: no such pid
+                raise
 
     def _stop_petri_api_webserver(self):
         pass
 
     def _stop_petri_worker(self):
         pass
+
+    @property
+    def _callback_webserver_path(self):
+        return os.path.join(os.path.dirname(__file__), 'callback_webserver.py')
+
+    @property
+    def _max_wait_time(self):
+        return 10
 
 
 def _get_prereq_callbacks(expected_callbacks, callback):
