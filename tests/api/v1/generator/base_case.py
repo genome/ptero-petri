@@ -53,24 +53,32 @@ class TestCaseMixin(object):
 
     def _verify_expected_callbacks(self):
         expected_callbacks = self._expected_callbacks
-        seen_callback_counts = collections.defaultdict(int)
+        actual_callbacks = self._actual_callbacks
 
-        for callback in self._actual_callbacks:
-            for prereq_callback in _get_prereq_callbacks(expected_callback,
+        self._verify_callback_order(expected_callbacks, actual_callbacks)
+        self._verify_callback_counts(expected_callbacks, actual_callbacks)
+
+    def _verify_callback_order(self, expected_callbacks, actual_callbacks):
+        seen_callbacks = set()
+
+        for callback in actual_callbacks:
+            for prereq_callback in _get_prereq_callbacks(expected_callbacks,
                     callback):
-                if prereq_callback not in seen_callback_counts:
+                if prereq_callback not in seen_callbacks:
                     self.fail("Have not yet seen callback '%s' "
                             "depended on by callback '%s'."
                             "  Seen callbacks:  %s" % (
                                 prereq_callback,
                                 callback,
-                                dict(seen_callback_counts)
+                                seen_callbacks
                     ))
-            seen_callback_counts[callback] += 1
+            seen_callbacks.add(callback)
 
+    def _verify_callback_counts(self, expected_callbacks, actual_callbacks):
+        actual_callback_counts = _get_actual_callback_counts(actual_callbacks)
         expected_callback_counts = _get_expected_callback_counts(
                 expected_callbacks)
-        self.assertEqual(expected_callback_counts, dict(seen_callback_counts))
+        self.assertEqual(expected_callback_counts, actual_callback_counts)
 
     @property
     def _actual_callbacks(self):
@@ -101,6 +109,13 @@ class TestCaseMixin(object):
 def _get_prereq_callbacks(expected_callbacks, callback):
     expected_callback_data = expected_callbacks.get(callback, {})
     return expected_callback_data.get('depends', [])
+
+
+def _get_actual_callback_counts(actual_callbacks):
+    counts = collections.defaultdict(int)
+    for cb in actual_callbacks:
+        counts[cb] += 1
+    return dict(counts)
 
 
 def _get_expected_callback_counts(expected_callbacks):
