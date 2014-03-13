@@ -1,4 +1,5 @@
 import abc
+import collections
 import jinja2
 import os
 import requests
@@ -45,20 +46,31 @@ class TestCaseMixin(object):
 
     def _start_place_url(self, net_key):
         return 'http://localhost:%d/v1/nets/%s/places/start/tokens' % (
-                self.port, net_key)
+                self.api_port, net_key)
 
     def _wait(self):
         pass
 
     def _verify_expected_callbacks(self):
         expected_callbacks = self._expected_callbacks
-        seen_callbacks = set()
-        for callback in self._actual_callbacks:
-            for prereq_callback in expected_callbacks[callback]:
-                self.assertIn(prereq_callback, seen_callbacks)
-            seen_callbacks.add(callback)
+        seen_callback_counts = collections.defaultdict(int)
 
-        self.assertEqual(set(expected_callbacks.iterkeys()), seen_callbacks)
+        for callback in self._actual_callbacks:
+            for prereq_callback in _get_prereq_callbacks(expected_callback,
+                    callback):
+                if prereq_callback not in seen_callback_counts:
+                    self.fail("Have not yet seen callback '%s' "
+                            "depended on by callback '%s'."
+                            "  Seen callbacks:  %s" % (
+                                prereq_callback,
+                                callback,
+                                dict(seen_callback_counts)
+                    ))
+            seen_callback_counts[callback] += 1
+
+        expected_callback_counts = _get_expected_callback_counts(
+                expected_callbacks)
+        self.assertEqual(expected_callback_counts, dict(seen_callback_counts))
 
     @property
     def _actual_callbacks(self):
@@ -84,3 +96,13 @@ class TestCaseMixin(object):
     @property
     def _expected_callbacks_path(self):
         return os.path.join(self.directory, 'expected_callbacks.yaml')
+
+
+def _get_prereq_callbacks(expected_callbacks, callback):
+    expected_callback_data = expected_callbacks.get(callback, {})
+    return expected_callback_data.get('depends', [])
+
+
+def _get_expected_callback_counts(expected_callbacks):
+    return {callback: data['count']
+            for callback, data in expected_callbacks.iteritems()}

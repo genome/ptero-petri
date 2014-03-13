@@ -1,1 +1,2 @@
-simple/place: []
+simple/callback:
+    count: 1
