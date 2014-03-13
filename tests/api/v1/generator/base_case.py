@@ -3,6 +3,7 @@ import collections
 import jinja2
 import os
 import requests
+import signal
 import simplejson
 import subprocess
 import time
@@ -113,7 +114,8 @@ class TestCaseMixin(object):
     @property
     def actual_callbacks(self):
         if self._actual_callbacks is None:
-            self._actual_callbacks = []
+            stdout, stderr = self._callback_webserver.communicate()
+            self._actual_callbacks = stdout.splitlines()
         return self._actual_callbacks
 
     @property
@@ -188,9 +190,9 @@ class TestCaseMixin(object):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def _stop_callback_receipt_webserver(self):
-        self._callback_webserver.send_signal(signal.SIGINT)
-        time.sleep(_TERMINATE_WAIT_TIME)
         try:
+            self._callback_webserver.send_signal(signal.SIGINT)
+            time.sleep(_TERMINATE_WAIT_TIME)
             self._callback_webserver.kill()
         except OSError as e:
             if e.errno != 3:  # errno 3: no such pid
