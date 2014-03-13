@@ -26,6 +26,14 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
+def _purge_rabbitmq():
+    pass
+
+
+def _purge_redis():
+    pass
+
+
 def _start_api_server(port, debug):
     env = os.environ.data
     env['PYTHONPATH'] = os.path.dirname(__file__)
@@ -45,6 +53,9 @@ def _start_petri_worker():
 
 
 def main(port, debug):
+    _purge_rabbitmq()
+    _purge_redis()
+
     api_server = _start_api_server(port=port, debug=debug)
     petri_worker = _start_petri_worker()
     api_server.wait()
