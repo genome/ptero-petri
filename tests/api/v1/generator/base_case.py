@@ -1,4 +1,5 @@
 import abc
+import jinja2
 import os
 import requests
 import simplejson
@@ -7,6 +8,14 @@ import yaml
 
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def api_port(self):
+        pass
+
+    @abc.abstractproperty
+    def callback_port(self):
+        pass
 
     @abc.abstractproperty
     def directory(self):
@@ -27,7 +36,7 @@ class TestCaseMixin(object):
 
     @property
     def _submit_url(self):
-        return 'http://localhost:%d/v1/nets' % self.port
+        return 'http://localhost:%d/v1/nets' % self.api_port
 
 
     def _create_start_token(self, net_key):
@@ -57,8 +66,11 @@ class TestCaseMixin(object):
 
     @property
     def _net_body(self):
+        body = None
         with open(self._net_file_path) as f:
-            return simplejson.load(f)
+            template = jinja2.Template(f.read())
+            body = template.render(callback_port=self.callback_port)
+        return simplejson.loads(body)
 
     @property
     def _net_file_path(self):
