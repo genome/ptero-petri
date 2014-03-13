@@ -6,8 +6,8 @@ import flask
 __all__ = ['create_app']
 
 
-def create_app(celery_configuration=None, purge=False):
-    factory = Factory(celery_configuration=celery_configuration)
+def create_app(purge=False):
+    factory = Factory()
 
     if purge:  # This is used to create a clean test environment.
         factory.purge()
