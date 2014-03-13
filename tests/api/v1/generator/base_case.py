@@ -32,6 +32,11 @@ class TestCaseMixin(object):
         self._verify_expected_callbacks()
 
 
+    def setUp(self):
+        super(TestCaseMixin, self).setUp()
+        self._clear_memoized_data()
+
+
     def _submit_net(self):
         response = requests.post(self._submit_url, self._net_body)
         self.assertEqual(201, response.status_code)
@@ -54,11 +59,10 @@ class TestCaseMixin(object):
         pass
 
     def _verify_expected_callbacks(self):
-        expected_callbacks = self._expected_callbacks
-        actual_callbacks = self._actual_callbacks
-
-        self._verify_callback_order(expected_callbacks, actual_callbacks)
-        self._verify_callback_counts(expected_callbacks, actual_callbacks)
+        self._verify_callback_order(self.expected_callbacks,
+                self.actual_callbacks)
+        self._verify_callback_counts(self.expected_callbacks,
+                self.actual_callbacks)
 
     def _verify_callback_order(self, expected_callbacks, actual_callbacks):
         seen_callbacks = set()
@@ -83,8 +87,10 @@ class TestCaseMixin(object):
         self.assertEqual(expected_callback_counts, actual_callback_counts)
 
     @property
-    def _actual_callbacks(self):
-        return []
+    def actual_callbacks(self):
+        if self._actual_callbacks is None:
+            self._actual_callbacks = []
+        return self._actual_callbacks
 
     @property
     def _net_body(self):
@@ -115,13 +121,20 @@ class TestCaseMixin(object):
         return os.path.join(self.directory, 'net.json')
 
     @property
-    def _expected_callbacks(self):
-        with open(self._expected_callbacks_path) as f:
-            return yaml.load(f)
+    def expected_callbacks(self):
+        if not self._expected_callbacks:
+            with open(self._expected_callbacks_path) as f:
+                self._expected_callbacks = yaml.load(f)
+        return self._expected_callbacks
 
     @property
     def _expected_callbacks_path(self):
         return os.path.join(self.directory, 'expected_callbacks.yaml')
+
+
+    def _clear_memoized_data(self):
+        self._actual_callbacks = None
+        self._expected_callbacks = None
 
 
 def _get_prereq_callbacks(expected_callbacks, callback):
