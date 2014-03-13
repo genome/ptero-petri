@@ -10,6 +10,8 @@ import subprocess
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--max-run-time', type=int)
+    parser.add_argument('--port', type=int)
+    parser.add_argument('--debug', action='store_true', default=False)
 
     return parser.parse_args()
 
@@ -24,19 +26,26 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
-def _start_api_server():
+def _start_api_server(port, debug):
     env = os.environ.data
     env['PYTHONPATH'] = os.path.dirname(__file__)
-    return subprocess.Popen(['python', _api_webserver_path()], env=env,
-            close_fds=True)
+
+    command_line = ['python', _api_webserver_path()]
+    if port is not None:
+        command_line.extend(['--port', str(port)])
+
+    if debug:
+        command_line.append('--debug')
+
+    return subprocess.Popen(command_line, env=env, close_fds=True)
 
 
 def _start_petri_worker():
     return subprocess.Popen(['true'], close_fds=True)
 
 
-def main():
-    api_server = _start_api_server()
+def main(port, debug):
+    api_server = _start_api_server(port=port, debug=debug)
     petri_worker = _start_petri_worker()
     api_server.wait()
     petri_worker.wait()
@@ -52,4 +61,4 @@ if __name__ == '__main__':
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(arguments.max_run_time)
 
-    main()
+    main(port=arguments.port, debug=arguments.debug)
