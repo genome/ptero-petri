@@ -3,8 +3,15 @@ import os
 import unittest
 
 
+_TEST_DIR_BLACKLIST = [
+    'README.md',
+]
+
+
 def create_test_cases(target_module, test_case_directory):
     for test_case_name in os.listdir(test_case_directory):
+        if test_case_name in _TEST_DIR_BLACKLIST:
+            continue
         _create_and_attach_test_case(target_module, test_case_directory,
                 test_case_name)
 
