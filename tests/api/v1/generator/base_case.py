@@ -15,6 +15,10 @@ import yaml
 _POLLING_DELAY = 0.05
 _TERMINATE_WAIT_TIME = 0.05
 
+_MAX_RETRIES = 5
+_RETRY_DELAY = 0.1
+
+
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
 
@@ -42,22 +46,17 @@ class TestCaseMixin(object):
         super(TestCaseMixin, self).setUp()
         self._clear_memoized_data()
 
-        self._purge_rabbitmq()
-        self._purge_redis()
-
-        self._start_petri_worker()
-        self._start_petri_api_webserver()
+        self._start_devserver()
         self._start_callback_receipt_webserver()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
         self._stop_callback_receipt_webserver()
-        self._stop_petri_api_webserver()
-        self._stop_petri_worker()
+        self._stop_devserver()
 
 
     def _submit_net(self):
-        response = requests.post(self._submit_url, self._net_body)
+        response = _retry(requests.post, self._submit_url, self._net_body)
         self.assertEqual(201, response.status_code)
         return response.json()['net_key']
 
@@ -67,7 +66,7 @@ class TestCaseMixin(object):
 
 
     def _create_start_token(self, net_key):
-        response = requests.post(self._start_place_url(net_key))
+        response = _retry(requests.post, self._start_place_url(net_key))
         self.assertEqual(201, response.status_code)
 
     def _start_place_url(self, net_key):
@@ -168,18 +167,13 @@ class TestCaseMixin(object):
         self._expected_callbacks = None
 
 
-    def _purge_rabbitmq(self):
-        pass
-
-    def _purge_redis(self):
-        pass
-
-
-    def _start_petri_worker(self):
-        pass
-
-    def _start_petri_api_webserver(self):
-        pass
+    def _start_devserver(self):
+        self._devserver = subprocess.Popen([
+                self._devserver_path,
+                '--max-run-time', str(self._max_wait_time),
+                '--port', str(self.api_port),
+            ],
+            close_fds=True)
 
     def _start_callback_receipt_webserver(self):
         self._callback_webserver = subprocess.Popen(
@@ -198,15 +192,25 @@ class TestCaseMixin(object):
             if e.errno != 3:  # errno 3: no such pid
                 raise
 
-    def _stop_petri_api_webserver(self):
-        pass
-
-    def _stop_petri_worker(self):
-        pass
+    def _stop_devserver(self):
+        try:
+            self._devserver.send_signal(signal.SIGINT)
+            time.sleep(_TERMINATE_WAIT_TIME)
+            self._devserver.kill()
+            time.sleep(_TERMINATE_WAIT_TIME)
+        except OSError as e:
+            if e.errno != 3:  # errno 3: no such pid
+                raise
 
     @property
     def _callback_webserver_path(self):
         return os.path.join(os.path.dirname(__file__), 'callback_webserver.py')
+
+    @property
+    def _devserver_path(self):
+        return os.path.join(os.path.dirname(__file__),
+                '..', '..', '..', '..',
+                'devserver')
 
     @property
     def _max_wait_time(self):
@@ -228,3 +232,11 @@ def _get_actual_callback_counts(actual_callbacks):
 def _get_expected_callback_counts(expected_callbacks):
     return {callback: data['count']
             for callback, data in expected_callbacks.iteritems()}
+
+def _retry(func, *args, **kwargs):
+    for attempt in xrange(_MAX_RETRIES):
+        try:
+            return func(*args, **kwargs)
+        except:
+            time.sleep(_RETRY_DELAY)
+    raise RuntimeError('Failed a bunch of times!')
