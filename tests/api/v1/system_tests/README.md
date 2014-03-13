@@ -12,11 +12,34 @@ string of the callback.
 
 ## `net.json`
 This file contains a [Jinja2](http://jinja.pocoo.org/docs/) template for
-specifying a submit request body.
+specifying a submit request body.  Templating is used only to specify callback
+urls for the Petri service webhooks.  To specify a callback in net.json, use
+the `callback_url` function inside of a [Jinja2 variable substitution
+block](http://jinja.pocoo.org/docs/templates/#variables).  The callback
+function takes the following arguments:
 
-Available template variables:
+- `callback_name`: this argument is required and is used to identify the
+  callback in testing
+- `request_name`: if present, the mock web server will make an HTTP request to
+  the URL associated with the value specified in the webhook request body
 
-- `callback_port`:  port on localhost where the mock callback web server listens
+All other keyword arguments to the `callback_url` function will be put into the
+requestion body as key value pairs.
+
+Sample usage of the `callback_url` function:
+
+    {
+        "subnets": {
+            ...,
+            "sample-subnet": {
+                "type": "success/failure",
+                "url": {{ callback_url('sample/callback',
+                                       request_name='success',
+                                       status_code=123) }}
+            },
+            ...
+        }
+    }
 
 
 ## `expected_callbacks.yaml`
@@ -50,14 +73,3 @@ following is considered a valid callback ordering:
 - `B`
 - `A`
 - `A`
-
-
-## Callback URL Construction
-Callback URLs contain two kinds of information:
-
-- an identifier so that the callback can be recognized for testing
-- instructions for the mock service to make a follow-up HTTP request
-
-The identifier is simply the path of the URL without the leading slash.  The
-instructions for the follow-up request are controlled by the query string of
-the URL.

@@ -4,6 +4,8 @@ import jinja2
 import os
 import requests
 import simplejson
+import urllib
+import urlparse
 import yaml
 
 
@@ -89,8 +91,24 @@ class TestCaseMixin(object):
         body = None
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
-            body = template.render(callback_port=self.callback_port)
+            body = template.render(callback_url=self._callback_url)
         return simplejson.loads(body)
+
+    def _callback_url(self, callback_name, request_name=None, **request_data):
+        if request_name is not None:
+            request_data['request_name'] = request_name
+
+        return '"%s"' % self._assemble_callback_url(callback_name, request_data)
+
+    def _assemble_callback_url(self, callback_name, request_data):
+        return urlparse.urlunparse((
+            'http',
+            'localhost:%d' % self.callback_port,
+            '/' + callback_name,
+            '',
+            urllib.urlencode(request_data),
+            '',
+        ))
 
     @property
     def _net_file_path(self):
