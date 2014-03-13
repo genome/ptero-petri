@@ -36,6 +36,19 @@ class TestCaseMixin(object):
         super(TestCaseMixin, self).setUp()
         self._clear_memoized_data()
 
+        self._purge_rabbitmq()
+        self._purge_redis()
+
+        self._start_petri_worker()
+        self._start_petri_api_webserver()
+        self._start_callback_receipt_webserver()
+
+    def tearDown(self):
+        super(TestCaseMixin, self).tearDown()
+        self._stop_callback_receipt_webserver()
+        self._stop_petri_api_webserver()
+        self._stop_petri_worker()
+
 
     def _submit_net(self):
         response = requests.post(self._submit_url, self._net_body)
@@ -135,6 +148,33 @@ class TestCaseMixin(object):
     def _clear_memoized_data(self):
         self._actual_callbacks = None
         self._expected_callbacks = None
+
+
+    def _purge_rabbitmq(self):
+        pass
+
+    def _purge_redis(self):
+        pass
+
+
+    def _start_petri_worker(self):
+        pass
+
+    def _start_petri_api_webserver(self):
+        pass
+
+    def _start_callback_receipt_webserver(self):
+        pass
+
+
+    def _stop_callback_receipt_webserver(self):
+        pass
+
+    def _stop_petri_api_webserver(self):
+        pass
+
+    def _stop_petri_worker(self):
+        pass
 
 
 def _get_prereq_callbacks(expected_callbacks, callback):
