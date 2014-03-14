@@ -6,4 +6,4 @@ __all__ = ['api']
 
 api = Api(default_mediatype='application/json')
 api.add_resource(views.NetListView, '/nets', endpoint='net-list')
-api.add_resource(views.NetView, '/nets/<string:pk>', endpoint='net')
+api.add_resource(views.NetView, '/nets/<string:net_key>', endpoint='net')
