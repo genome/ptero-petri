@@ -1,5 +1,6 @@
 import abc
 import collections
+import errno
 import jinja2
 import os
 import requests
@@ -184,23 +185,10 @@ class TestCaseMixin(object):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def _stop_callback_receipt_webserver(self):
-        try:
-            self._callback_webserver.send_signal(signal.SIGINT)
-            time.sleep(_TERMINATE_WAIT_TIME)
-            self._callback_webserver.kill()
-        except OSError as e:
-            if e.errno != 3:  # errno 3: no such pid
-                raise
+        _stop_subprocess(self._callback_webserver)
 
     def _stop_devserver(self):
-        try:
-            self._devserver.send_signal(signal.SIGINT)
-            time.sleep(_TERMINATE_WAIT_TIME)
-            self._devserver.kill()
-            time.sleep(_TERMINATE_WAIT_TIME)
-        except OSError as e:
-            if e.errno != 3:  # errno 3: no such pid
-                raise
+        _stop_subprocess(self._devserver)
 
     @property
     def _callback_webserver_path(self):
@@ -215,6 +203,17 @@ class TestCaseMixin(object):
     @property
     def _max_wait_time(self):
         return 10
+
+
+def _stop_subprocess(process):
+    try:
+        process.send_signal(signal.SIGINT)
+        time.sleep(_TERMINATE_WAIT_TIME)
+        process.kill()
+        time.sleep(_TERMINATE_WAIT_TIME)
+    except OSError as e:
+        if e.errno != errno.ESRCH:  # ESRCH: no such pid
+            raise
 
 
 def _get_prereq_callbacks(expected_callbacks, callback):
