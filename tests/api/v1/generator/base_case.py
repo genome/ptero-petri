@@ -57,7 +57,8 @@ class TestCaseMixin(object):
 
 
     def _submit_net(self):
-        response = _retry(requests.post, self._submit_url, self._net_body)
+        response = _retry(requests.post, self._submit_url, self._net_body,
+                headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
         return response.json()['net_key']
 
@@ -67,7 +68,8 @@ class TestCaseMixin(object):
 
 
     def _create_start_token(self, net_key):
-        response = _retry(requests.post, self._start_place_url(net_key))
+        response = _retry(requests.post, self._start_place_url(net_key),
+                headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
 
     def _start_place_url(self, net_key):
