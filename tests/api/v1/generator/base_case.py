@@ -124,7 +124,7 @@ class TestCaseMixin(object):
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
             body = template.render(callback_url=self._callback_url)
-        return simplejson.loads(body)
+        return body
 
     def _callback_url(self, callback_name, request_name=None, **request_data):
         if request_name is not None:
