@@ -1,4 +1,4 @@
-from .future import FutureNet
+from .future import FutureNet,FutureAction
 import itertools
 
 
@@ -24,7 +24,8 @@ class Translator(object):
 
     def attach_transitions(self, future_net):
         for transition_dict in self.get_transitions():
-            ft = future_net.add_basic_transition()
+            ft = future_net.add_basic_transition(
+                    action=get_action(transition_dict))
 
             for input_place_name in transition_dict.get('inputs', []):
                 ft.add_arc_in(self.place_to_future_place[input_place_name])
@@ -39,3 +40,12 @@ class Translator(object):
         self.attach_transitions(future_net)
 
         return future_net
+
+
+def get_action(transition_dict):
+    if 'action' in transition_dict:
+        action_dict = transition_dict['action']
+        action_type = action_dict.pop('type')
+        return FutureAction(cls=None, **action_dict)
+    else:
+        return None
