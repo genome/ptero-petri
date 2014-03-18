@@ -1,4 +1,5 @@
 from ptero_petri.implementation import future
+from net_helpers import get_unique_arc_in, get_unique_arc_out
 from unittest import TestCase, main
 
 from mock import Mock
@@ -138,14 +139,6 @@ class TestFutureNode(TestCase):
 
         self.assertItemsEqual([self.other], self.node.arcs_out)
         self.assertItemsEqual([self.node], self.other.arcs_in)
-
-
-def get_unique_arc_out(source):
-    return list(source.arcs_out)[0]
-
-
-def get_unique_arc_in(source):
-    return list(source.arcs_in)[0]
 
 
 if __name__ == "__main__":

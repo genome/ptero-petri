@@ -7,3 +7,4 @@ pyyaml
 redis
 requests
 simplejson
+twisted
