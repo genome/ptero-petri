@@ -526,7 +526,8 @@ class TestHash(FakeRedisTest):
         self.assertEqual(native.values(), h.values())
         partial_keys = ("a", "num", "g")
         native_partial = dict((k, native[k]) for k in partial_keys)
-        self.assertEqual(native_partial.values(), h.values(partial_keys))
+        self.assertEqual(sorted(native_partial.values()),
+                         sorted(h.values(partial_keys)))
 
         # test .iteritems()
         seen = dict((k, v) for k, v in h.iteritems())
