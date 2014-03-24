@@ -54,7 +54,7 @@ class Net(rom.Object):
 
     @classmethod
     def make_default_key(cls):
-        return base64.b64encode(uuid4().bytes)[:-2]
+        return base64.urlsafe_b64encode(uuid4().bytes)[:-2]
 
     @property
     def num_places(self):
