@@ -1,4 +1,5 @@
 from .future import FutureNet,FutureAction
+from ptero_petri.implementation.actions.notify import NotifyAction
 import itertools
 
 
@@ -46,6 +47,6 @@ def get_action(transition_dict):
     if 'action' in transition_dict:
         action_dict = transition_dict['action']
         action_type = action_dict.pop('type')
-        return FutureAction(cls=None, **action_dict)
+        return FutureAction(cls=NotifyAction, **action_dict)
     else:
         return None
