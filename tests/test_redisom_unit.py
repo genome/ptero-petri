@@ -125,42 +125,6 @@ class TestInt(FakeRedisTest):
         self.assertEqual(7, i.value)
 
 
-class TestFloat(FakeRedisTest):
-    def setUp(self):
-        FakeRedisTest.setUp(self)
-        self.x = rom.Float(connection=self.conn, key='x')
-        self.c = rom.Float(connection=self.conn, key='c', cacheable=True)
-
-    def test_value(self):
-        self.assertRaises(ValueError, setattr, self.x, 'value', 'string')
-        self.x.value = 1234
-        self.assertEqual(1234, self.x.value)
-        self.x.value = 1.234
-        self.assertEqual(1.234, self.x.value)
-
-    def test_incr(self):
-        self.x.value = 8
-        self.assertEqual(9, self.x.incr())
-        self.assertEqual(9, self.x.value)
-
-        self.assertEqual(11, self.x.incr(2))
-        self.assertEqual(11, self.x.value)
-
-    def test_cachable(self):
-        self.conn.set(self.c.key, 42.3)
-        self.assertEqual(42.3, self.c.value)
-
-        self.conn.set(self.c.key, 7.8)
-        self.assertEqual(42.3, self.c.value)
-
-    def test_immutable(self):
-        f = rom.Float(connection=self.conn, key='f', immutable=True)
-        f._set_raw_value(2.1)
-        self.assertEqual(2.1, f.value)
-        self.assertRaises(ValueError, setattr, f, 'value', 12.3)
-        self.assertEqual(2.1, f.value)
-
-
 class TestString(FakeRedisTest):
     def setUp(self):
         FakeRedisTest.setUp(self)

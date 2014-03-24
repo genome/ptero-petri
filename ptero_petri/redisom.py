@@ -214,14 +214,6 @@ class Int(Value):
         return int(value)
 
 
-class Float(Int):
-    def _encode(self, value):
-        return float(value)
-
-    def _decode(self, value):
-        return float(value)
-
-
 class String(Value):
     def _encode(self, value):
         return str(value)

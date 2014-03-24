@@ -156,11 +156,6 @@ class TestIntCopy(RedisTest, RomValueCopyBase):
     three_values = [10, 100, 1000]
 
 
-class TestFloatCopy(RedisTest, RomValueCopyBase):
-    rom_type = rom.Float
-    three_values = [1.5, 2.5, 3.5]
-
-
 class TestSetCopy(RedisTest, RomValueCopyBase):
     rom_type = rom.Set
     three_values = [set(["a", "b"]), set(["x", "y"]), set()]
