@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from .helpers.redistest import RedisTest
+from .redishelpers.redistest import RedisTest
 from mock import Mock, patch
 from ptero_petri.implementation import rom
 import os

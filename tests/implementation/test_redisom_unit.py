@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from .helpers.fakeredistest import FakeRedisTest
+from .redishelpers.fakeredistest import FakeRedisTest
 from ptero_petri.implementation import rom
 import os
 import unittest

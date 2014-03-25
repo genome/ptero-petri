@@ -1,4 +1,4 @@
-from redistest import RedisTest
+from ...redishelpers.redistest import RedisTest
 from ptero_petri.implementation.petri.net import Net
 
 class NetTest(RedisTest):

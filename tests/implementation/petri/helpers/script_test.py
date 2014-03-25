@@ -1,4 +1,4 @@
-from .redistest import RedisTest
+from ...redishelpers.redistest import RedisTest
 from ptero_petri.implementation import rom
 from ptero_petri.implementation.petri import lua
 import unittest

@@ -1,4 +1,5 @@
-from .helpers import redistest, script_test
+from ..redishelpers import redistest
+from .helpers import script_test
 from unittest import TestCase, main
 
 

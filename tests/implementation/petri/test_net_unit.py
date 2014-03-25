@@ -1,4 +1,4 @@
-from .helpers.fakeredistest import FakeRedisTest
+from ..redishelpers.fakeredistest import FakeRedisTest
 from ptero_petri.implementation.petri.net import Net, ColorGroup
 from unittest import main
 
