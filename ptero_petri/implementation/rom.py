@@ -1,6 +1,6 @@
 # pylint: disable=W0212
 
-from ptero_petri.util.containers import grouper
+from .container_utils import grouper
 from uuid import uuid4
 
 import functools

@@ -1,4 +1,4 @@
-from ptero_petri.implementation.future import FutureAction
+from ptero_petri.implementation.petri.future import FutureAction
 from ptero_petri.implementation.translator import Translator
 from unittest import TestCase, main
 

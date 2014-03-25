@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-from ptero_petri.redisom import NotInRedisError
-from helpers.fakeredistest import FakeRedisTest
-
-import ptero_petri.redisom as rom
+from .helpers.fakeredistest import FakeRedisTest
+from ptero_petri.implementation import rom
 import os
 import unittest
 
@@ -153,7 +151,7 @@ class TestString(FakeRedisTest):
 class TestTimestamp(FakeRedisTest):
     def test_uninitialized(self):
         ts = rom.Timestamp(self.conn, "ts")
-        self.assertRaises(NotInRedisError, getattr, ts, "value")
+        self.assertRaises(rom.NotInRedisError, getattr, ts, "value")
 
     def test_setnx_succeed(self):
         ts = rom.Timestamp(self.conn, "ts")

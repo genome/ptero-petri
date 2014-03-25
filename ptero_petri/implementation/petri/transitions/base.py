@@ -1,9 +1,7 @@
-from ptero_petri.implementation import lua
-from ptero_petri.redisom import NotInRedisError
+from .. import lua
+from ... import rom
 from itertools import product
 from twisted.internet import defer
-
-import ptero_petri.redisom as rom
 import logging
 
 
@@ -54,7 +52,7 @@ class TransitionBase(rom.Object):
             action = rom.get_object(self.connection, self.action_key)
             assert isinstance(action, self.ACTION_BASE_CLASS)
             return action
-        except NotInRedisError:
+        except rom.NotInRedisError:
             return
 
 

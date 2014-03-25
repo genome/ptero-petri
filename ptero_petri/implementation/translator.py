@@ -1,5 +1,5 @@
-from .future import FutureNet,FutureAction
-from ptero_petri.implementation.actions.notify import NotifyAction
+from .petri.actions.notify import NotifyAction
+from .petri.future import FutureAction, FutureNet
 import itertools
 
 

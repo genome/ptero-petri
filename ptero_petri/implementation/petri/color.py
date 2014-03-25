@@ -1,6 +1,5 @@
+from .. import rom
 from collections import namedtuple
-
-import ptero_petri.redisom as rom
 
 
 Color = int

@@ -1,10 +1,9 @@
-from ptero_petri.implementation.actions.base import BarrierActionBase, BasicActionBase
-from ptero_petri import exceptions
-from ptero_petri.implementation import lua
-from ptero_petri.util.containers import head
+from .. import exceptions
+from .. import lua
+from ... import rom
+from ...container_utils import head
+from .base import BarrierActionBase, BasicActionBase
 from twisted.internet import defer
-
-import ptero_petri.redisom as rom
 
 
 class MergeMixin(object):

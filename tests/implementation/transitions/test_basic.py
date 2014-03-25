@@ -1,9 +1,8 @@
-from ptero_petri.implementation.color import ColorDescriptor
-from ptero_petri.implementation.transitions.basic import BasicTransition
-from ... helpers.net_test import NetTest
+from ..helpers.net_test import NetTest
+from ptero_petri.implementation import rom
+from ptero_petri.implementation.petri.color import ColorDescriptor
+from ptero_petri.implementation.petri.transitions.basic import BasicTransition
 from unittest import main
-
-import ptero_petri.redisom as rom
 
 
 class TestBasic(NetTest):

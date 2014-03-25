@@ -1,17 +1,17 @@
 from . import lua
-from ptero_petri.implementation.color import ColorGroup
-from ptero_petri.implementation.color import color_group_enc, color_group_dec
-from ptero_petri.exceptions import ForeignTokenError, PlaceNotFoundError
-from ptero_petri.implementation.place import Place
-from ptero_petri.implementation.token import Token
+from .. import rom
+from .color import ColorGroup
+from .color import color_group_enc, color_group_dec
+from .exceptions import ForeignTokenError, PlaceNotFoundError
+from .place import Place
+from .token import Token
 from twisted.internet import defer
 from uuid import uuid4
 
-
 import base64
 import itertools
-import ptero_petri.redisom as rom
 import logging
+
 
 LOG = logging.getLogger(__name__)
 

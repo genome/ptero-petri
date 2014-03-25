@@ -1,16 +1,14 @@
-from ... helpers.redistest import RedisTest
-from ... helpers.script_test import ScriptTest
-
+from ..helpers import redistest, script_test
 import copy
 import unittest
 
 
-class TestMergeHashesScript(RedisTest, ScriptTest):
+class TestMergeHashesScript(redistest.RedisTest, script_test.ScriptTest):
     SCRIPT_NAME = 'merge_hashes'
 
     def setUp(self):
-        RedisTest.setUp(self)
-        ScriptTest.setUp(self)
+        redistest.RedisTest.setUp(self)
+        script_test.ScriptTest.setUp(self)
 
 
     def test_single_source(self):

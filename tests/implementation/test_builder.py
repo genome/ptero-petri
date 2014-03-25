@@ -1,12 +1,11 @@
-from .. helpers.builder_test_base import BuilderTestBase
-from .. helpers.redistest import RedisTest
+from .helpers import redistest, script_test
 from unittest import TestCase, main
 
 
-class TestBuilderSystemTests(BuilderTestBase, RedisTest):
+class TestBuilderSystemTests(redistest.RedisTest, script_test.ScriptTest):
     def setUp(self):
-        RedisTest.setUp(self)
-        BuilderTestBase.setUp(self)
+        redistest.RedisTest.setUp(self)
+        script_test.ScriptTest.setUp(self)
 
 
 if __name__ == "__main__":

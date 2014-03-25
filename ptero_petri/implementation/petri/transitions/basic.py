@@ -1,25 +1,22 @@
-from ptero_petri.implementation import lua
-from ptero_petri.implementation.actions.base import BarrierActionBase
-from ptero_petri.implementation.actions.merge import BarrierMergeAction
-from ptero_petri.implementation.transitions.base import TransitionBase
-
-import ptero_petri.redisom as rom
+from .. import lua
+from ... import rom
+from ..actions.base import BasicActionBase
+from ..actions.merge import BasicMergeAction
+from .base import TransitionBase
 import logging
 
 
 LOG = logging.getLogger(__file__)
 
 
-class BarrierTransition(TransitionBase):
-    ACTION_BASE_CLASS = BarrierActionBase
-    DEFAULT_ACTION_CLASS = BarrierMergeAction
+class BasicTransition(TransitionBase):
+    ACTION_BASE_CLASS = BasicActionBase
+    DEFAULT_ACTION_CLASS = BasicMergeAction
 
-    _consume_tokens = rom.Script(lua.load('consume_tokens_barrier'))
+    _consume_tokens = rom.Script(lua.load('consume_tokens_basic'))
 
     def consume_tokens(self, enabler, color_descriptor, color_marking_key,
             group_marking_key):
-
-        color_group = color_descriptor.group
 
         active_tokens_key = self.active_tokens_key(color_descriptor)
         state_key = self.state_key(color_descriptor)
@@ -28,7 +25,7 @@ class BarrierTransition(TransitionBase):
 
         keys = [state_key, active_tokens_key, arcs_in_key, color_marking_key,
                 group_marking_key, enablers_key, self.transient_keys.key]
-        args = [enabler, color_group.idx, color_group.begin, color_group.end]
+        args = [enabler, color_descriptor.group.idx, color_descriptor.color]
 
         LOG.debug("Consume tokens: KEYS=%r, ARGS=%r", keys, args)
         rv = self._consume_tokens(keys=keys, args=args)
@@ -37,7 +34,7 @@ class BarrierTransition(TransitionBase):
         return rv[0]
 
     def state_key(self, color_descriptor):
-        return self.subkey("state", color_descriptor.group.idx)
+        return self.subkey("state", color_descriptor.color)
 
     def active_tokens_key(self, color_descriptor):
-        return self.subkey("active_tokens", color_descriptor.group.idx)
+        return self.subkey("active_tokens", color_descriptor.color)

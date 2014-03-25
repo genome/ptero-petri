@@ -1,12 +1,12 @@
-from ptero_petri.implementation.actions.merge import BasicMergeAction
-from ptero_petri.implementation.net import Net, ColorGroup, Token
-from ptero_petri.implementation.net import PlaceNotFoundError, ForeignTokenError
-from ptero_petri.implementation.transitions.basic import BasicTransition
-import ptero_petri.redisom as rom
-
-from .. helpers.net_test import NetTest
-from unittest import main
+from .helpers.net_test import NetTest
 from mock import MagicMock, Mock, ANY
+from ptero_petri.implementation import rom
+from ptero_petri.implementation.petri.actions.merge import BasicMergeAction
+from ptero_petri.implementation.petri.net import Net, ColorGroup, Token
+from ptero_petri.implementation.petri.net import PlaceNotFoundError, ForeignTokenError
+from ptero_petri.implementation.petri.transitions.basic import BasicTransition
+from unittest import main
+
 
 class TestNet(NetTest):
     def setUp(self):

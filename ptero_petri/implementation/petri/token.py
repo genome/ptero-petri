@@ -1,6 +1,5 @@
-from ptero_petri.implementation.color import ColorDescriptor
-
-import ptero_petri.redisom as rom
+from .. import rom
+from .color import ColorDescriptor
 
 
 class Token(rom.Object):

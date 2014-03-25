@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-import ptero_petri.redisom as rom
-
-import os
-import unittest
-import redis
+from .helpers.redistest import RedisTest
 from mock import Mock, patch
+from ptero_petri.implementation import rom
+import os
+import redis
+import unittest
 
-from helpers.redistest import RedisTest
 
 _good_script = "return {1, 2, '3'}"
 

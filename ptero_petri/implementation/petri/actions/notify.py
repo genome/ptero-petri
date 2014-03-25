@@ -1,5 +1,5 @@
-from ptero_petri.implementation.actions.base import BasicActionBase
-from ptero_petri.util.containers import head
+from ...container_utils import head
+from .base import BasicActionBase
 from twisted.internet import defer
 import requests
 

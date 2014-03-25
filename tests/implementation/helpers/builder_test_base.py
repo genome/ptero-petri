@@ -1,7 +1,6 @@
-from ptero_petri.implementation import builder
-from ptero_petri.implementation import future
+from ptero_petri.implementation.petri import builder
+from ptero_petri.implementation.petri import future
 from mock import Mock
-
 import itertools
 
 

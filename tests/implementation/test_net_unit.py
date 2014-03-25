@@ -1,7 +1,7 @@
-from ptero_petri.implementation.net import Net, ColorGroup
-from .. helpers.fakeredistest import FakeRedisTest
-
+from .helpers.fakeredistest import FakeRedisTest
+from ptero_petri.implementation.petri.net import Net, ColorGroup
 from unittest import main
+
 
 class TestNet(FakeRedisTest):
     def setUp(self):

@@ -1,5 +1,5 @@
 from redistest import RedisTest
-from ptero_petri.implementation.net import Net
+from ptero_petri.implementation.petri.net import Net
 
 class NetTest(RedisTest):
     def setUp(self):

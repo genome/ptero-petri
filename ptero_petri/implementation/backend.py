@@ -1,6 +1,7 @@
+from .petri.builder import Builder
 from .translator import Translator
-from .builder import Builder
 import redis
+
 
 class Backend(object):
     def create_net(self, net_data):

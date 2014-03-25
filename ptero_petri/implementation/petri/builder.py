@@ -1,10 +1,9 @@
-from ptero_petri.implementation.future import FutureBarrierTransition
-from ptero_petri.implementation.future import FutureBasicTransition
-from ptero_petri.implementation.net import Net
-from ptero_petri.implementation.place import Place
-from ptero_petri.implementation.transitions.barrier import BarrierTransition
-from ptero_petri.implementation.transitions.basic import BasicTransition
-
+from .future import FutureBarrierTransition
+from .future import FutureBasicTransition
+from .net import Net
+from .place import Place
+from .transitions.barrier import BarrierTransition
+from .transitions.basic import BasicTransition
 import logging
 
 

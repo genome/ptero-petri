@@ -1,7 +1,6 @@
-from ptero_petri.implementation import lua
-from .. helpers.redistest import RedisTest
-
-import ptero_petri.redisom as rom
+from .redistest import RedisTest
+from ptero_petri.implementation import rom
+from ptero_petri.implementation.petri import lua
 import unittest
 
 

@@ -1,4 +1,4 @@
-import ptero_petri.redisom as rom
+from .. import rom
 
 
 class Place(rom.Object):

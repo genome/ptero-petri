@@ -1,5 +1,5 @@
-from ptero_petri.implementation import future
-from net_helpers import get_unique_arc_in, get_unique_arc_out
+from .helpers.net import get_unique_arc_in, get_unique_arc_out
+from ptero_petri.implementation.petri import future
 from unittest import TestCase, main
 
 from mock import Mock
