@@ -1,4 +1,5 @@
 from .petri.builder import Builder
+from .petri.net import Net
 from .translator import Translator
 import redis
 
@@ -13,6 +14,12 @@ class Backend(object):
         return stored_net.key
 
     def create_token(self, net_key, place_name):
+        conn = redis.Redis()
+        net = Net(connection=conn, key=net_key)
+        place_index = net.named_place_indexes[place_name]
+        # Construct message
+        # Send message (directly with kombu?)
+
         return 1234
 
     def cleanup(self):

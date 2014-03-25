@@ -1,6 +1,9 @@
+blist
 flask
 flask-restful
+injector
 librabbitmq
+pika
 psutil
 python-statsd
 pyyaml
