@@ -177,12 +177,17 @@ class TestCaseMixin(object):
                 '--port', str(self.api_port),
             ],
             close_fds=True)
+        self._wait_for_devserver()
+
+    def _wait_for_devserver(self):
+        time.sleep(5)
 
     def _start_callback_receipt_webserver(self):
         self._callback_webserver = subprocess.Popen(
                 [self._callback_webserver_path,
                     '--expected-callbacks', str(self._total_expected_callbacks),
                     '--stop-after', str(self._max_wait_time),
+                    '--port', str(self.callback_port),
                     ],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -204,7 +209,7 @@ class TestCaseMixin(object):
 
     @property
     def _max_wait_time(self):
-        return 10
+        return 20
 
 
 def _stop_subprocess(process):

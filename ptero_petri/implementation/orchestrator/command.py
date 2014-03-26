@@ -1,11 +1,10 @@
-from flow.commands.service import ServiceCommand
-from flow.configuration.inject.broker import BrokerConfiguration
-from flow.configuration.inject.redis_conf import RedisConfiguration
-from flow.configuration.inject.service_locator import ServiceLocatorConfiguration
-from flow.orchestrator.handlers import PetriCreateTokenHandler
-from flow.orchestrator.handlers import PetriNotifyPlaceHandler
-from flow.orchestrator.handlers import PetriNotifyTransitionHandler
-
+from ..configuration.inject.broker import BrokerConfiguration
+from ..configuration.inject.redis_conf import RedisConfiguration
+from ..configuration.inject.service_locator import ServiceLocatorConfiguration
+from .handlers import PetriCreateTokenHandler
+from .handlers import PetriNotifyPlaceHandler
+from .handlers import PetriNotifyTransitionHandler
+from .service_command import ServiceCommand
 import logging
 
 

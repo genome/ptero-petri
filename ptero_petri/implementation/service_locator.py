@@ -10,7 +10,7 @@ class ServiceLocator(interfaces.IServiceLocator):
         self._services = {}
 
     def _get_missing_service(self, name):
-        for ep in pkg_resources.iter_entry_points('flow.services', name):
+        for ep in pkg_resources.iter_entry_points('ptero.services', name):
             cls = ep.load()
             service = self.i.get(cls)
             self._services[ep.name] = service

@@ -1,4 +1,4 @@
-from ..defaults import DEFAULT_FLOW_CONFIG_PATH
+from ..defaults import DEFAULT_PTERO_CONFIG_PATH
 from .cache import CacheSettings
 from .priority import PrioritySettings
 import os
@@ -6,14 +6,14 @@ import yaml
 
 
 def get_valid_config_dirs():
-    config_path = os.environ.get('FLOW_CONFIG_PATH', DEFAULT_FLOW_CONFIG_PATH)
+    config_path = os.environ.get('PTERO_CONFIG_PATH', DEFAULT_PTERO_CONFIG_PATH)
     config_dirs = [os.path.expandvars(d) for d in config_path.split(':')]
 
     return [d for d in reversed(config_dirs) if os.path.isdir(d)]
 
 
 def base_config_name(config_dir):
-    return os.path.join(config_dir, 'flow.yaml')
+    return os.path.join(config_dir, 'ptero.yaml')
 
 def command_config_name(config_dir, command_name):
     return os.path.join(config_dir, '%s.yaml' % command_name)

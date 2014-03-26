@@ -3,6 +3,7 @@
 import argparse
 import os
 import psutil
+import redis
 import signal
 import subprocess
 
@@ -26,12 +27,17 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
+def _setup_rabbitmq():
+    subprocess.call(['ptero', 'configure-rabbitmq'], close_fds=True)
+
+
 def _purge_rabbitmq():
     pass
 
 
 def _purge_redis():
-    pass
+    conn = redis.Redis()
+    conn.flushall()
 
 
 def _start_api_server(port, debug):
@@ -49,10 +55,16 @@ def _start_api_server(port, debug):
 
 
 def _start_petri_worker():
-    return subprocess.Popen(['true'], close_fds=True)
+    return subprocess.Popen(['ptero', 'orchestrator'], close_fds=True)
+
+
+def _ptero_config_path():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), 'config'))
 
 
 def main(port, debug):
+    os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
+    _setup_rabbitmq()
     _purge_rabbitmq()
     _purge_redis()
 

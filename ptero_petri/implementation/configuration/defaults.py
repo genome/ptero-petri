@@ -1,4 +1,4 @@
-DEFAULT_FLOW_CONFIG_PATH = '/etc/flow'
+DEFAULT_PTERO_CONFIG_PATH = '/etc/ptero'
 
 DEFAULT_LOGGING_CONFIG = {
     'version': 1,

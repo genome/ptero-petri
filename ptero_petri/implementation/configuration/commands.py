@@ -2,7 +2,7 @@ from .parser import create_parser
 import pkg_resources
 
 
-_FLOW_COMMAND_CATEGORY = 'flow.commands'
+_PTERO_COMMAND_CATEGORY = 'ptero.commands'
 
 
 def determine_command():
@@ -16,7 +16,7 @@ def determine_command():
     return command
 
 
-def load_command_names(category=_FLOW_COMMAND_CATEGORY):
+def load_command_names(category=_PTERO_COMMAND_CATEGORY):
     results = []
     for ep in pkg_resources.iter_entry_points(category):
         results.append(ep.name)
@@ -24,5 +24,5 @@ def load_command_names(category=_FLOW_COMMAND_CATEGORY):
     return results
 
 
-def get_command_class(name, category=_FLOW_COMMAND_CATEGORY):
+def get_command_class(name, category=_PTERO_COMMAND_CATEGORY):
     return pkg_resources.iter_entry_points(category, name).next().load()
