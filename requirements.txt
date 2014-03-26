@@ -1,9 +1,13 @@
-celery
+blist
 flask
 flask-restful
+injector
 librabbitmq
-python-dateutil
+pika
+psutil
 python-statsd
+pyyaml
 redis
 requests
 simplejson
+twisted

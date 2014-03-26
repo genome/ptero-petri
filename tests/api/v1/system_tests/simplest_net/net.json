@@ -1,0 +1,11 @@
+{
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('simple/callback') }}
+            }
+        }
+    ]
+}

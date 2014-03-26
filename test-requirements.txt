@@ -1,2 +1,4 @@
+fakeredis
+mock
 nose >= 1.3.0
 nose-cov
