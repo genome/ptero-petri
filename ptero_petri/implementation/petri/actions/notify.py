@@ -19,7 +19,6 @@ _MAX_RETRIES = 5
 _RETRY_DELAY = 0.1
 def _retry(func, *args, **kwargs):
     for attempt in xrange(_MAX_RETRIES):
-        print 'trying:', func, args, kwargs
         try:
             return func(*args, **kwargs)
         except:
