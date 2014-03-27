@@ -45,12 +45,6 @@ logging:
     version: 1
     disable_existing_loggers: true
 
-    formatters:
-        color:
-#            '()': ptero.util.log_formatters.ColorFormatter
-            fmt: '%(asctime)s %(levelname)-23s %(name)-60s %(funcName)-50s %(lineno)5d: %(message)s'
-
-
     root:
         level: DEBUG
         handlers: [console]
@@ -58,18 +52,13 @@ logging:
     loggers:
         pika:
             level: INFO
-            handlers: [console]
         ptero_petri:
             level: DEBUG
-            handlers: [console]
         ptero_petri.implementation.util.signal_handlers:
             level: DEBUG
-            handlers: [console]
         'ptero_petri.implementation.brokers':
             level: INFO
-            handlers: [console]
 
     handlers:
         console:
             class: logging.StreamHandler
-            formatter: color
