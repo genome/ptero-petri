@@ -1,5 +1,5 @@
 # PTero Petri Net Service
-[![Build Status](https://travis-ci.org/mark-burnett/ptero-petri.png?branch=master)](https://travis-ci.org/mark-burnett/ptero-petri)
+[![Build Status](https://travis-ci.org/mark-burnett/ptero-petri.svg?branch=master)](https://travis-ci.org/mark-burnett/ptero-petri)
 [![Coverage Status](https://coveralls.io/repos/mark-burnett/ptero-petri/badge.png)](https://coveralls.io/r/mark-burnett/ptero-petri)
 
 This project provides the Petri net core of the Ptero workflow system.
