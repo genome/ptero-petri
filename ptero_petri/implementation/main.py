@@ -60,7 +60,7 @@ def naked_main():
         LOG.exception('Command execution failed')
         return exit_codes.EXECUTE_FAILURE
 
-    exit_process(exit_code)
+    return exit_code
 
 
 if __name__ == '__main__':
