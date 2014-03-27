@@ -5,7 +5,6 @@ from ptero_petri.implementation.configuration.inject.initialize import initializ
 from ptero_petri.implementation.configuration.parser import parse_arguments
 from ptero_petri.implementation.configuration.settings.load import load_settings
 from ptero_petri.implementation.util import signal_handlers
-from ptero_petri.implementation.util.exit import exit_process
 import logging.config
 import pika
 import sys
