@@ -27,6 +27,7 @@ def _create_test_case(test_case_directory, test_case_name):
         'api_port': 8822,
         'callback_port': 2288,
         'directory': os.path.join(test_case_directory, test_case_name),
+        'test_name': test_case_name,
     }
     return type(test_case_name, (TestCaseMixin, unittest.TestCase),
             class_dict)

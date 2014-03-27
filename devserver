@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import errno
 import os
 import psutil
 import redis
@@ -13,6 +14,7 @@ def parse_args():
     parser.add_argument('--max-run-time', type=int)
     parser.add_argument('--port', type=int)
     parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--logdir')
 
     return parser.parse_args()
 
@@ -27,8 +29,10 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
-def _setup_rabbitmq():
-    subprocess.call(['ptero', 'configure-rabbitmq'], close_fds=True)
+def _setup_rabbitmq(logdir):
+    p = _subprocess_with_logs(logdir, 'configure-rabbitmq', ['ptero',
+        'configure-rabbitmq'])
+    p.wait()
 
 
 def _purge_rabbitmq():
@@ -40,7 +44,7 @@ def _purge_redis():
     conn.flushall()
 
 
-def _start_api_server(port, debug):
+def _start_api_server(port, debug, logdir):
     env = os.environ.data
     env['PYTHONPATH'] = os.path.dirname(__file__)
 
@@ -51,25 +55,51 @@ def _start_api_server(port, debug):
     if debug:
         command_line.append('--debug')
 
-    return subprocess.Popen(command_line, env=env, close_fds=True)
+    return _subprocess_with_logs(logdir, 'api',
+            command_line, env=env)
 
 
-def _start_petri_worker():
-    return subprocess.Popen(['ptero', 'orchestrator'], close_fds=True)
+def _start_petri_worker(logdir):
+    return _subprocess_with_logs(logdir, 'orchestrator',
+            ['ptero', 'orchestrator'])
 
 
 def _ptero_config_path():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), 'config'))
 
 
-def main(port, debug):
+def _subprocess_with_logs(logdir, name, command_line, **kwargs):
+    if logdir:
+        mkdir_p(logdir)
+        stdout = open(os.path.join(logdir, '%s.out' % name), 'w')
+        stderr = open(os.path.join(logdir, '%s.err' % name), 'w')
+    else:
+        stdout = None
+        stderr = None
+    return subprocess.Popen(command_line, close_fds=True, stdout=stdout,
+            stderr=stderr, **kwargs)
+
+
+# This is form a stackoverflow answer:
+# http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+
+def main(port, debug, logdir):
     os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
-    _setup_rabbitmq()
+    _setup_rabbitmq(logdir)
     _purge_rabbitmq()
     _purge_redis()
 
-    api_server = _start_api_server(port=port, debug=debug)
-    petri_worker = _start_petri_worker()
+    api_server = _start_api_server(port=port, debug=debug, logdir=logdir)
+    petri_worker = _start_petri_worker(logdir)
     api_server.wait()
     petri_worker.wait()
 
@@ -84,4 +114,4 @@ if __name__ == '__main__':
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(arguments.max_run_time)
 
-    main(port=arguments.port, debug=arguments.debug)
+    main(port=arguments.port, debug=arguments.debug, logdir=arguments.logdir)

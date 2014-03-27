@@ -35,6 +35,10 @@ class TestCaseMixin(object):
     def directory(self):
         pass
 
+    @abc.abstractproperty
+    def test_name(self):
+        pass
+
 
     def test_got_expected_callbacks(self):
         net_key = self._submit_net()
@@ -175,6 +179,7 @@ class TestCaseMixin(object):
                 self._devserver_path,
                 '--max-run-time', str(self._max_wait_time),
                 '--port', str(self.api_port),
+                '--logdir', str(self._logdir),
             ],
             close_fds=True)
         self._wait_for_devserver()
@@ -203,9 +208,16 @@ class TestCaseMixin(object):
 
     @property
     def _devserver_path(self):
-        return os.path.join(os.path.dirname(__file__),
-                '..', '..', '..', '..',
-                'devserver')
+        return os.path.join(self._repository_root_path, 'devserver')
+
+    @property
+    def _logdir(self):
+        return os.path.join(self._repository_root_path, 'logs', self.test_name)
+
+    @property
+    def _repository_root_path(self):
+        return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                '..', '..', '..', '..'))
 
     @property
     def _max_wait_time(self):
