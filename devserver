@@ -131,5 +131,8 @@ if __name__ == '__main__':
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(arguments.max_run_time)
 
+    os.environ.setdefault('PTERO_CONFIG_PATH',
+            os.path.join(os.path.dirname(__file__), 'config'))
+
     main(port=arguments.port, debug=arguments.debug, logdir=arguments.logdir,
             cover=arguments.cover)
