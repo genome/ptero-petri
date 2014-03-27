@@ -1,11 +1,10 @@
-from . import exit_codes
-from .configuration import defaults
-from .configuration.commands import determine_command
-from .configuration.inject.initialize import initialize_injector
-from .configuration.parser import parse_arguments
-from .configuration.settings.load import load_settings
-from .util import signal_handlers
-from .util.exit import exit_process
+from ptero_petri.implementation import exit_codes
+from ptero_petri.implementation.configuration import defaults
+from ptero_petri.implementation.configuration.commands import determine_command
+from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
+from ptero_petri.implementation.configuration.parser import parse_arguments
+from ptero_petri.implementation.configuration.settings.load import load_settings
+from ptero_petri.implementation.util import signal_handlers
 import logging.config
 import pika
 import sys
@@ -60,7 +59,7 @@ def naked_main():
         LOG.exception('Command execution failed')
         return exit_codes.EXECUTE_FAILURE
 
-    exit_process(exit_code)
+    return exit_code
 
 
 if __name__ == '__main__':

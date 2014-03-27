@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('--port', type=int)
     parser.add_argument('--debug', action='store_true', default=False)
     parser.add_argument('--logdir')
+    parser.add_argument('--cover', action='store_true', default=False)
 
     return parser.parse_args()
 
@@ -29,9 +30,14 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
-def _setup_rabbitmq(logdir):
-    p = _subprocess_with_logs(logdir, 'configure-rabbitmq', ['ptero',
-        'configure-rabbitmq'])
+def _setup_rabbitmq(logdir, cover):
+    if cover:
+        command_line = ['coverage', 'run', 'ptero_petri/implementation/main.py',
+                'configure-rabbitmq']
+    else:
+        command_line = ['ptero', 'configure-rabbitmq']
+
+    p = _subprocess_with_logs(logdir, 'configure-rabbitmq', command_line)
     p.wait()
 
 
@@ -44,11 +50,15 @@ def _purge_redis():
     conn.flushall()
 
 
-def _start_api_server(port, debug, logdir):
+def _start_api_server(port, debug, logdir, cover):
     env = os.environ.data
     env['PYTHONPATH'] = os.path.dirname(__file__)
 
-    command_line = ['python', _api_webserver_path()]
+    if cover:
+        command_line = ['coverage', 'run', _api_webserver_path()]
+    else:
+        command_line = ['python', _api_webserver_path()]
+
     if port is not None:
         command_line.extend(['--port', str(port)])
 
@@ -59,9 +69,14 @@ def _start_api_server(port, debug, logdir):
             command_line, env=env)
 
 
-def _start_petri_worker(logdir):
-    return _subprocess_with_logs(logdir, 'orchestrator',
-            ['ptero', 'orchestrator'])
+def _start_petri_worker(logdir, cover):
+    if cover:
+        command_line = ['coverage', 'run', 'ptero_petri/implementation/main.py',
+                'orchestrator']
+    else:
+        command_line = ['ptero', 'orchestrator']
+
+    return _subprocess_with_logs(logdir, 'orchestrator', command_line)
 
 
 def _ptero_config_path():
@@ -92,14 +107,15 @@ def mkdir_p(path):
             raise
 
 
-def main(port, debug, logdir):
+def main(port, debug, logdir, cover):
     os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
-    _setup_rabbitmq(logdir)
+    _setup_rabbitmq(logdir, cover=cover)
     _purge_rabbitmq()
     _purge_redis()
 
-    api_server = _start_api_server(port=port, debug=debug, logdir=logdir)
-    petri_worker = _start_petri_worker(logdir)
+    api_server = _start_api_server(port=port, debug=debug, logdir=logdir,
+            cover=cover)
+    petri_worker = _start_petri_worker(logdir, cover=cover)
     api_server.wait()
     petri_worker.wait()
 
@@ -114,4 +130,8 @@ if __name__ == '__main__':
         signal.signal(signal.SIGALRM, handler)
         signal.alarm(arguments.max_run_time)
 
-    main(port=arguments.port, debug=arguments.debug, logdir=arguments.logdir)
+    os.environ.setdefault('PTERO_CONFIG_PATH',
+            os.path.join(os.path.dirname(__file__), 'config'))
+
+    main(port=arguments.port, debug=arguments.debug, logdir=arguments.logdir,
+            cover=arguments.cover)
