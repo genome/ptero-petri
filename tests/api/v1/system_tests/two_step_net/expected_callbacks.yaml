@@ -1,0 +1,6 @@
+step_one:
+    count: 1
+step_two:
+    count: 1
+    depends:
+        - step_one
