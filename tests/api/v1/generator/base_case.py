@@ -175,15 +175,17 @@ class TestCaseMixin(object):
 
 
     def _start_devserver(self):
-        self._devserver = subprocess.Popen([
+        cmd = [
                 self._devserver_path,
                 '--max-run-time', str(self._max_wait_time),
                 '--port', str(self.api_port),
                 '--logdir', str(self._logdir),
-                '--debug',
                 '--cover',
-            ],
-            close_fds=True)
+        ]
+        if int(os.environ.get('PTERO_TEST_WEBSERVER_DEBUG', 0)) == 1:
+            cmd.append('--debug')
+
+        self._devserver = subprocess.Popen(cmd, close_fds=True)
         self._wait_for_devserver()
 
     def _wait_for_devserver(self):
