@@ -34,4 +34,4 @@ def _create_test_case(test_case_directory, test_case_name):
 
 
 def _attach_test_case(target_module, test_case):
-    setattr(target_module, test_case.__class__.__name__, test_case)
+    setattr(target_module, test_case.__name__, test_case)
