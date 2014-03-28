@@ -180,6 +180,7 @@ class TestCaseMixin(object):
                 '--max-run-time', str(self._max_wait_time),
                 '--port', str(self.api_port),
                 '--logdir', str(self._logdir),
+                '--debug',
                 '--cover',
             ],
             close_fds=True)
