@@ -1,0 +1,20 @@
+{
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "outputs": ["middle"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('step_one') }}
+            }
+        },
+        {
+            "inputs": ["middle"],
+            "outputs": ["end"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('step_two') }}
+            }
+        }
+    ]
+}
