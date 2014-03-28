@@ -9,11 +9,11 @@ class Translator(object):
         self.place_to_future_place = dict()
 
     def get_places(self):
-        return set(*itertools.chain(
-            itertools.chain(
-                transition_dict.get('inputs', []),
-                transition_dict.get('outputs', []))
-            for transition_dict in self.net_data.get('transitions', [])))
+        result = set()
+        for transition_dict in self.net_data.get('transitions', []):
+            for name in ['inputs', 'outputs']:
+                result.update(set(transition_dict.get(name, [])))
+        return result
 
     def get_transitions(self):
         return self.net_data.get('transitions', [])
