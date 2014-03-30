@@ -34,6 +34,7 @@ class Translator(object):
             for output_place_name in transition_dict.get('outputs', []):
                 ft.add_arc_out(self.place_to_future_place[output_place_name])
 
+    @property
     def future_net(self):
         future_net = FutureNet()
 
@@ -41,6 +42,16 @@ class Translator(object):
         self.attach_transitions(future_net)
 
         return future_net
+
+    @property
+    def constants(self):
+        return {
+            'entry_places': self.net_data.get('entry_places', []),
+        }
+
+    @property
+    def variables(self):
+        return {}
 
 
 def get_action(transition_dict):
