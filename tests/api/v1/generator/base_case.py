@@ -41,8 +41,8 @@ class TestCaseMixin(object):
 
 
     def test_got_expected_callbacks(self):
-        net_key = self._submit_net()
-        self._create_start_token(net_key)
+        start_link = self._submit_net()
+        self._create_start_token(start_link)
         self._wait()
         self._verify_expected_callbacks()
 
@@ -64,21 +64,18 @@ class TestCaseMixin(object):
         response = _retry(requests.post, self._submit_url, self._net_body,
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
-        return response.json()['net_key']
+        json = response.json()
+        return json['entry_links']['start']
 
     @property
     def _submit_url(self):
         return 'http://localhost:%d/v1/nets' % self.api_port
 
 
-    def _create_start_token(self, net_key):
-        response = _retry(requests.post, self._start_place_url(net_key),
+    def _create_start_token(self, start_link):
+        response = _retry(requests.post, start_link,
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
-
-    def _start_place_url(self, net_key):
-        return 'http://localhost:%d/v1/nets/%s/places/start/tokens' % (
-                self.api_port, net_key)
 
     def _wait(self):
         done = False

@@ -19,11 +19,10 @@ class Backend(object):
                 translator.constants)
         return stored_net
 
-    def create_token(self, net_key, place_name):
+    def create_token(self, net_key, place_idx):
         conn = redis.Redis()
 
         net = Net(connection=conn, key=net_key)
-        place_idx = net.named_place_indexes[place_name]
         color_group = net.add_color_group(1)
 
         message = CreateTokenMessage(net_key=net_key, place_idx=place_idx,
