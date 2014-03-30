@@ -2,6 +2,7 @@ import abc
 import collections
 import errno
 import jinja2
+import json
 import os
 import requests
 import signal
@@ -19,6 +20,8 @@ _TERMINATE_WAIT_TIME = 0.05
 _MAX_RETRIES = 5
 _RETRY_DELAY = 0.1
 
+def validate_json(text):
+    data = json.loads(text)
 
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
@@ -127,6 +130,7 @@ class TestCaseMixin(object):
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
             body = template.render(callback_url=self._callback_url)
+            validate_json(body)
         return body
 
     def _callback_url(self, callback_name, request_name=None, **request_data):
@@ -258,4 +262,6 @@ def _retry(func, *args, **kwargs):
             return func(*args, **kwargs)
         except:
             time.sleep(_RETRY_DELAY)
-    raise RuntimeError('Failed a bunch of times!')
+    error_msg = "Failed (%s) with args (%s) and kwargs (%s) %d times" % (
+            func.__name__, args, kwargs, _MAX_RETRIES)
+    raise RuntimeError(error_msg)
