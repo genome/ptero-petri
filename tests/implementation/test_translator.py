@@ -7,7 +7,7 @@ class TestTranslator(TestCase):
     def test_null_net(self):
         net_data = { }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(0, len(future_net.transitions))
@@ -17,7 +17,7 @@ class TestTranslator(TestCase):
             'transitions': [ { } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))
@@ -32,7 +32,7 @@ class TestTranslator(TestCase):
             } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(2, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))
@@ -52,7 +52,7 @@ class TestTranslator(TestCase):
             } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))
