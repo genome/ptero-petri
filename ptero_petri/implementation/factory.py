@@ -1,4 +1,5 @@
 from . import backend
+import redis
 
 __all__ = ['Factory']
 
@@ -9,7 +10,7 @@ class Factory(object):
 
     def create_backend(self):
         self._initialize()
-        return backend.Backend()
+        return backend.Backend(redis_connection=redis.Redis())
 
     def purge(self):
         self._initialize()

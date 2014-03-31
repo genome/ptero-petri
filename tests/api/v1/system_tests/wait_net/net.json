@@ -1,0 +1,25 @@
+{
+    "entry_places": ["start"],
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "outputs": ["wait"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('step_one', response_name='foo') }},
+                "response_places": {
+                    "foo": "go"
+                }
+            }
+        },
+        {
+            "inputs": ["wait", "go"],
+            "outputs": ["end"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('step_two') }}
+            }
+        }
+    ]
+}
+

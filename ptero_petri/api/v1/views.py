@@ -14,8 +14,14 @@ class TokenListView(Resource):
             raise
         return {'color': color}, 201
 
-class TokenView(Resource):
-    pass
+    def put(self, net_key, place_idx):
+        color_group_idx = int(request.args['color_group'])
+        color = int(request.args['color'])
+
+        g.backend.put_token(net_key, place_idx, color_group_idx, color)
+
+        return {}, 201
+
 
 class NetListView(Resource):
     def post(self):

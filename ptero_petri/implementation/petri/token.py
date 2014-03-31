@@ -23,3 +23,12 @@ class Token(rom.Object):
     @property
     def net(self):
         return rom.get_object(self.connection, self.net_key)
+
+    @property
+    def as_dict(self):
+        return {
+                'color': self.color.value,
+                'color_group': self.color_group_idx.value,
+                'parent_color': self.color_group.parent_color,
+                'parent_color_group': self.color_group.parent_color_group_idx,
+        }
