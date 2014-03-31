@@ -76,7 +76,9 @@ class Builder(object):
 
         if future_transition.action is not None:
             stored_transition.set_action(future_transition.action.cls,
-                    convert_action_args(future_transition.action.args,
+                    args=future_transition.action.args,
+                    response_places=convert_response_places(
+                        future_transition.action.response_places,
                         future_places))
 
 
@@ -108,13 +110,9 @@ def _gather_nodes_recursive(future_net, future_places, future_transitions):
         _gather_nodes_recursive(subnet, future_places, future_transitions)
 
 
-def convert_action_args(orig_args, substitutions):
-    args = {}
-    for name, value in orig_args.iteritems():
-        try:
-            args[name] = substitutions.get(value, value)
-        except TypeError:
-            # value is unhashable type
-            args[name] = value
+def convert_response_places(orig, substitutions):
+    result = {}
+    for name, value in orig.iteritems():
+        result[name] = substitutions[value]
 
-    return args
+    return result

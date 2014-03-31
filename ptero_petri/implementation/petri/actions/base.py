@@ -6,6 +6,8 @@ class ActionBase(rom.Object):
 
     args = rom.Property(rom.Hash, value_encoder=rom.json_enc,
             value_decoder=rom.json_dec)
+    response_places = rom.Property(rom.Hash, value_encoder=int,
+            value_decoder=int)
 
     @property
     def name(self):

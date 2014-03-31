@@ -27,7 +27,7 @@ class Translator(object):
     def attach_transitions(self, future_net):
         for transition_dict in self.get_transitions():
             ft = future_net.add_basic_transition(
-                    action=get_action(transition_dict))
+                    action=self.get_action(transition_dict))
 
             for input_place_name in transition_dict.get('inputs', []):
                 ft.add_arc_in(self.place_to_future_place[input_place_name])
@@ -53,10 +53,17 @@ class Translator(object):
         return {}
 
 
-def get_action(transition_dict):
-    if 'action' in transition_dict:
-        action_dict = transition_dict['action']
-        action_type = action_dict.pop('type')
-        return FutureAction(cls=NotifyAction, **action_dict)
-    else:
-        return None
+    def get_action(self, transition_dict):
+        if 'action' in transition_dict:
+            action_dict = transition_dict['action']
+            response_places = self.convert_response_places(
+                    action_dict.pop('response_places', {}))
+            action_type = action_dict.pop('type')
+            return FutureAction(cls=NotifyAction, args=action_dict,
+                    response_places=response_places)
+        else:
+            return None
+
+    def convert_response_places(self, response_places):
+        return {k: self.place_to_future_place[v]
+                for k,v in response_places.iteritems()}

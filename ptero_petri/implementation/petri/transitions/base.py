@@ -94,5 +94,6 @@ class TransitionBase(rom.Object):
                 key=self.active_tokens_key(color_descriptor))
 
 
-    def set_action(self, cls, args=None):
-        return cls.create(self.connection, self.action_key, args=args)
+    def set_action(self, cls, args=None, response_places=None):
+        return cls.create(self.connection, self.action_key, args=args,
+                response_places=response_places)
