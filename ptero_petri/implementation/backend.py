@@ -17,7 +17,10 @@ class Backend(object):
         builder    = Builder(conn)
         stored_net = builder.store(translator.future_net, translator.variables,
                 translator.constants)
-        return stored_net
+        return {
+                'net_key':stored_net.key,
+                'entry_place_info': stored_net.named_place_indexes.value
+        }
 
     def create_token(self, net_key, place_idx):
         conn = redis.Redis()

@@ -19,11 +19,12 @@ class TokenView(Resource):
 
 class NetListView(Resource):
     def post(self):
-        net = g.backend.create_net(request.json)
+        net_info = g.backend.create_net(request.json)
+
         entry_links = {}
-        for place_name in net.constant('entry_places'):
+        for place_name, place_idx in net_info['entry_place_info'].items():
             entry_links[place_name] = url_for('token-list',
-                    net_key=net.key,
-                    place_idx=net.named_place_indexes[place_name],
+                    net_key=net_info['net_key'],
+                    place_idx=place_idx,
                     _external=True)
-        return {'net_key': net.key, 'entry_links': entry_links}, 201
+        return {'net_key': net_info['net_key'], 'entry_links': entry_links}, 201
