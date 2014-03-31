@@ -23,4 +23,6 @@ def _retry(func, *args, **kwargs):
             return func(*args, **kwargs)
         except:
             time.sleep(_RETRY_DELAY)
-    raise RuntimeError('Failed a bunch of times!')
+    error_msg = "Failed (%s) with args (%s) and kwargs (%s) %d times" % (
+            func.__name__, args, kwargs, _MAX_RETRIES)
+    raise RuntimeError(error_msg)
