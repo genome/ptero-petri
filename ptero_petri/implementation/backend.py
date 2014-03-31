@@ -13,17 +13,19 @@ ROUTING_KEY = 'petri.place.create_token'
 class Backend(object):
     def create_net(self, net_data):
         translator = Translator(net_data)
-        future_net = translator.future_net()
         conn       = redis.Redis()
         builder    = Builder(conn)
-        stored_net = builder.store(future_net, {}, {})
-        return stored_net.key
+        stored_net = builder.store(translator.future_net, translator.variables,
+                translator.constants)
+        return {
+                'net_key':stored_net.key,
+                'entry_place_info': stored_net.entry_places.value
+        }
 
-    def create_token(self, net_key, place_name):
+    def create_token(self, net_key, place_idx):
         conn = redis.Redis()
 
         net = Net(connection=conn, key=net_key)
-        place_idx = net.named_place_indexes[place_name]
         color_group = net.add_color_group(1)
 
         message = CreateTokenMessage(net_key=net_key, place_idx=place_idx,

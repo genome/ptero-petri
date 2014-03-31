@@ -2,6 +2,7 @@ import abc
 import collections
 import errno
 import jinja2
+import json
 import os
 import requests
 import signal
@@ -19,6 +20,8 @@ _TERMINATE_WAIT_TIME = 0.05
 _MAX_RETRIES = 5
 _RETRY_DELAY = 0.1
 
+def validate_json(text):
+    data = json.loads(text)
 
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
@@ -41,8 +44,8 @@ class TestCaseMixin(object):
 
 
     def test_got_expected_callbacks(self):
-        net_key = self._submit_net()
-        self._create_start_token(net_key)
+        start_link = self._submit_net()
+        self._create_start_token(start_link)
         self._wait()
         self._verify_expected_callbacks()
 
@@ -64,21 +67,18 @@ class TestCaseMixin(object):
         response = _retry(requests.post, self._submit_url, self._net_body,
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
-        return response.json()['net_key']
+        json = response.json()
+        return json['entry_links']['start']
 
     @property
     def _submit_url(self):
         return 'http://localhost:%d/v1/nets' % self.api_port
 
 
-    def _create_start_token(self, net_key):
-        response = _retry(requests.post, self._start_place_url(net_key),
+    def _create_start_token(self, start_link):
+        response = _retry(requests.post, start_link,
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
-
-    def _start_place_url(self, net_key):
-        return 'http://localhost:%d/v1/nets/%s/places/start/tokens' % (
-                self.api_port, net_key)
 
     def _wait(self):
         done = False
@@ -130,6 +130,7 @@ class TestCaseMixin(object):
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
             body = template.render(callback_url=self._callback_url)
+            validate_json(body)
         return body
 
     def _callback_url(self, callback_name, request_name=None, **request_data):
@@ -261,4 +262,6 @@ def _retry(func, *args, **kwargs):
             return func(*args, **kwargs)
         except:
             time.sleep(_RETRY_DELAY)
-    raise RuntimeError('Failed a bunch of times!')
+    error_msg = "Failed (%s) with args (%s) and kwargs (%s) %d times" % (
+            func.__name__, args, kwargs, _MAX_RETRIES)
+    raise RuntimeError(error_msg)

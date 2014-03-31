@@ -1,4 +1,5 @@
 {
+    "entry_places": ["start"],
     "transitions": [
         {
             "inputs": ["start"],

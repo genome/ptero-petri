@@ -21,7 +21,8 @@ class Translator(object):
     def attach_places(self, future_net):
         for place_name in self.get_places():
             self.place_to_future_place[place_name] = \
-                    future_net.add_place(place_name)
+                    future_net.add_place(name=place_name,
+                            is_entry=place_name in self.net_data['entry_places'])
 
     def attach_transitions(self, future_net):
         for transition_dict in self.get_transitions():
@@ -34,6 +35,7 @@ class Translator(object):
             for output_place_name in transition_dict.get('outputs', []):
                 ft.add_arc_out(self.place_to_future_place[output_place_name])
 
+    @property
     def future_net(self):
         future_net = FutureNet()
 
@@ -41,6 +43,14 @@ class Translator(object):
         self.attach_transitions(future_net)
 
         return future_net
+
+    @property
+    def constants(self):
+        return {}
+
+    @property
+    def variables(self):
+        return {}
 
 
 def get_action(transition_dict):

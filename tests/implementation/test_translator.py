@@ -7,17 +7,18 @@ class TestTranslator(TestCase):
     def test_null_net(self):
         net_data = { }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(0, len(future_net.transitions))
 
     def test_null_transition(self):
         net_data = {
+            'entry_places': [],
             'transitions': [ { } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))
@@ -26,13 +27,14 @@ class TestTranslator(TestCase):
 
     def test_simple_transition(self):
         net_data = {
+            'entry_places': ['start'],
             'transitions': [ {
                 'inputs': ['start'],
                 'outputs': ['stop'],
             } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(2, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))
@@ -40,10 +42,13 @@ class TestTranslator(TestCase):
         self.assertIsNone(t.action)
         self.assertEqual('start', get_unique_arc_in(t).name)
         self.assertEqual('stop', get_unique_arc_out(t).name)
+        self.assertTrue(get_unique_arc_in(t).is_entry)
+        self.assertFalse(get_unique_arc_out(t).is_entry)
 
     def test_transition_action(self):
         test_url = 'foobar'
         net_data = {
+            'entry_places': [],
             'transitions': [ {
                 'action': {
                     'type': 'notify',
@@ -52,7 +57,7 @@ class TestTranslator(TestCase):
             } ]
         }
         translator = Translator(net_data)
-        future_net = translator.future_net()
+        future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
         self.assertEqual(0, len(future_net.subnets))
         self.assertEqual(1, len(future_net.transitions))

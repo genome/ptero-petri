@@ -16,8 +16,8 @@ class FutureNet(object):
     def add_basic_transition(self, name='', action=None):
         return self._add_transition(FutureBasicTransition, name, action)
 
-    def add_place(self, name=''):
-        place = FuturePlace(name=name)
+    def add_place(self, *args, **kwargs):
+        place = FuturePlace(*args, **kwargs)
         self.places.add(place)
         return place
 
@@ -78,6 +78,10 @@ class FutureNode(object):
 
 
 class FuturePlace(FutureNode):
+    def __init__(self, is_entry=False, *args, **kwargs):
+        FutureNode.__init__(self, *args, **kwargs)
+        self.is_entry = is_entry
+
     def add_arc_in(self, transition):
         assert isinstance(transition, FutureTransition)
         FutureNode.add_arc_in(self, transition)

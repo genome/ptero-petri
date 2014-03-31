@@ -40,7 +40,7 @@ class Net(rom.Object):
 
     _put_token_script = rom.Script(lua.load('put_token'))
 
-    named_place_indexes = rom.Property(rom.Hash, value_encoder=int,
+    entry_places = rom.Property(rom.Hash, value_encoder=int,
             value_decoder=int)
 
     def additional_associated_iterkeys(self):
