@@ -19,7 +19,7 @@ class Backend(object):
                 translator.constants)
         return {
                 'net_key':stored_net.key,
-                'entry_place_info': stored_net.named_place_indexes.value
+                'entry_place_info': stored_net.entry_places.value
         }
 
     def create_token(self, net_key, place_idx):
