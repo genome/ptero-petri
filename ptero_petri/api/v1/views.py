@@ -19,7 +19,10 @@ class TokenView(Resource):
 
 class NetListView(Resource):
     def post(self):
-        net_info = g.backend.create_net(request.json)
+        net_data = request.json
+        net_data['entry_places'] = set(net_data['entry_places'])
+
+        net_info = g.backend.create_net(net_data)
 
         entry_links = {}
         for place_name, place_idx in net_info['entry_place_info'].items():
