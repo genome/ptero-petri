@@ -28,21 +28,25 @@ app = Flask(__name__)
 
 @app.route('/<path:callback_name>', methods=['PUT'])
 def log_request(callback_name):
-    print callback_name
-    sys.stdout.flush()
+    try:
+        print callback_name
+        sys.stdout.flush()
 
-    sys.stderr.write("URL: %s\n" % request.url)
-    sys.stderr.write("  HEADERS:\n")
-    for k, v in request.headers.items():
-        sys.stderr.write("    %s: %s\n" % (k, v))
-    sys.stderr.write("  DATA:\n    '%s'\n" % request.data)
-    sys.stderr.write("  ARGS: %s\n" % request.args)
-    sys.stderr.write("  JSON:\n    %s\n" % request.get_json())
+        sys.stderr.write("URL: %s\n" % request.url)
+        sys.stderr.write("  HEADERS:\n")
+        for k, v in request.headers.items():
+            sys.stderr.write("    %s: %s\n" % (k, v))
+        sys.stderr.write("  DATA:\n    '%s'\n" % request.data)
+        sys.stderr.write("  ARGS: %s\n" % request.args)
+        sys.stderr.write("  JSON:\n    %s\n" % request.get_json())
 
-    decrement_callback_count()
-    send_request(request.args)
+        decrement_callback_count()
+        send_request(request.args)
 
-    return ''
+        return ''
+    except:
+        sys.stderr.write(traceback.format_exc())
+        raise
 
 
 def decrement_callback_count():
