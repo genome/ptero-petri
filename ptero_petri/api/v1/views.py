@@ -14,7 +14,8 @@ class TokenListView(Resource):
         color_group_idx = int(request.args['color_group'])
         color = int(request.args['color'])
 
-        g.backend.put_token(net_key, place_idx, color_group_idx, color)
+        g.backend.put_token(net_key, place_idx, color_group_idx, color,
+                data=request.json)
 
         return {}, 201
 

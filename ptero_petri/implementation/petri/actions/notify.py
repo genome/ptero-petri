@@ -28,10 +28,15 @@ class NotifyAction(BasicActionBase):
                     place_idx=place_idx, color=token.color.value,
                     color_group=token.color_group_idx.value)
 
-        return json.dumps({
+        data = {
             'token': token.as_dict,
             'response_links': response_links,
-        })
+        }
+        if 'requested_data' in self.args:
+            data['requested_data'] = self.args['requested_data']
+
+        return json.dumps(data)
+
 
 def _url(net_key, place_idx, color, color_group):
     host = os.environ.get('PETRI_HOST', 'localhost')

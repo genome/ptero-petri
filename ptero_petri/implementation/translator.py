@@ -1,6 +1,15 @@
+from .petri.actions.join import JoinAction
 from .petri.actions.notify import NotifyAction
+from .petri.actions.split import SplitAction
 from .petri.future import FutureAction, FutureNet
 import itertools
+
+
+_ACTION_CLASSES = {
+    'notify': NotifyAction,
+    'split': SplitAction,
+    'join': JoinAction,
+}
 
 
 class Translator(object):
@@ -26,8 +35,16 @@ class Translator(object):
 
     def attach_transitions(self, future_net):
         for transition_dict in self.get_transitions():
-            ft = future_net.add_basic_transition(
-                    action=self.get_action(transition_dict))
+            transition_type = transition_dict.get('type', 'basic')
+            if transition_type == 'basic':
+                ft = future_net.add_basic_transition(
+                        action=self.get_action(transition_dict))
+            elif transition_type == 'barrier':
+                ft = future_net.add_barrier_transition(
+                        action=self.get_action(transition_dict))
+            else:
+                # XXX Should be an api error
+                raise RuntimeError('Unknown transition type')
 
             for input_place_name in transition_dict.get('inputs', []):
                 ft.add_arc_in(self.place_to_future_place[input_place_name])
@@ -59,7 +76,10 @@ class Translator(object):
             response_places = self.convert_response_places(
                     action_dict.pop('response_places', {}))
             action_type = action_dict.pop('type')
-            return FutureAction(cls=NotifyAction, args=action_dict,
+            action_class = _ACTION_CLASSES[action_type]
+            if action_class is None:
+                return None
+            return FutureAction(cls=action_class, args=action_dict,
                     response_places=response_places)
         else:
             return None

@@ -1,0 +1,8 @@
+get_split_size:
+    count: 1
+notify/middle:
+    count: 3
+    depends: [get_split_size]
+notify/final:
+    count: 1
+    depends: [notify/middle]
