@@ -8,6 +8,7 @@ import requests
 import signal
 import simplejson
 import subprocess
+import sys
 import time
 import urllib
 import urlparse
@@ -17,8 +18,8 @@ import yaml
 _POLLING_DELAY = 0.05
 _TERMINATE_WAIT_TIME = 0.05
 
-_MAX_RETRIES = 5
-_RETRY_DELAY = 0.1
+_MAX_RETRIES = 10
+_RETRY_DELAY = 0.15
 
 def validate_json(text):
     data = json.loads(text)
@@ -46,7 +47,7 @@ class TestCaseMixin(object):
     def test_got_expected_callbacks(self):
         start_link = self._submit_net()
         self._create_start_token(start_link)
-        self._wait()
+        self._wait_for_callback_output()
         self._verify_expected_callbacks()
 
 
@@ -80,14 +81,28 @@ class TestCaseMixin(object):
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
 
-    def _wait(self):
+    def _wait_for_callback_output(self):
         done = False
         while not done:
             stuff = self._callback_webserver.poll()
             if stuff is not None:
                 done = True
+                stdout, stderr = self._callback_webserver.communicate()
+                self._callback_stdout = stdout
+                self._callback_stderr = stderr
+
+                self._print_callback_server_output()
             if not done:
                 time.sleep(_POLLING_DELAY)
+
+    def _print_callback_server_output(self):
+            sys.stdout.write('--- Begin callback server STDOUT ---\n')
+            sys.stdout.write(self._callback_stdout)
+            sys.stdout.write('--- End callback server STDOUT ---\n')
+
+            sys.stdout.write('--- Begin callback server STDERR ---\n')
+            sys.stdout.write(self._callback_stderr)
+            sys.stdout.write('--- End callback server STDERR ---\n')
 
     def _verify_expected_callbacks(self):
         self._verify_callback_order(self.expected_callbacks,
@@ -120,8 +135,7 @@ class TestCaseMixin(object):
     @property
     def actual_callbacks(self):
         if self._actual_callbacks is None:
-            stdout, stderr = self._callback_webserver.communicate()
-            self._actual_callbacks = stdout.splitlines()
+            self._actual_callbacks = self._callback_stdout.splitlines()
         return self._actual_callbacks
 
     @property
