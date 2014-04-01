@@ -3,6 +3,11 @@ from .petri.future import FutureAction, FutureNet
 import itertools
 
 
+_ACTION_CLASSES = {
+    'notify': NotifyAction,
+}
+
+
 class Translator(object):
     def __init__(self, net_data):
         self.net_data = net_data
@@ -59,7 +64,8 @@ class Translator(object):
             response_places = self.convert_response_places(
                     action_dict.pop('response_places', {}))
             action_type = action_dict.pop('type')
-            return FutureAction(cls=NotifyAction, args=action_dict,
+            action_class = _ACTION_CLASSES[action_type]
+            return FutureAction(cls=action_class, args=action_dict,
                     response_places=response_places)
         else:
             return None
