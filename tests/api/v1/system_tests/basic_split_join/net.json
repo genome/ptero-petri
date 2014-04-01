@@ -1,0 +1,56 @@
+{
+    "entry_places": ["start"],
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "outputs": ["wait_for_split_size"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url("get_split_size",
+                            response_name="send_data",
+                            split_size=3) }},
+                "requested_data": ["split_size"],
+                "response_places": {
+                    "send_data": "split_size_place"
+                }
+            }
+        },
+
+        {
+            "inputs": ["wait_for_split_size", "split_size_place"],
+            "outputs": ["split_in"]
+        },
+        {
+            "inputs": ["split_in"],
+            "outputs": ["split_out"],
+            "action": {
+                "type": "split"
+            }
+        },
+
+        {
+            "inputs": ["split_out"],
+            "outputs": ["join_in"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('notify/middle') }}
+            }
+        },
+
+        {
+            "inputs": ["join_in"],
+            "outputs": ["join_out"],
+            "type": "barrier",
+            "action": {
+                "type": "join"
+            }
+        },
+        {
+            "inputs": ["join_out"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('notify/final') }}
+            }
+        }
+    ]
+}
