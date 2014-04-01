@@ -18,8 +18,8 @@ import yaml
 _POLLING_DELAY = 0.05
 _TERMINATE_WAIT_TIME = 0.05
 
-_MAX_RETRIES = 5
-_RETRY_DELAY = 0.1
+_MAX_RETRIES = 10
+_RETRY_DELAY = 0.15
 
 def validate_json(text):
     data = json.loads(text)
