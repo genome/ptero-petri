@@ -29,14 +29,14 @@ app = Flask(__name__)
 @app.route('/<path:callback_name>', methods=['PUT'])
 def log_request(callback_name):
     print callback_name
-    try:
-        sys.stderr.write("URL: %s\n" % request.url)
-        sys.stderr.write("HEADERS:\n%s\n" % request.headers)
-        sys.stderr.write("ARGS: %s\n" % request.args)
-        sys.stderr.write("DATA: %s\n" % request.data)
-        sys.stderr.write("JSON: %s\n" % request.get_json())
-    except:
-        sys.stderr.write("Exeption!\n")
+
+    sys.stderr.write("URL: %s\n" % request.url)
+    sys.stderr.write("  HEADERS:\n")
+    for k, v in request.headers.items():
+        sys.stderr.write("    %s: %s\n" % (k, v))
+    sys.stderr.write("  DATA:\n    '%s'\n" % request.data)
+    sys.stderr.write("  ARGS: %s\n" % request.args)
+    sys.stderr.write("  JSON:\n    %s\n" % request.get_json())
 
     decrement_callback_count()
     send_request(request.args)
@@ -58,7 +58,7 @@ def send_request(request_args):
         del data['response_name']
         response = requests.put(url, data=simplejson.dumps(data),
                 headers={'Content-Type': 'application/json'})
-        sys.stderr.write('Callback response: %s\n' % response)
+        sys.stderr.write('  Callback response: %s\n' % response)
 
 
 def shutdown_server():
