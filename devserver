@@ -109,6 +109,7 @@ def mkdir_p(path):
 
 def main(port, debug, logdir, cover):
     os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
+    os.environ['PETRI_PORT'] = str(port)
     _setup_rabbitmq(logdir, cover=cover)
     _purge_rabbitmq()
     _purge_redis()

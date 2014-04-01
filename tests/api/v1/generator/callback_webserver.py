@@ -4,6 +4,8 @@ from flask import Flask, request
 import argparse
 import requests
 import signal
+import simplejson
+import sys
 
 
 _REMAINING_CALLBACKS_EXPECTED = None
@@ -27,9 +29,17 @@ app = Flask(__name__)
 @app.route('/<path:callback_name>', methods=['PUT'])
 def log_request(callback_name):
     print callback_name
+    try:
+        sys.stderr.write("URL: %s\n" % request.url)
+        sys.stderr.write("HEADERS:\n%s\n" % request.headers)
+        sys.stderr.write("ARGS: %s\n" % request.args)
+        sys.stderr.write("DATA: %s\n" % request.data)
+        sys.stderr.write("JSON: %s\n" % request.get_json())
+    except:
+        sys.stderr.write("Exeption!\n")
 
     decrement_callback_count()
-    send_request()
+    send_request(request.args)
 
     return ''
 
@@ -41,12 +51,14 @@ def decrement_callback_count():
         shutdown_server()
 
 
-def send_request():
-    if 'request_name' in request.args:
-        url = request.json.get('callbacks').get(request.args['request_name'])
-        data = dict(request.args)
-        del data['request_name']
-        requests.put(url, data)
+def send_request(request_args):
+    if 'response_name' in request_args:
+        url = request.get_json().get('response_links').get(request_args['response_name'])
+        data = dict(request_args)
+        del data['response_name']
+        response = requests.put(url, data=simplejson.dumps(data),
+                headers={'Content-Type': 'application/json'})
+        sys.stderr.write('Callback response: %s\n' % response)
 
 
 def shutdown_server():

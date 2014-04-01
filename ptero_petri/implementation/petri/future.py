@@ -114,6 +114,13 @@ class FutureBarrierTransition(FutureTransition):
 
 
 class FutureAction(object):
-    def __init__(self, cls=None, **kwargs):
+    def __init__(self, cls=None, args=None, response_places=None):
         self.cls = cls
-        self.args = kwargs
+
+        if args is None:
+            args = {}
+        self.args = args
+
+        if response_places is None:
+            response_places = {}
+        self.response_places = response_places
