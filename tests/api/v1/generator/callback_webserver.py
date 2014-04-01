@@ -57,7 +57,11 @@ def send_request(request_args):
         url = request.get_json().get('response_links').get(request_args['response_name'])
         data = dict(request_args)
         del data['response_name']
-        response = requests.put(url, data=simplejson.dumps(data),
+
+        request_data = {}
+        for k, v in data.iteritems():
+            request_data[k] = v[0]  # always take the first element
+        response = requests.put(url, data=simplejson.dumps(request_data),
                 headers={'Content-Type': 'application/json'})
         sys.stderr.write('  Callback response: %s\n' % response)
 
