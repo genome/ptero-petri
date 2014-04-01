@@ -29,6 +29,7 @@ app = Flask(__name__)
 @app.route('/<path:callback_name>', methods=['PUT'])
 def log_request(callback_name):
     print callback_name
+    sys.stdout.flush()
 
     sys.stderr.write("URL: %s\n" % request.url)
     sys.stderr.write("  HEADERS:\n")
