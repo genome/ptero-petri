@@ -33,12 +33,12 @@ class Backend(object):
 
         return color_group.begin
 
-    def put_token(self, net_key, place_idx, color_group_idx, color):
+    def put_token(self, net_key, place_idx, color_group_idx, color, data=None):
         self._validate_place_idx(net_key, place_idx)
         self._validate_color_in_color_group(net_key, color, color_group_idx)
 
         message = CreateTokenMessage(net_key=net_key, place_idx=place_idx,
-                color=color, color_group_idx=color_group_idx)
+                color=color, color_group_idx=color_group_idx, data=data)
 
         self._send_message(EXCHANGE, ROUTING_KEY, message.encode())
 
