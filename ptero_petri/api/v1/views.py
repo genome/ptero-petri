@@ -7,11 +7,7 @@ class NetView(Resource):
 
 class TokenListView(Resource):
     def post(self, net_key, place_idx):
-        try:
-            color = g.backend.create_token(net_key, place_idx)
-        except Exception as e:
-            traceback.print_exc()
-            raise
+        color = g.backend.create_token(net_key, place_idx)
         return {'color': color}, 201
 
     def put(self, net_key, place_idx):
