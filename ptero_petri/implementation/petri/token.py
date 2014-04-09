@@ -26,9 +26,14 @@ class Token(rom.Object):
 
     @property
     def as_dict(self):
+        color_group = self.color_group
         return {
                 'color': self.color.value,
-                'color_group': self.color_group_idx.value,
-                'parent_color': self.color_group.parent_color,
-                'parent_color_group': self.color_group.parent_color_group_idx,
+                'color_group': {
+                    'index': color_group.idx,
+                    'color_begin': color_group.begin,
+                    'color_end': color_group.end,
+                    'parent_color': color_group.parent_color,
+                    'parent_color_group_index': color_group.parent_color_group_idx,
+                },
         }
