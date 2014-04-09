@@ -7,23 +7,17 @@ class SplitAction(BasicActionBase):
     def execute(self, net, color_descriptor, active_tokens, service_interfaces):
         input_token = net.token(head(active_tokens))
 
-        num_tokens = int(input_token.data['split_size'])
+        color_group_idx = int(input_token.data['color_group_idx'])
+        color_group = net.color_group(color_group_idx)
 
-        tokens = self._create_tokens(num_tokens=num_tokens,
-                color_descriptor=color_descriptor, net=net)
+        tokens = self._create_tokens(color_group, net=net)
 
         return tokens, defer.succeed(None)
 
-    def _create_tokens(self, num_tokens, color_descriptor, net):
-        new_color_group = net.add_color_group(size=num_tokens,
-                parent_color=color_descriptor.color,
-                parent_color_group_idx=color_descriptor.group.idx)
-
+    def _create_tokens(self, color_group, net):
         tokens = []
-        for i in xrange(num_tokens):
-            color = new_color_group.begin + i
-
+        for color in xrange(color_group.begin, color_group.end):
             tokens.append(net.create_token(color=color,
-                color_group_idx=new_color_group.idx))
+                color_group_idx=color_group.idx))
 
         return tokens
