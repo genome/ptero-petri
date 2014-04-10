@@ -13,7 +13,7 @@ class NotifyAction(BasicActionBase):
         new_token = net.token(new_token_idx)
 
         _retry(requests.put, self.notify_url(),
-                data=self.request_body(new_token, net),
+                data=self.request_body(color_descriptor, net),
                 headers={'Content-Type': 'application/json'})
 
         return [new_token], defer.succeed(None)
@@ -21,16 +21,16 @@ class NotifyAction(BasicActionBase):
     def notify_url(self):
         return self.args['url']
 
-    def request_body(self, token, net):
+    def request_body(self, color_descriptor, net):
         response_links = {}
         for state_name, place_idx in self.response_places.iteritems():
             response_links[state_name] = _url(net_key=net.key,
-                    place_idx=place_idx, color=token.color.value,
-                    color_group=token.color_group_idx.value)
+                    place_idx=place_idx, color=color_descriptor.color,
+                    color_group=color_descriptor.group.idx)
 
-        color_group = token.color_group
+        color_group = color_descriptor.group
         data = {
-            'token_color': token.color.value,
+            'token_color': color_descriptor.color,
             'color_group': {
                 'index': color_group.idx,
                 'color_begin': color_group.begin,
