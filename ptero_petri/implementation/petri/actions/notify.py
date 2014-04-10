@@ -28,8 +28,16 @@ class NotifyAction(BasicActionBase):
                     place_idx=place_idx, color=token.color.value,
                     color_group=token.color_group_idx.value)
 
+        color_group = token.color_group
         data = {
-            'token': token.as_dict,
+            'token_color': token.color.value,
+            'color_group': {
+                'index': color_group.idx,
+                'color_begin': color_group.begin,
+                'color_end': color_group.end,
+                'parent_color': color_group.parent_color,
+                'parent_color_group_index': color_group.parent_color_group_idx,
+            },
             'response_links': response_links,
         }
         if 'requested_data' in self.args:
