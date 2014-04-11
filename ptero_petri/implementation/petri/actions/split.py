@@ -16,7 +16,7 @@ class SplitAction(BasicActionBase):
 
     def _create_tokens(self, color_group, net):
         tokens = []
-        for color in xrange(color_group.begin, color_group.end):
+        for color in color_group.color_iter:
             tokens.append(net.create_token(color=color,
                 color_group_idx=color_group.idx))
 
