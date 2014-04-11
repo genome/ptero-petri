@@ -5,12 +5,26 @@ from collections import namedtuple
 Color = int
 
 
-ColorGroup = namedtuple("ColorGroup", ["idx", "parent_color",
+_ColorGroupBase = namedtuple("_ColorGroupBase", ["idx", "parent_color",
         "parent_color_group_idx", "begin", "end"])
 
-ColorGroup.size = property(lambda self: self.end - self.begin)
-ColorGroup.colors = property(lambda self: range(self.begin, self.end))
-ColorGroup.color_iter = property(lambda self: xrange(self.begin, self.end))
+class ColorGroup(_ColorGroupBase):
+    @property
+    def size(self):
+        return self.end - self.begin
+
+    @property
+    def colors(self):
+        return range(self.begin, self.end)
+
+    @property
+    def color_iter(self):
+        return xrange(self.begin, self.end)
+
+    @property
+    def as_dict(self):
+        return dict(self._asdict())
+
 
 
 def color_group_enc(value):
@@ -21,4 +35,9 @@ def color_group_dec(value):
     return ColorGroup(**rom.json_dec(value))
 
 
-ColorDescriptor = namedtuple("ColorDescriptor", ["color", "group"])
+_ColorDescriptorBase = namedtuple("_ColorDescriptorBase", ["color", "group"])
+
+class ColorDescriptor(_ColorDescriptorBase):
+    @property
+    def as_dict(self):
+        return dict(self._asdict())
