@@ -1,43 +1,35 @@
-import json
 import os
 import requests
+import simplejson
 import time
 
 
 __all__ = ['send_webhook']
 
 
-def send_webhook(url, net_key, response_places, color_descriptor, data=None):
+def send_webhook(url, response_data=None, data=None):
+
     _retry(requests.put, url,
-            data=_request_body(net_key, response_places, color_descriptor,
-                additional_data=data),
+            data=_request_body(
+                response_links=_response_links(**response_data),
+                data=data),
             headers={'Content-Type': 'application/json'})
 
 
-def _request_body(net_key, response_places, color_descriptor, additional_data):
+def _response_links(net_key, response_places, color_descriptor):
     response_links = {}
     for state_name, place_idx in response_places.iteritems():
         response_links[state_name] = _url(net_key=net_key,
                 place_idx=place_idx, color=color_descriptor.color,
                 color_group_idx=color_descriptor.group.idx)
+    return response_links
 
-    color_group = color_descriptor.group
-    data = {
-        'token_color': color_descriptor.color,
-        'color_group': {
-            'index': color_group.idx,
-            'color_begin': color_group.begin,
-            'color_end': color_group.end,
-            'parent_color': color_group.parent_color,
-            'parent_color_group_index': color_group.parent_color_group_idx,
-        },
-        'response_links': response_links,
-    }
 
-    if additional_data:
-        data.update(additional_data)
+def _request_body(response_links, data):
+    body_data = dict(data)
+    body_data['response_links'] = response_links
 
-    return json.dumps(data)
+    return simplejson.dumps(body_data)
 
 
 def _url(net_key, place_idx, color, color_group_idx):

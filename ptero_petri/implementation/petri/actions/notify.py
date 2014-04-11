@@ -15,9 +15,14 @@ class NotifyAction(BasicActionBase):
                 'requested_data': self.args['requested_data']
             }
 
-        webhooks.send_webhook(self.notify_url, net_key=net.key,
-                response_places=self.response_places,
-                color_descriptor=color_descriptor, data=data)
+        webhooks.send_webhook(
+                url=self.notify_url,
+                response_data={
+                    'color_descriptor': color_descriptor,
+                    'net_key': net.key,
+                    'response_places': self.response_places,
+                },
+                data=color_descriptor.as_dict)
 
         return [new_token], defer.succeed(None)
 

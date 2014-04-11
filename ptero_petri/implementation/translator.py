@@ -1,3 +1,4 @@
+from .petri.actions.create_color_group import CreateColorGroupAction
 from .petri.actions.join import JoinAction
 from .petri.actions.notify import NotifyAction
 from .petri.actions.split import SplitAction
@@ -6,9 +7,10 @@ import itertools
 
 
 _ACTION_CLASSES = {
+    'create-color-group': CreateColorGroupAction,
+    'join': JoinAction,
     'notify': NotifyAction,
     'split': SplitAction,
-    'join': JoinAction,
 }
 
 
