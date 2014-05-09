@@ -48,7 +48,8 @@ class DotVisualizer(object):
 
     def _format_entry_points(self):
         result = ['{', 'rank=source']
-        result.extend(self.net_data.get('entry_places', []))
+        result.extend([ep.replace('-', '_')
+            for ep in self.net_data.get('entry_places', [])])
         result.append('}')
         return result
 
