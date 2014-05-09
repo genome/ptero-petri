@@ -44,7 +44,7 @@ class DotVisualizer(object):
         for transition_dict in self.net_data.get('transitions', []):
             for name in ['inputs', 'outputs']:
                 result.update(set(transition_dict.get(name, [])))
-        return list(result)
+        return [p.replace('-', '_') for p in result]
 
     def _format_entry_points(self):
         result = ['{', 'rank=source']
