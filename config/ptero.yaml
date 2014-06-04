@@ -10,18 +10,6 @@ amqp:
     heartbeat_interval: 600
 
 
-bindings:
-    ptero:
-        petri_create_token:
-            - petri.place.create_token
-
-        petri_notify_place:
-            - petri.place.notify
-
-        petri_notify_transition:
-            - petri.transition.notify
-
-
 orchestrator:
     create_token_exchange: ptero
     create_token_routing_key: petri.place.create_token

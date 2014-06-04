@@ -13,8 +13,16 @@ import time
 LOG = logging.getLogger(__name__)
 
 
-@inject(broker=interfaces.IBroker,
-        binding_config=setting('bindings'))
+BINDING_CONFIG = {
+    'ptero': {
+        'petri_create_token': ['petri.place.create_token'],
+        'petri_notify_place': ['petri.place.notify'],
+        'petri_notify_transition': ['petri.transition.notify'],
+    }
+}
+
+
+@inject(broker=interfaces.IBroker)
 class ConfigureRabbitMQCommand(CommandBase):
     injector_modules = [
         BrokerConfiguration,
@@ -48,7 +56,7 @@ class ConfigureRabbitMQCommand(CommandBase):
         queues = set()
         bindings = set()
 
-        for exchange_name, queue_bindings in self.binding_config.iteritems():
+        for exchange_name, queue_bindings in BINDING_CONFIG.iteritems():
             exchanges.add(exchange_name)
 
             for queue_name, topics in queue_bindings.iteritems():
