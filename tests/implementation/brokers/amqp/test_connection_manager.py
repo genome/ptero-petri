@@ -12,12 +12,12 @@ from ptero_petri.implementation.exit_codes import (EXECUTE_SYSTEM_FAILURE,
 
 connection_params = ConnectionParams(
         hostname=object(),
-        port=object(),
+        port_string='1112',
         virtual_host=object(),
-        retry_delay=0.01,
-        connection_attempts=3,
-        prefetch_count=1,
-        heartbeat_interval=600,
+        retry_delay_string='0.01',
+        connection_attempts_string='3',
+        prefetch_count_string='1',
+        heartbeat_interval_string='600',
 )
 
 class ConnectionManagerTests(unittest.TestCase):

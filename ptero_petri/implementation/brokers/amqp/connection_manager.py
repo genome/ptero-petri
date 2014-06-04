@@ -15,13 +15,13 @@ LOG = logging.getLogger(__name__)
 
 
 @inject(
-    hostname=setting('amqp.hostname'),
-    port=setting('amqp.port'),
-    virtual_host=setting('amqp.vhost'),
-    retry_delay=setting('amqp.retry_delay'),
-    connection_attempts=setting('amqp.connection_attempts'),
-    prefetch_count=setting('amqp.prefetch_count'),
-    heartbeat_interval=setting('amqp.heartbeat_interval'),
+    hostname=setting('PTERO_PETRI_AMQP_HOST'),
+    port_string=setting('PTERO_PETRI_AMQP_PORT'),
+    virtual_host=setting('PTERO_PETRI_AMQP_VHOST'),
+    retry_delay_string=setting('PTERO_PETRI_AMQP_RETRY_DELAY'),
+    connection_attempts_string=setting('PTERO_PETRI_AMQP_CONNECTION_ATTEMPTS'),
+    prefetch_count_string=setting('PTERO_PETRI_AMQP_PREFETCH_COUNT'),
+    heartbeat_interval_string=setting('PTERO_PETRI_AMQP_HEARTBEAT_INTERVAL'),
 )
 class ConnectionParams(object):
     @property
@@ -29,6 +29,26 @@ class ConnectionParams(object):
         return pika.ConnectionParameters(host=self.hostname, port=self.port,
                 virtual_host=self.virtual_host,
                 heartbeat_interval=self.heartbeat_interval)
+    @property
+    def port(self):
+        return int(self.port_string)
+
+    @property
+    def retry_delay(self):
+        return float(self.retry_delay_string)
+
+    @property
+    def connection_attempts(self):
+        return int(self.connection_attempts_string)
+
+    @property
+    def prefetch_count(self):
+        return int(self.prefetch_count_string)
+
+    @property
+    def heartbeat_interval(self):
+        return int(self.heartbeat_interval_string)
+
 
 DISCONNECTED = 'disconnected'
 CONNECTING = 'connecting'

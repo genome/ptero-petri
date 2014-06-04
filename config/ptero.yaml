@@ -1,15 +1,3 @@
-amqp:
-    connection_attempts: 40
-    hostname: localhost
-    port: 5672
-    api_port: 15672
-    prefetch_count: 10
-    retry_delay: 30
-    socket_timeout: 30
-    vhost: /
-    heartbeat_interval: 600
-
-
 orchestrator:
     create_token_exchange: ptero
     create_token_routing_key: petri.place.create_token
