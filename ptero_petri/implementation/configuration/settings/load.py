@@ -1,5 +1,6 @@
 from ..defaults import DEFAULT_PTERO_CONFIG_PATH
 from .cache import CacheSettings
+from .environment import EnvironmentSettings
 from .priority import PrioritySettings
 import os
 import yaml
@@ -38,7 +39,7 @@ def load_settings(command_name, parsed_arguments):
     for config_file in get_config_file_paths(command_name):
         settings.append(load_settings_file(config_file))
 
-    # environment variables?
+    settings.append(EnvironmentSettings())
 
     # cli arguments?
     #   is this only useful for logging?
