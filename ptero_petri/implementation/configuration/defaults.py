@@ -1,1 +1,0 @@
-DEFAULT_PTERO_CONFIG_PATH = '/etc/ptero'

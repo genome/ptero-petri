@@ -1,5 +1,4 @@
 from ptero_petri.implementation import exit_codes
-from ptero_petri.implementation.configuration import defaults
 from ptero_petri.implementation.configuration.commands import determine_command
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
 from ptero_petri.implementation.configuration.parser import parse_arguments

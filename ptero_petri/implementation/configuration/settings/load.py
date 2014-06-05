@@ -1,43 +1,5 @@
-from ..defaults import DEFAULT_PTERO_CONFIG_PATH
-from .cache import CacheSettings
 from .environment import EnvironmentSettings
-from .priority import PrioritySettings
-import os
-import yaml
-
-
-def get_valid_config_dirs():
-    config_path = os.environ.get('PTERO_CONFIG_PATH', DEFAULT_PTERO_CONFIG_PATH)
-    config_dirs = [os.path.expandvars(d) for d in config_path.split(':')]
-
-    return [d for d in reversed(config_dirs) if os.path.isdir(d)]
-
-
-def base_config_name(config_dir):
-    return os.path.join(config_dir, 'ptero.yaml')
-
-def command_config_name(config_dir, command_name):
-    return os.path.join(config_dir, '%s.yaml' % command_name)
-
-
-def get_config_file_paths(command_name):
-    config_dirs = get_valid_config_dirs()
-    results = []
-
-    for config_dir in config_dirs:
-        results.append(base_config_name(config_dir))
-
-    for config_dir in config_dirs:
-        results.append(command_config_name(config_dir, command_name))
-
-    return filter(os.path.isfile, results)
 
 
 def load_settings(command_name, parsed_arguments):
     return EnvironmentSettings()
-
-
-def load_settings_file(path):
-    with open(path) as f:
-        data = yaml.load(f)
-    return CacheSettings(data)
