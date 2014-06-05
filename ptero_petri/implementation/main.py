@@ -2,7 +2,6 @@ from ptero_petri.implementation import exit_codes
 from ptero_petri.implementation.configuration.commands import determine_command
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
 from ptero_petri.implementation.configuration.parser import parse_arguments
-from ptero_petri.implementation.configuration.settings import environment
 from ptero_petri.implementation.util import signal_handlers
 import logging
 import logging.config
@@ -74,11 +73,10 @@ def naked_main():
     command_class = determine_command()
     parsed_args = parse_arguments(command_class)
 
-    settings = environment.EnvironmentSettings()
 
     logging.config.dictConfig(_get_logging_configuration())
 
-    injector = initialize_injector(settings, command_class)
+    injector = initialize_injector(command_class)
 
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface

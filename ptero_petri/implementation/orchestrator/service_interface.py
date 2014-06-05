@@ -1,5 +1,4 @@
 from .. import interfaces
-from ..configuration.settings.injector import setting
 from .messages import CreateTokenMessage, NotifyPlaceMessage
 from .messages import NotifyTransitionMessage
 from injector import inject

@@ -3,7 +3,6 @@ from ..rom import get_object
 from .handler_base import Handler
 from .messages import CreateTokenMessage, NotifyPlaceMessage
 from .messages import NotifyTransitionMessage
-from ..configuration.settings.injector import setting
 from injector import inject
 
 import logging

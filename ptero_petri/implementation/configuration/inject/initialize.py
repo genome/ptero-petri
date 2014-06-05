@@ -1,17 +1,16 @@
-from .settings import InjectedSettings
 import injector
 
 
 INJECTOR = injector.Injector()
 
 
-def initialize_injector(settings, command_class=None):
+def initialize_injector(command_class=None):
     if command_class:
         args = command_class.injector_modules
     else:
         args = []
 
-    add_modules(INJECTOR, InjectedSettings(settings), *args)
+    add_modules(INJECTOR, *args)
 
     return INJECTOR
 

@@ -2,7 +2,6 @@ from . import exit_codes
 from . import interfaces
 from .command_base import CommandBase
 from .configuration.inject.broker import BrokerConfiguration
-from .configuration.settings.injector import setting
 from .util.exit import exit_process
 from injector import inject
 from twisted.internet import defer
