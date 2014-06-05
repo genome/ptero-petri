@@ -22,15 +22,38 @@ class ChannelFacade(object):
     def connect(self):
         connect_deferred = self.connection_manager.connect()
 
-        add_callback_and_default_errback(connect_deferred, self._on_connected)
-        return connect_deferred
+        ready_deferred = defer.Deferred()
+        add_callback_and_default_errback(connect_deferred, self._on_connected,
+                ready_deferred)
+        return ready_deferred
 
-    def _on_connected(self, pika_channel):
+    def _on_connected(self, pika_channel, ready_deferred):
         if self._pika_channel is None:
             self._pika_channel = pika_channel
             self._publisher_confirm_manager = PublisherConfirmManager(
                     self._pika_channel)
+
+            self._declare_queues_exchanges_and_bindings(ready_deferred)
+
+        else:
+            ready_deferred.callback(pika_channel)
+
         return pika_channel
+
+    def _declare_queues_exchanges_and_bindings(self, deferred):
+        qx_deferred = self._declare_queues_and_exchanges()
+        add_callback_and_default_errback(qx_deferred,
+                self._declare_bindings, done_deferred=deferred)
+
+    def _declare_queues_and_exchanges(self):
+        d = defer.Deferred()
+        d.callback(None)
+        return d
+
+
+    def _declare_bindings(self, qx_declare_result, done_deferred=None):
+        done_deferred.callback(self._pika_channel)
+
 
     def bind_queue(self, queue_name, exchange_name, topic, **properties):
         return self._connect_and_do('queue_bind', queue=queue_name,

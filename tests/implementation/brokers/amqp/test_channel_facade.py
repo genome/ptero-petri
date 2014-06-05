@@ -20,27 +20,15 @@ class ChannelFacadeTests(unittest.TestCase):
         self.assertIs(self.cf._publisher_confirm_manager, None)
         self.assertEqual(self.cf._last_publish_tag, 0)
 
-    def test_connect(self):
-        self.cf._on_connected = mock.Mock()
-
-        connect_deferred = self.cf.connect()
-        self.assertIs(connect_deferred, self.connect_deferred)
-        self.assertEqual(self.cf._on_connected.call_count, 0)
-
-        channel = mock.Mock()
-        connect_deferred.callback(channel)
-        self.cf._on_connected.assert_called_once_with(channel)
-
-        same_connect_deferred = self.cf.connect()
-        self.assertIs(same_connect_deferred, connect_deferred)
-
     def test_private_on_connected(self):
         fake_pcm = mock.Mock()
+        fake_ready_deferred = mock.Mock()
         with mock.patch(
                 'ptero_petri.implementation.brokers.amqp.channel_facade.PublisherConfirmManager',
                 new=fake_pcm):
             fake_pika_channel = mock.Mock()
-            self.cf._on_connected(fake_pika_channel)
+            self.cf._on_connected(fake_pika_channel,
+                    ready_deferred=fake_ready_deferred)
 
             fake_pcm.assert_called_once_with(fake_pika_channel)
             self.assertIs(self.cf._pika_channel, fake_pika_channel)
