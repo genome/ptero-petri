@@ -6,7 +6,6 @@ librabbitmq
 pika
 psutil
 python-statsd
-pyyaml
 redis
 requests
 simplejson
