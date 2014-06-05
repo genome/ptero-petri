@@ -5,7 +5,9 @@ from ptero_petri.implementation.configuration.inject.initialize import initializ
 from ptero_petri.implementation.configuration.parser import parse_arguments
 from ptero_petri.implementation.configuration.settings.load import load_settings
 from ptero_petri.implementation.util import signal_handlers
+import logging
 import logging.config
+import os
 import pika
 import sys
 import traceback
@@ -30,6 +32,44 @@ def main():
     return exit_code
 
 
+def _get_logging_configuration():
+    level = _get_logging_level()
+    return {
+        'version': 1,
+        'disable_existing_loggers': True,
+        'root': {
+            'level': level,
+            'handlers': ['console'],
+        },
+
+        'formatters': {
+            'plain': {
+                'format': '%(asctime)s %(levelname)s %(name)s %(funcName)s '
+                            '%(lineno)d: %(message)s',
+            },
+        },
+
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'plain',
+            },
+        },
+
+        'loggers': {
+            'ptero_petri': {
+                'level': level,
+            },
+            'pika': {
+                'level': 'INFO',
+            },
+        },
+    }
+
+
+def _get_logging_level():
+    return os.environ.get('PTERO_PETRI_LOG_LEVEL', 'INFO').upper()
+
 
 def naked_main():
     command_class = determine_command()
@@ -37,8 +77,7 @@ def naked_main():
 
     settings = load_settings(command_class.name, parsed_args)
 
-    logging.config.dictConfig(settings.get('logging',
-        defaults.DEFAULT_LOGGING_CONFIG))
+    logging.config.dictConfig(_get_logging_configuration())
 
     injector = initialize_injector(settings, command_class)
 
