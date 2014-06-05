@@ -12,9 +12,9 @@ import time
 class RedisConfiguration(injector.Module):
     @injector.singleton
     @injector.provides(interfaces.IStorage)
-    @injector.inject(host=setting('redis.host', None),
-            port=setting('redis.port', 6379),
-            path=setting('redis.unix_socket_path', None))
+    @injector.inject(host=setting('PTERO_PETRI_REDIS_HOST', None),
+            port=setting('PTERO_PETRI_REDIS_PORT', 6379),
+            path=setting('PTERO_PETRI_REDIS_PATH', None))
     def provide_redis(self, host, port,  path):
         if 'FLOW_REDIS_SOCKET' in os.environ:
             path = os.environ['FLOW_REDIS_SOCKET']
