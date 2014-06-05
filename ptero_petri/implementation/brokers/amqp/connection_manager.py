@@ -1,4 +1,3 @@
-from ...configuration.settings.injector import setting
 from ...exit_codes import (EXECUTE_SYSTEM_FAILURE,
         EXECUTE_ERROR,
         EXECUTE_SERVICE_UNAVAILABLE)
@@ -7,6 +6,7 @@ from ...util.exit import exit_process
 from injector import inject
 from pika.adapters import twisted_connection
 from twisted.internet import reactor, defer, protocol
+import os
 import logging
 import pika
 
@@ -14,40 +14,50 @@ import pika
 LOG = logging.getLogger(__name__)
 
 
-@inject(
-    hostname=setting('PTERO_PETRI_AMQP_HOST'),
-    port_string=setting('PTERO_PETRI_AMQP_PORT'),
-    virtual_host=setting('PTERO_PETRI_AMQP_VHOST'),
-    retry_delay_string=setting('PTERO_PETRI_AMQP_RETRY_DELAY'),
-    connection_attempts_string=setting('PTERO_PETRI_AMQP_CONNECTION_ATTEMPTS'),
-    prefetch_count_string=setting('PTERO_PETRI_AMQP_PREFETCH_COUNT'),
-    heartbeat_interval_string=setting('PTERO_PETRI_AMQP_HEARTBEAT_INTERVAL'),
-)
 class ConnectionParams(object):
+    def __init__(self, hostname=None, virtual_host=None, port=None,
+            retry_delay=None, connection_attempts=None, prefetch_count=None,
+            heartbeat_interval=None):
+        if hostname is not None:
+            self.hostname = hostname
+        else:
+            self.hostname = os.environ['PTERO_PETRI_AMQP_HOST']
+
+        if virtual_host is not None:
+            self.virtual_host = virtual_host
+        else:
+            self.virtual_host = os.environ['PTERO_PETRI_AMQP_VHOST']
+
+        if port is not None:
+            self.port = port
+        else:
+            self.port = int(os.environ['PTERO_PETRI_AMQP_PORT'])
+
+        if retry_delay is not None:
+            self.retry_delay = retry_delay
+        else:
+            self.retry_delay = float(os.environ['PTERO_PETRI_AMQP_RETRY_DELAY'])
+
+        if connection_attempts is not None:
+            self.connection_attempts = connection_attempts
+        else:
+            self.connection_attempts = int(os.environ['PTERO_PETRI_AMQP_CONNECTION_ATTEMPTS'])
+
+        if prefetch_count is not None:
+            self.prefetch_count = prefetch_count
+        else:
+            self.prefetch_count = int(os.environ['PTERO_PETRI_AMQP_PREFETCH_COUNT'])
+
+        if heartbeat_interval is not None:
+            self.heartbeat_interval = heartbeat_interval
+        else:
+            self.heartbeat_interval = int(os.environ['PTERO_PETRI_AMQP_HEARTBEAT_INTERVAL'])
+
     @property
     def pika_params(self):
         return pika.ConnectionParameters(host=self.hostname, port=self.port,
                 virtual_host=self.virtual_host,
                 heartbeat_interval=self.heartbeat_interval)
-    @property
-    def port(self):
-        return int(self.port_string)
-
-    @property
-    def retry_delay(self):
-        return float(self.retry_delay_string)
-
-    @property
-    def connection_attempts(self):
-        return int(self.connection_attempts_string)
-
-    @property
-    def prefetch_count(self):
-        return int(self.prefetch_count_string)
-
-    @property
-    def heartbeat_interval(self):
-        return int(self.heartbeat_interval_string)
 
 
 DISCONNECTED = 'disconnected'
