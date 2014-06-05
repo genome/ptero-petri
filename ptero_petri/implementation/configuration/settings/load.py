@@ -34,17 +34,7 @@ def get_config_file_paths(command_name):
 
 
 def load_settings(command_name, parsed_arguments):
-    settings = PrioritySettings()
-
-    for config_file in get_config_file_paths(command_name):
-        settings.append(load_settings_file(config_file))
-
-    settings.append(EnvironmentSettings())
-
-    # cli arguments?
-    #   is this only useful for logging?
-
-    return settings
+    return EnvironmentSettings()
 
 
 def load_settings_file(path):
