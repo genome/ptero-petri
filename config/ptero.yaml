@@ -1,17 +1,3 @@
-orchestrator:
-    create_token_exchange: ptero
-    create_token_routing_key: petri.place.create_token
-    create_token_queue: petri_create_token
-
-    notify_place_exchange: ptero
-    notify_place_routing_key: petri.place.notify
-    notify_place_queue: petri_notify_place
-
-    notify_transition_exchange: ptero
-    notify_transition_routing_key: petri.transition.notify
-    notify_transition_queue: petri_notify_transition
-
-
 redis:
     host: localhost
     port: 6379
