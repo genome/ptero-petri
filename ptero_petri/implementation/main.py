@@ -4,7 +4,6 @@ from ptero_petri.implementation.configuration.inject.initialize import initializ
 from ptero_petri.implementation.configuration.parser import parse_arguments
 from ptero_petri.implementation.util import signal_handlers
 import logging
-import logging.config
 import os
 import pika
 import sys
@@ -30,54 +29,17 @@ def main():
     return exit_code
 
 
-def _get_logging_configuration():
-    level = _get_logging_level()
-    return {
-        'version': 1,
-        'disable_existing_loggers': True,
-        'root': {
-            'level': level,
-            'handlers': ['console'],
-        },
-
-        'formatters': {
-            'plain': {
-                'format': '%(asctime)s %(levelname)s %(name)s %(funcName)s '
-                            '%(lineno)d: %(message)s',
-            },
-        },
-
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'plain',
-            },
-        },
-
-        'loggers': {
-            'ptero_petri': {
-                'level': level,
-            },
-            'pika': {
-                'level': 'INFO',
-            },
-        },
-    }
-
-
 def _get_logging_level():
     return os.environ.get('PTERO_PETRI_LOG_LEVEL', 'INFO').upper()
 
 
 def naked_main():
+    logging.basicConfig(level=_get_logging_level())
+
     command_class = determine_command()
     parsed_args = parse_arguments(command_class)
 
-
-    logging.config.dictConfig(_get_logging_configuration())
-
     injector = initialize_injector(command_class)
-
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface
     pika.connection.PRODUCT = command_class.name
