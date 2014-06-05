@@ -1,5 +1,6 @@
 from . import exit_codes
 from . import interfaces
+from .brokers.amqp import config
 from .command_base import CommandBase
 from .configuration.inject.broker import BrokerConfiguration
 from .configuration.settings.injector import setting
@@ -32,12 +33,12 @@ class ConfigureRabbitMQCommand(CommandBase):
         LOG.debug("Parsed config")
 
         deferreds = []
-        deferreds.append(self._declare_exchanges(exchanges))
-        deferreds.append(self._declare_queues(queues))
+        deferreds.append(self._declare_exchanges())
+        deferreds.append(self._declare_queues())
         dlist = defer.DeferredList(deferreds)
 
         _execute_deferred = defer.Deferred()
-        dlist.addCallback(self._declare_bindings, bindings=bindings,
+        dlist.addCallback(self._declare_bindings,
                     _execute_deferred=_execute_deferred)
         dlist.addErrback(self._exit)
 
@@ -59,47 +60,31 @@ class ConfigureRabbitMQCommand(CommandBase):
 
         return exchanges, queues, bindings
 
-    def _declare_exchanges(self, exchanges):
+
+    def _declare_exchanges(self):
         deferreds = []
-        LOG.debug("Declaring Exchange: alt")
-        deferreds.append(self.broker.channel.declare_exchange('alt'))
-
-        arguments = {'alternate-exchange': 'alt'}
-        LOG.debug("Declaring Exchange: dead")
-        deferreds.append(self.broker.channel.declare_exchange(
-            'dead', arguments=arguments))
-
-        for exchange_name in exchanges:
-            LOG.debug("Declaring Exchange: %s", exchange_name)
+        for conf in config.get_exchange_configurations():
+            LOG.debug('Declaring exchange: %s', conf)
             deferreds.append(self.broker.channel.declare_exchange(
-                exchange_name, arguments=arguments))
+                conf.name, arguments=conf.arguments))
 
         return defer.DeferredList(deferreds)
 
-    def _declare_queues(self, queues):
+    def _declare_queues(self):
         deferreds = []
-        deferreds.append(self.broker.channel.declare_queue(
-            'missing_routing_key'))
-
-        arguments = {'x-dead-letter-exchange': 'dead'}
-        for queue in queues:
-            LOG.debug("Declaring queue %s", queue)
+        for conf in config.get_queue_configurations():
+            LOG.debug('Declaring queue: %s', conf)
             deferreds.append(self.broker.channel.declare_queue(
-                queue, arguments=arguments))
-            deferreds.append(self.broker.channel.declare_queue('dead_' + queue))
+                conf.queue_name, arguments=conf.arguments))
 
         return defer.DeferredList(deferreds)
 
-    def _declare_bindings(self, _callback, bindings, _execute_deferred):
+    def _declare_bindings(self, _callback, _execute_deferred):
         deferreds = []
-        deferreds.append(self.broker.channel.bind_queue(
-            'missing_routing_key', 'alt', '#'))
-
-        for queue, exchange, topic in bindings:
-            deferreds.append(self.broker.channel.bind_queue(queue, exchange,
-                topic))
+        for conf in config.get_binding_configurations():
+            LOG.debug('Binding queue: %s', conf)
             deferreds.append(self.broker.channel.bind_queue(
-                'dead_' + queue, 'dead', topic))
+                conf.queue, conf.exchange, conf.topic))
 
         dlist = defer.DeferredList(deferreds)
         dlist.addCallback(self._wait_and_fire_deferred,
