@@ -28,10 +28,6 @@ class ConfigureRabbitMQCommand(CommandBase):
 
 
     def _execute(self, parsed_arguments):
-        exchanges, queues, bindings = self._parse_config()
-
-        LOG.debug("Parsed config")
-
         deferreds = []
         deferreds.append(self._declare_exchanges())
         deferreds.append(self._declare_queues())
