@@ -34,11 +34,24 @@ BindingConfiguration = namedtuple('BindingConfiguration', [
 
 def get_exchange_configurations():
     return [
-        ExchangeConfiguration(name=ALT_EXCHANGE_NAME, arguments={}),
-        ExchangeConfiguration(name=EXCHANGE_NAME,
-            arguments={'alternate-exchange': ALT_EXCHANGE_NAME}),
-        ExchangeConfiguration(name=DEAD_EXCHANGE_NAME,
-            arguments={'alternate-exchange': ALT_EXCHANGE_NAME}),
+        ExchangeConfiguration(name=ALT_EXCHANGE_NAME, arguments={
+            'durable': True,
+            'exchange_type': 'topic',
+        }),
+        ExchangeConfiguration(name=DEAD_EXCHANGE_NAME, arguments={
+            'arguments': {
+                'alternate-exchange': ALT_EXCHANGE_NAME,
+            },
+            'durable': True,
+            'exchange_type': 'topic',
+        }),
+        ExchangeConfiguration(name=EXCHANGE_NAME, arguments={
+            'arguments': {
+                'alternate-exchange': ALT_EXCHANGE_NAME,
+            },
+            'durable': True,
+            'exchange_type': 'topic',
+        }),
     ]
 
 
@@ -46,13 +59,17 @@ def get_queue_configurations():
     results = []
 
     for queue_name in BINDINGS.iterkeys():
-        results.append(QueueConfiguration(queue_name=queue_name,
-                arguments={'x-dead-letter-exchange': DEAD_EXCHANGE_NAME}))
+        results.append(QueueConfiguration(queue_name=queue_name, arguments={
+            'arguments': {
+                'x-dead-letter-exchange': DEAD_EXCHANGE_NAME,
+            },
+            'durable': True,
+        }))
         results.append(QueueConfiguration(queue_name=_dead_name(queue_name),
-                arguments={}))
+                arguments={'durable': True}))
 
     results.append(QueueConfiguration(queue_name='missing_routing_key',
-        arguments={}))
+        arguments={'durable': True}))
 
     return results
 

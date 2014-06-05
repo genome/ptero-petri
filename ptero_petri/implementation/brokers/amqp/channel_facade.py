@@ -1,3 +1,4 @@
+from . import config
 from injector import inject
 from twisted.internet import defer
 from .connection_manager import ConnectionManager
@@ -46,12 +47,32 @@ class ChannelFacade(object):
                 self._declare_bindings, done_deferred=deferred)
 
     def _declare_queues_and_exchanges(self):
-        d = defer.Deferred()
-        d.callback(None)
-        return d
+        deferreds = []
+        for conf in config.get_exchange_configurations():
+            LOG.debug('Declaring exchange: %s', conf)
+            deferreds.append(self._pika_channel.exchange_declare(
+                exchange=conf.name, **conf.arguments))
+
+        for conf in config.get_queue_configurations():
+            LOG.debug('Declaring queue: %s', conf)
+            deferreds.append(self._pika_channel.queue_declare(
+                queue=conf.queue_name, **conf.arguments))
+
+        return defer.DeferredList(deferreds)
 
 
     def _declare_bindings(self, qx_declare_result, done_deferred=None):
+        deferreds = []
+        for conf in config.get_binding_configurations():
+            LOG.debug('Binding queue: %s', conf)
+            deferreds.append(self._pika_channel.queue_bind(queue=conf.queue,
+                exchange=conf.exchange, routing_key=conf.topic))
+
+        dlist = defer.DeferredList(deferreds)
+        add_callback_and_default_errback(dlist, self._done_declaring,
+                done_deferred=done_deferred)
+
+    def _done_declaring(self, result, done_deferred):
         done_deferred.callback(self._pika_channel)
 
 
