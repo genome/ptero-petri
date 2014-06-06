@@ -12,7 +12,7 @@ from ptero_petri.implementation.exit_codes import (EXECUTE_SYSTEM_FAILURE,
 
 connection_params = ConnectionParams(
         hostname=object(),
-        port=object(),
+        port=1112,
         virtual_host=object(),
         retry_delay=0.01,
         connection_attempts=3,

@@ -1,11 +1,10 @@
 from ptero_petri.implementation import exit_codes
-from ptero_petri.implementation.configuration import defaults
 from ptero_petri.implementation.configuration.commands import determine_command
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
 from ptero_petri.implementation.configuration.parser import parse_arguments
-from ptero_petri.implementation.configuration.settings.load import load_settings
 from ptero_petri.implementation.util import signal_handlers
-import logging.config
+import logging
+import os
 import pika
 import sys
 import traceback
@@ -30,18 +29,17 @@ def main():
     return exit_code
 
 
+def _get_logging_level():
+    return os.environ.get('PTERO_PETRI_LOG_LEVEL', 'INFO').upper()
+
 
 def naked_main():
+    logging.basicConfig(level=_get_logging_level())
+
     command_class = determine_command()
     parsed_args = parse_arguments(command_class)
 
-    settings = load_settings(command_class.name, parsed_args)
-
-    logging.config.dictConfig(settings.get('logging',
-        defaults.DEFAULT_LOGGING_CONFIG))
-
-    injector = initialize_injector(settings, command_class)
-
+    injector = initialize_injector(command_class)
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface
     pika.connection.PRODUCT = command_class.name

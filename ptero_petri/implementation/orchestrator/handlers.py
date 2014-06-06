@@ -3,7 +3,6 @@ from ..rom import get_object
 from .handler_base import Handler
 from .messages import CreateTokenMessage, NotifyPlaceMessage
 from .messages import NotifyTransitionMessage
-from ..configuration.settings.injector import setting
 from injector import inject
 
 import logging
@@ -12,10 +11,10 @@ import logging
 LOG = logging.getLogger(__name__)
 
 @inject(redis=interfaces.IStorage,
-        service_interfaces=interfaces.IServiceLocator,
-        queue_name=setting('orchestrator.create_token_queue'))
+        service_interfaces=interfaces.IServiceLocator)
 class PetriCreateTokenHandler(Handler):
     message_class = CreateTokenMessage
+    queue_name = 'petri_create_token'
 
     def _handle_message(self, message):
         net = get_object(self.redis, message.net_key)
@@ -30,10 +29,10 @@ class PetriCreateTokenHandler(Handler):
 
 
 @inject(redis=interfaces.IStorage,
-        service_interfaces=interfaces.IServiceLocator,
-        queue_name=setting('orchestrator.notify_place_queue'))
+        service_interfaces=interfaces.IServiceLocator)
 class PetriNotifyPlaceHandler(Handler):
     message_class = NotifyPlaceMessage
+    queue_name = 'petri_notify_place'
 
     def _handle_message(self, message):
         net = get_object(self.redis, message.net_key)
@@ -42,10 +41,10 @@ class PetriNotifyPlaceHandler(Handler):
 
 
 @inject(redis=interfaces.IStorage,
-        service_interfaces=interfaces.IServiceLocator,
-        queue_name=setting('orchestrator.notify_transition_queue'))
+        service_interfaces=interfaces.IServiceLocator)
 class PetriNotifyTransitionHandler(Handler):
     message_class = NotifyTransitionMessage
+    queue_name = 'petri_notify_transition'
 
     def _handle_message(self, message):
         net = get_object(self.redis, message.net_key)
