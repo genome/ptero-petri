@@ -51,12 +51,12 @@ class ChannelFacade(object):
         for conf in config.get_exchange_configurations():
             LOG.debug('Declaring exchange: %s', conf)
             deferreds.append(self._pika_channel.exchange_declare(
-                exchange=conf.name, **conf.arguments))
+                exchange=conf.name, **conf.kwargs))
 
         for conf in config.get_queue_configurations():
             LOG.debug('Declaring queue: %s', conf)
             deferreds.append(self._pika_channel.queue_declare(
-                queue=conf.queue_name, **conf.arguments))
+                queue=conf.queue_name, **conf.kwargs))
 
         return defer.DeferredList(deferreds)
 
