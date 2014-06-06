@@ -33,54 +33,6 @@ class ChannelFacadeTests(unittest.TestCase):
             fake_pcm.assert_called_once_with(fake_pika_channel)
             self.assertIs(self.cf._pika_channel, fake_pika_channel)
 
-    def test_bind_queue(self):
-        self.cf._connect_and_do = mock.Mock()
-        queue_name = mock.Mock()
-        exchange_name = mock.Mock()
-        topic = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.bind_queue(queue_name=queue_name,
-                exchange_name=exchange_name,
-                topic=topic,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('queue_bind',
-                queue=queue_name,
-                exchange=exchange_name,
-                routing_key=topic,
-                **properties)
-
-    def test_declare_queue(self):
-        self.cf._connect_and_do = mock.Mock()
-        queue_name = mock.Mock()
-        durable = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.declare_queue(queue_name=queue_name,
-                durable=durable,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('queue_declare',
-                queue=queue_name,
-                durable=durable,
-                **properties)
-
-    def test_declare_exchange(self):
-        self.cf._connect_and_do = mock.Mock()
-        exchange_name = mock.Mock()
-        exchange_type = mock.Mock()
-        durable = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.declare_exchange(exchange_name=exchange_name,
-                exchange_type=exchange_type,
-                durable=durable,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('exchange_declare',
-                exchange=exchange_name,
-                exchange_type=exchange_type,
-                durable=durable,
-                **properties)
-
     def test_basic_publish(self):
         # todo
         pass

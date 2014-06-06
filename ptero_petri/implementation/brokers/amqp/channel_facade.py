@@ -78,20 +78,6 @@ class ChannelFacade(object):
         done_deferred.callback(self._pika_channel)
 
 
-    def bind_queue(self, queue_name, exchange_name, topic, **properties):
-        return self._connect_and_do('queue_bind', queue=queue_name,
-                exchange=exchange_name, routing_key=topic, **properties)
-
-    def declare_queue(self, queue_name, durable=True, **other_properties):
-        return self._connect_and_do('queue_declare', queue=queue_name,
-                durable=durable, **other_properties)
-
-    def declare_exchange(self, exchange_name, exchange_type='topic',
-            durable=True, **other_properties):
-        return self._connect_and_do('exchange_declare', exchange=exchange_name,
-                durable=durable, exchange_type=exchange_type,
-                **other_properties)
-
     def basic_publish(self, exchange_name, routing_key, encoded_message):
         connect_deferred = self.connect()
         confirm_deferred = defer.Deferred()
