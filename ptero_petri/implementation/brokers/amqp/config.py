@@ -15,7 +15,9 @@ BINDINGS = {
 
 ExchangeConfiguration = namedtuple('ExchangeConfiguration', [
     'name',
-    'kwargs',
+    'type',
+    'durable',
+    'arguments',
 ])
 
 
@@ -34,24 +36,21 @@ BindingConfiguration = namedtuple('BindingConfiguration', [
 
 def get_exchange_configurations():
     return [
-        ExchangeConfiguration(name=ALT_EXCHANGE_NAME, kwargs={
-            'durable': True,
-            'exchange_type': 'topic',
-        }),
-        ExchangeConfiguration(name=DEAD_EXCHANGE_NAME, kwargs={
-            'arguments': {
+        ExchangeConfiguration(name=ALT_EXCHANGE_NAME,
+            durable=True, type='topic', arguments={},
+        ),
+        ExchangeConfiguration(name=DEAD_EXCHANGE_NAME,
+            durable=True, type='topic',
+            arguments={
                 'alternate-exchange': ALT_EXCHANGE_NAME,
             },
-            'durable': True,
-            'exchange_type': 'topic',
-        }),
-        ExchangeConfiguration(name=EXCHANGE_NAME, kwargs={
-            'arguments': {
+        ),
+        ExchangeConfiguration(name=EXCHANGE_NAME,
+            durable=True, type='topic',
+            arguments={
                 'alternate-exchange': ALT_EXCHANGE_NAME,
             },
-            'durable': True,
-            'exchange_type': 'topic',
-        }),
+        ),
     ]
 
 

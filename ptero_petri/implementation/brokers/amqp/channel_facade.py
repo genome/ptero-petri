@@ -51,7 +51,8 @@ class ChannelFacade(object):
         for conf in config.get_exchange_configurations():
             LOG.debug('Declaring exchange: %s', conf)
             deferreds.append(self._pika_channel.exchange_declare(
-                exchange=conf.name, **conf.kwargs))
+                exchange=conf.name, durable=conf.durable,
+                exchange_type=conf.type, arguments=conf.arguments))
 
         for conf in config.get_queue_configurations():
             LOG.debug('Declaring queue: %s', conf)
