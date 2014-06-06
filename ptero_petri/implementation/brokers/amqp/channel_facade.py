@@ -57,7 +57,8 @@ class ChannelFacade(object):
         for conf in config.get_queue_configurations():
             LOG.debug('Declaring queue: %s', conf)
             deferreds.append(self._pika_channel.queue_declare(
-                queue=conf.queue_name, **conf.kwargs))
+                queue=conf.queue_name, durable=conf.durable,
+                arguments=conf.arguments))
 
         return defer.DeferredList(deferreds)
 
