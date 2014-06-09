@@ -26,9 +26,6 @@ class OrchestratorCommand(object):
         self.broker.register_handler(self.notify_place_handler)
         self.broker.register_handler(self.notify_transition_handler)
 
-    def execute(self):
-        reactor.run()
-
 
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
 from ptero_petri.implementation.util import signal_handlers
@@ -75,7 +72,7 @@ def naked_main():
         return exit_codes.EXECUTE_ERROR
 
     try:
-        command.execute()
+        reactor.run()
     except:
         LOG.exception('Command execution failed')
         return exit_codes.EXECUTE_FAILURE
