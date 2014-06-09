@@ -1,17 +1,22 @@
+from injector import inject, Injector
+from twisted.internet import defer
+from ptero_petri.implementation import interfaces
 from ptero_petri.implementation.configuration.inject.broker import BrokerConfiguration
 from ptero_petri.implementation.configuration.inject.redis_conf import RedisConfiguration
 from ptero_petri.implementation.configuration.inject.service_locator import ServiceLocatorConfiguration
 from ptero_petri.implementation.orchestrator.handlers import PetriCreateTokenHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyPlaceHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyTransitionHandler
-from ptero_petri.implementation.orchestrator.service_command import ServiceCommand
+from ptero_petri.implementation.command_base import CommandBase
 import logging
 
 
 LOG = logging.getLogger(__name__)
 
 
-class OrchestratorCommand(ServiceCommand):
+@inject(storage=interfaces.IStorage, broker=interfaces.IBroker,
+        injector=Injector)
+class OrchestratorCommand(CommandBase):
     name = 'orchestrator'
 
     injector_modules = [
@@ -27,7 +32,17 @@ class OrchestratorCommand(ServiceCommand):
                 self.injector.get(PetriNotifyTransitionHandler)
         ]
 
-        return ServiceCommand._setup(self, *args, **kwargs)
+        for handler in self.handlers:
+            self.broker.register_handler(handler)
+
+        return CommandBase._setup(self, *args, **kwargs)
+
+    def _execute(self, parsed_arguments):
+        """
+        Returns a deferred that will never fire.
+        """
+        deferred = defer.Deferred()
+        return deferred
 
 
 from ptero_petri.implementation import exit_codes
