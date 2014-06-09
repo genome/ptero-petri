@@ -36,16 +36,14 @@ def _get_logging_level():
 def naked_main():
     logging.basicConfig(level=_get_logging_level())
 
-    command_class = OrchestratorCommand
-
     injector = initialize_injector()
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface
-    pika.connection.PRODUCT = command_class.name
+    pika.connection.PRODUCT = 'orchestrator'
 
     try:
-        LOG.info('Loading command (%s)', command_class.name)
-        command = injector.get(command_class)
+        LOG.info('Instantiating orchestrator comand...')
+        command = injector.get(OrchestratorCommand)
     except:
         LOG.exception('Could not instantiate command object.')
         return exit_codes.EXECUTE_ERROR

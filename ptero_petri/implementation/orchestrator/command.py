@@ -10,8 +10,6 @@ from ptero_petri.implementation.orchestrator.handlers import PetriNotifyTransiti
         notify_place_handler=PetriNotifyPlaceHandler,
         notify_transition_handler=PetriNotifyTransitionHandler)
 class OrchestratorCommand(object):
-    name = 'orchestrator'
-
     def __init__(self):
         self.broker.register_handler(self.create_token_handler)
         self.broker.register_handler(self.notify_place_handler)
