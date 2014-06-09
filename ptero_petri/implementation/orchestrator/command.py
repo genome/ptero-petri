@@ -1,5 +1,5 @@
 from injector import inject, Injector
-from twisted.internet import defer
+from ptero_petri.implementation import exit_codes
 from ptero_petri.implementation import interfaces
 from ptero_petri.implementation.configuration.inject.broker import BrokerConfiguration
 from ptero_petri.implementation.configuration.inject.redis_conf import RedisConfiguration
@@ -7,8 +7,12 @@ from ptero_petri.implementation.configuration.inject.service_locator import Serv
 from ptero_petri.implementation.orchestrator.handlers import PetriCreateTokenHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyPlaceHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyTransitionHandler
-from ptero_petri.implementation.command_base import CommandBase
+from ptero_petri.implementation.util.exit import exit_process
+from twisted.internet import defer
+from twisted.internet import reactor
 import logging
+import traceback
+import twisted.internet.error
 
 
 LOG = logging.getLogger(__name__)
@@ -16,7 +20,7 @@ LOG = logging.getLogger(__name__)
 
 @inject(storage=interfaces.IStorage, broker=interfaces.IBroker,
         injector=Injector)
-class OrchestratorCommand(CommandBase):
+class OrchestratorCommand(object):
     name = 'orchestrator'
 
     injector_modules = [
@@ -25,7 +29,19 @@ class OrchestratorCommand(CommandBase):
             ServiceLocatorConfiguration,
     ]
 
-    def _setup(self, *args, **kwargs):
+    def __init__(self, exit_code=0):
+        self.exit_code = exit_code
+
+    @staticmethod
+    def annotate_parser(parser):
+        """
+        Add options to the command-line arguments parser
+        (an argparse.ArgumentParser object)
+        """
+        pass
+
+
+    def _setup(self, parsed_arguments, *args, **kwargs):
         self.handlers = [
                 self.injector.get(PetriCreateTokenHandler),
                 self.injector.get(PetriNotifyPlaceHandler),
@@ -35,7 +51,7 @@ class OrchestratorCommand(CommandBase):
         for handler in self.handlers:
             self.broker.register_handler(handler)
 
-        return CommandBase._setup(self, *args, **kwargs)
+        reactor.callWhenRunning(self._execute_and_stop, parsed_arguments)
 
     def _execute(self, parsed_arguments):
         """
@@ -44,15 +60,50 @@ class OrchestratorCommand(CommandBase):
         deferred = defer.Deferred()
         return deferred
 
+    def _execute_and_stop(self, parsed_arguments):
+        try:
+            deferred = self._execute(parsed_arguments)
+            d = deferred.addCallbacks(self._stop, self._exit)
+            d.addErrback(self._exit)
+            return deferred
+        except:
+            LOG.exception("Unexpected exception while executing command")
+            exit_process(exit_codes.EXECUTE_FAILURE)
 
-from ptero_petri.implementation import exit_codes
+    def _stop(self, _callback):
+        LOG.debug("Stopping the twisted reactor.")
+        reactor.stop()
+        return _callback
+
+    def _exit(self, error):
+        LOG.critical("Unexpected error while executing command\n%s", error.getTraceback())
+        exit_process(exit_codes.EXECUTE_FAILURE)
+
+    def _teardown(self, parsed_arguments):
+        """
+        Anything that should be done after the reactor has been
+        stopped.
+        """
+        pass
+
+    def execute(self, parsed_arguments):
+        self._setup(parsed_arguments)
+        try:
+            reactor.run()
+        except twisted.internet.error.ReactorNotRunning:
+            print 'omg lol?'
+            traceback.print_exc()
+        finally:
+            self._teardown(parsed_arguments)
+        return self.exit_code
+
+
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
 from ptero_petri.implementation.configuration.parser import parse_arguments
 from ptero_petri.implementation.util import signal_handlers
 import os
 import pika
 import sys
-import traceback
 
 
 def main():
