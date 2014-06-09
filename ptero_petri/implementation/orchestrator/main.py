@@ -50,14 +50,10 @@ def naked_main():
         LOG.exception('Could not instantiate command object.')
         return exit_codes.EXECUTE_ERROR
 
-    try:
-        reactor.run()
-    except:
-        LOG.exception('Command execution failed')
-        return exit_codes.EXECUTE_FAILURE
+    reactor.run()
 
-    LOG.error('This code should never be reached.')
-    return exit_codes.EXECUTE_ERROR
+    LOG.info('Orchestrator exiting...')
+    return exit_codes.EXECUTE_FAILURE
 
 
 if __name__ == '__main__':
