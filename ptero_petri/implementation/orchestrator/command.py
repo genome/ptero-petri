@@ -1,4 +1,4 @@
-from injector import inject, Injector
+from injector import inject
 from ptero_petri.implementation import exit_codes
 from ptero_petri.implementation import interfaces
 from ptero_petri.implementation.orchestrator.handlers import PetriCreateTokenHandler
@@ -15,7 +15,6 @@ LOG = logging.getLogger(__name__)
 
 
 @inject(storage=interfaces.IStorage, broker=interfaces.IBroker,
-        injector=Injector,
         create_token_handler=PetriCreateTokenHandler,
         notify_place_handler=PetriNotifyPlaceHandler,
         notify_transition_handler=PetriNotifyTransitionHandler)
