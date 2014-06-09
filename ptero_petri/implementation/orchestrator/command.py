@@ -29,9 +29,6 @@ class OrchestratorCommand(object):
             ServiceLocatorConfiguration,
     ]
 
-    def __init__(self, exit_code=0):
-        self.exit_code = exit_code
-
     def _setup(self, *args, **kwargs):
         self.handlers = [
                 self.injector.get(PetriCreateTokenHandler),
@@ -65,7 +62,6 @@ class OrchestratorCommand(object):
         except twisted.internet.error.ReactorNotRunning:
             print 'omg lol?'
             traceback.print_exc()
-        return self.exit_code
 
 
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
@@ -113,12 +109,13 @@ def naked_main():
         return exit_codes.EXECUTE_ERROR
 
     try:
-        exit_code = command.execute()
+        command.execute()
     except:
         LOG.exception('Command execution failed')
         return exit_codes.EXECUTE_FAILURE
 
-    return exit_code
+    LOG.error('This code should never be reached.')
+    return exit_codes.EXECUTE_ERROR
 
 
 if __name__ == '__main__':
