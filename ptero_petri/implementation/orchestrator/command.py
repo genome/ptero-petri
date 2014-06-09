@@ -15,22 +15,19 @@ LOG = logging.getLogger(__name__)
 
 
 @inject(storage=interfaces.IStorage, broker=interfaces.IBroker,
-        injector=Injector)
+        injector=Injector,
+        create_token_handler=PetriCreateTokenHandler,
+        notify_place_handler=PetriNotifyPlaceHandler,
+        notify_transition_handler=PetriNotifyTransitionHandler)
 class OrchestratorCommand(object):
     name = 'orchestrator'
 
-    def _setup(self, *args, **kwargs):
-        self.handlers = [
-                self.injector.get(PetriCreateTokenHandler),
-                self.injector.get(PetriNotifyPlaceHandler),
-                self.injector.get(PetriNotifyTransitionHandler)
-        ]
-
-        for handler in self.handlers:
-            self.broker.register_handler(handler)
+    def __init__(self):
+        self.broker.register_handler(self.create_token_handler)
+        self.broker.register_handler(self.notify_place_handler)
+        self.broker.register_handler(self.notify_transition_handler)
 
     def execute(self):
-        self._setup()
         reactor.run()
 
 
