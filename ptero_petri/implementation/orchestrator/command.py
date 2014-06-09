@@ -46,15 +46,6 @@ class OrchestratorCommand(object):
         deferred = defer.Deferred()
         return deferred
 
-    def _stop(self, _callback):
-        LOG.debug("Stopping the twisted reactor.")
-        reactor.stop()
-        return _callback
-
-    def _exit(self, error):
-        LOG.critical("Unexpected error while executing command\n%s", error.getTraceback())
-        exit_process(exit_codes.EXECUTE_FAILURE)
-
     def execute(self):
         self._setup()
         try:
