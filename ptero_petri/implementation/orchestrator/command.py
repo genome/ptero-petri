@@ -1,9 +1,6 @@
 from injector import inject, Injector
 from ptero_petri.implementation import exit_codes
 from ptero_petri.implementation import interfaces
-from ptero_petri.implementation.configuration.inject.broker import BrokerConfiguration
-from ptero_petri.implementation.configuration.inject.redis_conf import RedisConfiguration
-from ptero_petri.implementation.configuration.inject.service_locator import ServiceLocatorConfiguration
 from ptero_petri.implementation.orchestrator.handlers import PetriCreateTokenHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyPlaceHandler
 from ptero_petri.implementation.orchestrator.handlers import PetriNotifyTransitionHandler
@@ -21,12 +18,6 @@ LOG = logging.getLogger(__name__)
         injector=Injector)
 class OrchestratorCommand(object):
     name = 'orchestrator'
-
-    injector_modules = [
-            BrokerConfiguration,
-            RedisConfiguration,
-            ServiceLocatorConfiguration,
-    ]
 
     def _setup(self, *args, **kwargs):
         self.handlers = [
@@ -75,7 +66,7 @@ def naked_main():
 
     command_class = OrchestratorCommand
 
-    injector = initialize_injector(command_class)
+    injector = initialize_injector()
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface
     pika.connection.PRODUCT = command_class.name

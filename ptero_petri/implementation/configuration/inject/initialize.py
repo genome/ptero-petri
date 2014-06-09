@@ -1,16 +1,20 @@
 import injector
+from .broker import BrokerConfiguration
+from .redis_conf import RedisConfiguration
+from .service_locator import ServiceLocatorConfiguration
 
 
 INJECTOR = injector.Injector()
 
 
-def initialize_injector(command_class=None):
-    if command_class:
-        args = command_class.injector_modules
-    else:
-        args = []
+def initialize_injector():
+    injector_modules = [
+            BrokerConfiguration,
+            RedisConfiguration,
+            ServiceLocatorConfiguration,
+    ]
 
-    add_modules(INJECTOR, *args)
+    add_modules(INJECTOR, *injector_modules)
 
     return INJECTOR
 
