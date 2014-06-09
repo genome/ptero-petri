@@ -32,16 +32,7 @@ class OrchestratorCommand(object):
     def __init__(self, exit_code=0):
         self.exit_code = exit_code
 
-    @staticmethod
-    def annotate_parser(parser):
-        """
-        Add options to the command-line arguments parser
-        (an argparse.ArgumentParser object)
-        """
-        pass
-
-
-    def _setup(self, parsed_arguments, *args, **kwargs):
+    def _setup(self, *args, **kwargs):
         self.handlers = [
                 self.injector.get(PetriCreateTokenHandler),
                 self.injector.get(PetriNotifyPlaceHandler),
@@ -51,18 +42,18 @@ class OrchestratorCommand(object):
         for handler in self.handlers:
             self.broker.register_handler(handler)
 
-        reactor.callWhenRunning(self._execute_and_stop, parsed_arguments)
+        reactor.callWhenRunning(self._execute_and_stop)
 
-    def _execute(self, parsed_arguments):
+    def _execute(self):
         """
         Returns a deferred that will never fire.
         """
         deferred = defer.Deferred()
         return deferred
 
-    def _execute_and_stop(self, parsed_arguments):
+    def _execute_and_stop(self):
         try:
-            deferred = self._execute(parsed_arguments)
+            deferred = self._execute()
             d = deferred.addCallbacks(self._stop, self._exit)
             d.addErrback(self._exit)
             return deferred
@@ -79,27 +70,26 @@ class OrchestratorCommand(object):
         LOG.critical("Unexpected error while executing command\n%s", error.getTraceback())
         exit_process(exit_codes.EXECUTE_FAILURE)
 
-    def _teardown(self, parsed_arguments):
+    def _teardown(self):
         """
         Anything that should be done after the reactor has been
         stopped.
         """
         pass
 
-    def execute(self, parsed_arguments):
-        self._setup(parsed_arguments)
+    def execute(self):
+        self._setup()
         try:
             reactor.run()
         except twisted.internet.error.ReactorNotRunning:
             print 'omg lol?'
             traceback.print_exc()
         finally:
-            self._teardown(parsed_arguments)
+            self._teardown()
         return self.exit_code
 
 
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
-from ptero_petri.implementation.configuration.parser import parse_arguments
 from ptero_petri.implementation.util import signal_handlers
 import os
 import pika
@@ -130,7 +120,6 @@ def naked_main():
     logging.basicConfig(level=_get_logging_level())
 
     command_class = OrchestratorCommand
-    parsed_args = parse_arguments(command_class)
 
     injector = initialize_injector(command_class)
 
@@ -145,7 +134,7 @@ def naked_main():
         return exit_codes.EXECUTE_ERROR
 
     try:
-        exit_code = command.execute(parsed_args)
+        exit_code = command.execute()
     except:
         LOG.exception('Command execution failed')
         return exit_codes.EXECUTE_FAILURE
