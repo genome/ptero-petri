@@ -12,7 +12,6 @@ from twisted.internet import defer
 from twisted.internet import reactor
 import logging
 import traceback
-import twisted.internet.error
 
 
 LOG = logging.getLogger(__name__)
@@ -41,11 +40,7 @@ class OrchestratorCommand(object):
 
     def execute(self):
         self._setup()
-        try:
-            reactor.run()
-        except twisted.internet.error.ReactorNotRunning:
-            print 'omg lol?'
-            traceback.print_exc()
+        reactor.run()
 
 
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
