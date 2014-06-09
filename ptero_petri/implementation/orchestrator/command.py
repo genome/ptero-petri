@@ -39,13 +39,6 @@ class OrchestratorCommand(object):
         for handler in self.handlers:
             self.broker.register_handler(handler)
 
-    def _execute(self):
-        """
-        Returns a deferred that will never fire.
-        """
-        deferred = defer.Deferred()
-        return deferred
-
     def execute(self):
         self._setup()
         try:
