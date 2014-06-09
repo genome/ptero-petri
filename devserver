@@ -30,17 +30,6 @@ def _api_webserver_path():
     return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
 
 
-def _setup_rabbitmq(logdir, cover):
-    if cover:
-        command_line = ['coverage', 'run', 'ptero_petri/implementation/main.py',
-                'configure-rabbitmq']
-    else:
-        command_line = ['ptero', 'configure-rabbitmq']
-
-    p = _subprocess_with_logs(logdir, 'configure-rabbitmq', command_line)
-    p.wait()
-
-
 def _purge_rabbitmq():
     pass
 
@@ -110,7 +99,6 @@ def mkdir_p(path):
 def main(port, debug, logdir, cover):
     os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
     os.environ['PETRI_PORT'] = str(port)
-    _setup_rabbitmq(logdir, cover=cover)
     _purge_rabbitmq()
     _purge_redis()
 

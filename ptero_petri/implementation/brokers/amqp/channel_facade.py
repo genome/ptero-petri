@@ -1,3 +1,4 @@
+from . import config
 from injector import inject
 from twisted.internet import defer
 from .connection_manager import ConnectionManager
@@ -22,29 +23,60 @@ class ChannelFacade(object):
     def connect(self):
         connect_deferred = self.connection_manager.connect()
 
-        add_callback_and_default_errback(connect_deferred, self._on_connected)
-        return connect_deferred
+        ready_deferred = defer.Deferred()
+        add_callback_and_default_errback(connect_deferred, self._on_connected,
+                ready_deferred)
+        return ready_deferred
 
-    def _on_connected(self, pika_channel):
+    def _on_connected(self, pika_channel, ready_deferred):
         if self._pika_channel is None:
             self._pika_channel = pika_channel
             self._publisher_confirm_manager = PublisherConfirmManager(
                     self._pika_channel)
+
+            self._declare_queues_exchanges_and_bindings(ready_deferred)
+
+        else:
+            ready_deferred.callback(pika_channel)
+
         return pika_channel
 
-    def bind_queue(self, queue_name, exchange_name, topic, **properties):
-        return self._connect_and_do('queue_bind', queue=queue_name,
-                exchange=exchange_name, routing_key=topic, **properties)
+    def _declare_queues_exchanges_and_bindings(self, deferred):
+        qx_deferred = self._declare_queues_and_exchanges()
+        add_callback_and_default_errback(qx_deferred,
+                self._declare_bindings, done_deferred=deferred)
 
-    def declare_queue(self, queue_name, durable=True, **other_properties):
-        return self._connect_and_do('queue_declare', queue=queue_name,
-                durable=durable, **other_properties)
+    def _declare_queues_and_exchanges(self):
+        deferreds = []
+        for conf in config.get_exchange_configurations():
+            LOG.debug('Declaring exchange: %s', conf)
+            deferreds.append(self._pika_channel.exchange_declare(
+                exchange=conf.name, durable=conf.durable,
+                exchange_type=conf.type, arguments=conf.arguments))
 
-    def declare_exchange(self, exchange_name, exchange_type='topic',
-            durable=True, **other_properties):
-        return self._connect_and_do('exchange_declare', exchange=exchange_name,
-                durable=durable, exchange_type=exchange_type,
-                **other_properties)
+        for conf in config.get_queue_configurations():
+            LOG.debug('Declaring queue: %s', conf)
+            deferreds.append(self._pika_channel.queue_declare(
+                queue=conf.queue_name, durable=conf.durable,
+                arguments=conf.arguments))
+
+        return defer.DeferredList(deferreds)
+
+
+    def _declare_bindings(self, qx_declare_result, done_deferred=None):
+        deferreds = []
+        for conf in config.get_binding_configurations():
+            LOG.debug('Binding queue: %s', conf)
+            deferreds.append(self._pika_channel.queue_bind(queue=conf.queue,
+                exchange=conf.exchange, routing_key=conf.topic))
+
+        dlist = defer.DeferredList(deferreds)
+        add_callback_and_default_errback(dlist, self._done_declaring,
+                done_deferred=done_deferred)
+
+    def _done_declaring(self, result, done_deferred):
+        done_deferred.callback(self._pika_channel)
+
 
     def basic_publish(self, exchange_name, routing_key, encoded_message):
         connect_deferred = self.connect()

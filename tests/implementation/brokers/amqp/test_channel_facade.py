@@ -20,78 +20,18 @@ class ChannelFacadeTests(unittest.TestCase):
         self.assertIs(self.cf._publisher_confirm_manager, None)
         self.assertEqual(self.cf._last_publish_tag, 0)
 
-    def test_connect(self):
-        self.cf._on_connected = mock.Mock()
-
-        connect_deferred = self.cf.connect()
-        self.assertIs(connect_deferred, self.connect_deferred)
-        self.assertEqual(self.cf._on_connected.call_count, 0)
-
-        channel = mock.Mock()
-        connect_deferred.callback(channel)
-        self.cf._on_connected.assert_called_once_with(channel)
-
-        same_connect_deferred = self.cf.connect()
-        self.assertIs(same_connect_deferred, connect_deferred)
-
     def test_private_on_connected(self):
         fake_pcm = mock.Mock()
+        fake_ready_deferred = mock.Mock()
         with mock.patch(
                 'ptero_petri.implementation.brokers.amqp.channel_facade.PublisherConfirmManager',
                 new=fake_pcm):
             fake_pika_channel = mock.Mock()
-            self.cf._on_connected(fake_pika_channel)
+            self.cf._on_connected(fake_pika_channel,
+                    ready_deferred=fake_ready_deferred)
 
             fake_pcm.assert_called_once_with(fake_pika_channel)
             self.assertIs(self.cf._pika_channel, fake_pika_channel)
-
-    def test_bind_queue(self):
-        self.cf._connect_and_do = mock.Mock()
-        queue_name = mock.Mock()
-        exchange_name = mock.Mock()
-        topic = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.bind_queue(queue_name=queue_name,
-                exchange_name=exchange_name,
-                topic=topic,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('queue_bind',
-                queue=queue_name,
-                exchange=exchange_name,
-                routing_key=topic,
-                **properties)
-
-    def test_declare_queue(self):
-        self.cf._connect_and_do = mock.Mock()
-        queue_name = mock.Mock()
-        durable = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.declare_queue(queue_name=queue_name,
-                durable=durable,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('queue_declare',
-                queue=queue_name,
-                durable=durable,
-                **properties)
-
-    def test_declare_exchange(self):
-        self.cf._connect_and_do = mock.Mock()
-        exchange_name = mock.Mock()
-        exchange_type = mock.Mock()
-        durable = mock.Mock()
-        properties = {'a':mock.Mock(), 'b':mock.Mock()}
-        self.cf.declare_exchange(exchange_name=exchange_name,
-                exchange_type=exchange_type,
-                durable=durable,
-                **properties)
-
-        self.cf._connect_and_do.assert_called_once_with('exchange_declare',
-                exchange=exchange_name,
-                exchange_type=exchange_type,
-                durable=durable,
-                **properties)
 
     def test_basic_publish(self):
         # todo
