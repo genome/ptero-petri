@@ -70,13 +70,6 @@ class OrchestratorCommand(object):
         LOG.critical("Unexpected error while executing command\n%s", error.getTraceback())
         exit_process(exit_codes.EXECUTE_FAILURE)
 
-    def _teardown(self):
-        """
-        Anything that should be done after the reactor has been
-        stopped.
-        """
-        pass
-
     def execute(self):
         self._setup()
         try:
@@ -84,8 +77,6 @@ class OrchestratorCommand(object):
         except twisted.internet.error.ReactorNotRunning:
             print 'omg lol?'
             traceback.print_exc()
-        finally:
-            self._teardown()
         return self.exit_code
 
 
