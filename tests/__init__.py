@@ -27,7 +27,7 @@ def wait_time():
     if os.environ.get('TRAVIS'):
         return 15
     else:
-        return 2
+        return 3
 
 
 def procfile_path():
