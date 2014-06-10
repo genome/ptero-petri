@@ -36,15 +36,7 @@ def procfile_path():
 
 
 def service_command_line():
-    return [os.path.join(os.getcwd(), 'devserver'),
-            '--max-run-time', '120',
-            '--port', os.environ['PTERO_PETRI_PORT'],
-            '--logdir', 'var/log',
-            '--cover']
-
-#def service_command_line():
-#    return ['honcho', '-f', procfile_path(), 'start', '-c',
-#            'worker=%s' % NUM_WORKERS]
+    return ['honcho', '-f', procfile_path(), 'start']
 
 
 def setUp():

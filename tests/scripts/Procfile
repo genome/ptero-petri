@@ -1,0 +1,2 @@
+web: coverage run ptero_petri/api/wsgi.py --port $PTERO_PETRI_PORT
+orchestrator: coverage run ptero_petri/implementation/orchestrator/main.py
