@@ -1,4 +1,6 @@
 from . import backend
+from .configuration.inject.initialize import initialize_injector
+from . import interfaces
 import redis
 import os
 
@@ -8,6 +10,7 @@ __all__ = ['Factory']
 class Factory(object):
     def __init__(self):
         self._initialized = False
+        self._injector = None
         self._redis = None
 
     def create_backend(self):
@@ -22,9 +25,5 @@ class Factory(object):
         # Lazy initialize to be pre-fork friendly.
         if not self._initialized:
             self._initialized = True
-            self._redis = self._create_redis_connection()
-
-    def _create_redis_connection(self):
-        return redis.Redis(
-                host=os.environ.get('PTERO_PETRI_REDIS_HOST', 'localhost'),
-                port=int(os.environ.get('PTERO_PETRI_REDIS_PORT', '6379')))
+            self._injector = initialize_injector()
+            self._redis = self._injector.get(interfaces.IStorage)
