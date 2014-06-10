@@ -60,10 +60,10 @@ def _start_api_server(port, debug, logdir, cover):
 
 def _start_petri_worker(logdir, cover):
     if cover:
-        command_line = ['coverage', 'run', 'ptero_petri/implementation/main.py',
-                'orchestrator']
+        command_line = ['coverage', 'run',
+                'ptero_petri/implementation/orchestrator/main.py']
     else:
-        command_line = ['ptero', 'orchestrator']
+        command_line = ['petri-orchestrator']
 
     return _subprocess_with_logs(logdir, 'orchestrator', command_line)
 

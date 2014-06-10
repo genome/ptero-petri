@@ -1,8 +1,8 @@
 from ptero_petri.implementation import exit_codes
-from ptero_petri.implementation.configuration.commands import determine_command
 from ptero_petri.implementation.configuration.inject.initialize import initialize_injector
-from ptero_petri.implementation.configuration.parser import parse_arguments
+from ptero_petri.implementation.orchestrator.command import OrchestratorCommand
 from ptero_petri.implementation.util import signal_handlers
+from twisted.internet import reactor
 import logging
 import os
 import pika
@@ -36,28 +36,22 @@ def _get_logging_level():
 def naked_main():
     logging.basicConfig(level=_get_logging_level())
 
-    command_class = determine_command()
-    parsed_args = parse_arguments(command_class)
-
-    injector = initialize_injector(command_class)
+    injector = initialize_injector()
 
     # XXX Hack to get the command to show up in the rabbitmq admin interface
-    pika.connection.PRODUCT = command_class.name
+    pika.connection.PRODUCT = 'orchestrator'
 
     try:
-        LOG.info('Loading command (%s)', command_class.name)
-        command = injector.get(command_class)
+        LOG.info('Instantiating orchestrator comand...')
+        command = injector.get(OrchestratorCommand)
     except:
         LOG.exception('Could not instantiate command object.')
         return exit_codes.EXECUTE_ERROR
 
-    try:
-        exit_code = command.execute(parsed_args)
-    except:
-        LOG.exception('Command execution failed')
-        return exit_codes.EXECUTE_FAILURE
+    reactor.run()
 
-    return exit_code
+    LOG.info('Orchestrator exiting...')
+    return exit_codes.EXECUTE_FAILURE
 
 
 if __name__ == '__main__':

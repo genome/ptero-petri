@@ -1,28 +1,16 @@
-from ..configuration.inject.broker import BrokerConfiguration
-from ..configuration.inject.redis_conf import RedisConfiguration
-from ..configuration.inject.service_locator import ServiceLocatorConfiguration
-from .handlers import PetriCreateTokenHandler
-from .handlers import PetriNotifyPlaceHandler
-from .handlers import PetriNotifyTransitionHandler
-from .service_command import ServiceCommand
-import logging
+from injector import inject
+from ptero_petri.implementation import interfaces
+from ptero_petri.implementation.orchestrator.handlers import PetriCreateTokenHandler
+from ptero_petri.implementation.orchestrator.handlers import PetriNotifyPlaceHandler
+from ptero_petri.implementation.orchestrator.handlers import PetriNotifyTransitionHandler
 
 
-LOG = logging.getLogger(__name__)
-
-
-class OrchestratorCommand(ServiceCommand):
-    injector_modules = [
-            BrokerConfiguration,
-            RedisConfiguration,
-            ServiceLocatorConfiguration,
-    ]
-
-    def _setup(self, *args, **kwargs):
-        self.handlers = [
-                self.injector.get(PetriCreateTokenHandler),
-                self.injector.get(PetriNotifyPlaceHandler),
-                self.injector.get(PetriNotifyTransitionHandler)
-        ]
-
-        return ServiceCommand._setup(self, *args, **kwargs)
+@inject(storage=interfaces.IStorage, broker=interfaces.IBroker,
+        create_token_handler=PetriCreateTokenHandler,
+        notify_place_handler=PetriNotifyPlaceHandler,
+        notify_transition_handler=PetriNotifyTransitionHandler)
+class OrchestratorCommand(object):
+    def __init__(self):
+        self.broker.register_handler(self.create_token_handler)
+        self.broker.register_handler(self.notify_place_handler)
+        self.broker.register_handler(self.notify_transition_handler)
