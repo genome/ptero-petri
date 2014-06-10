@@ -11,6 +11,8 @@ NUM_WORKERS = 4
 
 
 instance = None
+grandchildren = []
+descendents = []
 
 
 def mkdir_p(path):
@@ -41,6 +43,8 @@ def service_command_line():
 
 def setUp():
     global instance
+    global grandchildren
+    global descendents
 
     logdir = 'var/log'
     mkdir_p(logdir)
@@ -53,12 +57,12 @@ def setUp():
         time.sleep(wait_time())
         if instance.poll() is not None:
             raise RuntimeError("honcho instance terminated prematurely")
+        grandchildren = get_grandchildren()
+        descendents = get_descendents()
+
 
 
 def travis_ci_cleanup():
-    grandchildren = get_grandchildren()
-    descendents = get_descendents()
-
     if not signal_processes(grandchildren, signal.SIGINT):
         return
 
