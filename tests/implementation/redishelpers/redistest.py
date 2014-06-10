@@ -21,6 +21,9 @@ class RedisTest(unittest.TestCase):
 
         cls._wait_for_connection()
 
+    def setUp(self):
+        self.conn.flushall()
+
     def tearDown(self):
         self.conn.flushall()
 
