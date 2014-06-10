@@ -1,2 +1,3 @@
 web: coverage run ptero_petri/api/wsgi.py --port $PTERO_PETRI_PORT
 orchestrator: coverage run ptero_petri/implementation/orchestrator/main.py
+redis: redis-server --port $PTERO_PETRI_REDIS_PORT
