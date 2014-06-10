@@ -1,5 +1,6 @@
 from . import backend
 import redis
+import os
 
 __all__ = ['Factory']
 
@@ -21,4 +22,9 @@ class Factory(object):
         # Lazy initialize to be pre-fork friendly.
         if not self._initialized:
             self._initialized = True
-            self._redis = redis.Redis()
+            self._redis = self._create_redis_connection()
+
+    def _create_redis_connection(self):
+        return redis.Redis(
+                host=os.environ.get('PTERO_PETRI_REDIS_HOST', 'localhost'),
+                port=int(os.environ.get('PTERO_PETRI_REDIS_PORT', '6379')))
