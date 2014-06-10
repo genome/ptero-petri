@@ -98,7 +98,10 @@ def get_descendents():
 def tearDown():
     if not os.environ.get('SKIP_PROCFILE'):
         if os.environ.get('TRAVIS'):
-            travis_ci_cleanup()
+            try:
+                travis_ci_cleanup()
+            except psutil.NoSuchProcess:
+                pass
 
         ec = instance.poll()
         if ec is None:
