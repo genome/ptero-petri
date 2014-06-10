@@ -11,8 +11,9 @@ ROUTING_KEY = 'petri.place.create_token'
 
 
 class Backend(object):
-    def __init__(self, redis_connection):
+    def __init__(self, redis_connection, amqp_parameters):
         self.redis_connection = redis_connection
+        self.amqp_parameters = amqp_parameters
 
     def create_net(self, net_data):
         translator = Translator(net_data)

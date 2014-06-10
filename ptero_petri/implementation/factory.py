@@ -1,6 +1,7 @@
 from . import backend
-from .configuration.inject.initialize import initialize_injector
 from . import interfaces
+from .brokers.amqp.connection_manager import ConnectionParams
+from .configuration.inject.initialize import initialize_injector
 import redis
 import os
 
@@ -12,10 +13,12 @@ class Factory(object):
         self._initialized = False
         self._injector = None
         self._redis = None
+        self._connection_parameters = None
 
     def create_backend(self):
         self._initialize()
-        return backend.Backend(redis_connection=self._redis)
+        return backend.Backend(redis_connection=self._redis,
+                amqp_parameters=self._connection_parameters)
 
     def purge(self):
         self._initialize()
@@ -27,3 +30,4 @@ class Factory(object):
             self._initialized = True
             self._injector = initialize_injector()
             self._redis = self._injector.get(interfaces.IStorage)
+            self._connection_parameters = self._injector.get(ConnectionParams)
