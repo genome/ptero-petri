@@ -33,8 +33,8 @@ def _request_body(response_links, data):
 
 
 def _url(net_key, place_idx, color, color_group_idx):
-    host = os.environ.get('PETRI_HOST', 'localhost')
-    port = int(os.environ.get('PETRI_PORT', '5000'))
+    host = os.environ.get('PTERO_PETRI_HOST', 'localhost')
+    port = int(os.environ.get('PTERO_PETRI_PORT', '5000'))
     return "http://%s:%d/v1/nets/%s/places/%d/tokens?color=%d&color_group=%d" % (
             host, port, net_key, place_idx, color, color_group_idx)
 
