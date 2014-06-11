@@ -73,7 +73,7 @@ def cleanup():
 
     instance.send_signal(signal.SIGINT)
     try:
-        instance.wait(timeout=2)
+        instance.wait(timeout=10)
     except psutil.TimeoutExpired:
         pass
 
