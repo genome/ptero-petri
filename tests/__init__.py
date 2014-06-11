@@ -72,8 +72,8 @@ def cleanup():
     if ec is None:
         descendents = get_descendents()
 
+        instance.send_signal(signal.SIGINT)
         try:
-            instance.send_signal(signal.SIGINT)
             instance.wait(timeout=2)
         except psutil.TimeoutExpired:
             pass
