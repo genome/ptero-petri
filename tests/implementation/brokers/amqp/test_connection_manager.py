@@ -19,6 +19,7 @@ connection_params = ConnectionParams(
         prefetch_count=1,
         heartbeat_interval=600,
 )
+exit_process_path = 'ptero_petri.implementation.brokers.amqp.connection_manager.exit_process'
 
 class ConnectionManagerTests(unittest.TestCase):
     def setUp(self):
@@ -167,7 +168,7 @@ class ConnectionManagerTests(unittest.TestCase):
         # reached reconnect limit
         self.cm._connection_attempts = 3
         fake_exit = mock.Mock()
-        with mock.patch('os._exit', new=fake_exit):
+        with mock.patch(exit_process_path, new=fake_exit):
             self.cm._on_connectTCP_failed(reason)
             self.assertEquals(self.cm.state, DISCONNECTED)
             fake_exit.assert_called_once_with(EXECUTE_SERVICE_UNAVAILABLE)
@@ -177,7 +178,7 @@ class ConnectionManagerTests(unittest.TestCase):
         self.cm.state = CONNECTING
 
         fake_exit = mock.Mock()
-        with mock.patch('os._exit', new=fake_exit):
+        with mock.patch(exit_process_path, new=fake_exit):
             self.cm._on_pika_connection_closed(None,
                     reply_code='test_code', reply_text='test_text')
 
@@ -225,7 +226,7 @@ class ConnectionManagerTests(unittest.TestCase):
 
             # reached retry limit
             fake_exit = mock.Mock()
-            with mock.patch('os._exit', new=fake_exit):
+            with mock.patch(exit_process_path, new=fake_exit):
                 errback = mock.Mock()
 
                 error = RuntimeError('bad')
