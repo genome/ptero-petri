@@ -77,6 +77,7 @@ def cleanup():
         descendents.update(get_descendents())
 
         try:
+            instance.send_signal(signal.SIGINT)
             instance.wait(timeout=2)
         except psutil.TimeoutExpired:
             pass
@@ -86,8 +87,6 @@ def cleanup():
 
         time.sleep(3)
         signal_processes(descendents.values(), signal.SIGKILL)
-
-        instance.send_signal(signal.SIGINT)
     else:
         sys.stderr.write('Unexpected exit of services:  code = (%s)\n' % ec)
 
