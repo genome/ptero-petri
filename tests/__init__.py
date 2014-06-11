@@ -68,23 +68,19 @@ def get_descendents():
     return psutil.Process(instance.pid).get_children(recursive=True)
 
 def cleanup():
-    ec = instance.poll()
-    if ec is None:
-        descendents = get_descendents()
+    descendents = get_descendents()
 
-        instance.send_signal(signal.SIGINT)
-        try:
-            instance.wait(timeout=2)
-        except psutil.TimeoutExpired:
-            pass
+    instance.send_signal(signal.SIGINT)
+    try:
+        instance.wait(timeout=2)
+    except psutil.TimeoutExpired:
+        pass
 
-        if not signal_processes(descendents, signal.SIGINT):
-            return
+    if not signal_processes(descendents, signal.SIGINT):
+        return
 
-        time.sleep(3)
-        signal_processes(descendents, signal.SIGKILL)
-    else:
-        sys.stderr.write('Unexpected exit of services:  code = (%s)\n' % ec)
+    time.sleep(3)
+    signal_processes(descendents, signal.SIGKILL)
 
 
 # NOTE If this doesn't run then honcho will be orphaned...
