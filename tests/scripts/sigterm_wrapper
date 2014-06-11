@@ -21,14 +21,8 @@ def term_handler(signum, frame):
     sys.stderr.write('Sending SIGINT to wrapped coverage process')
     child_process.send_signal(signal.SIGINT)
 
-    def kill_child(signum, frame):
-        if child_process.poll() is None:
-            child_process.kill()
+    sys.exit(1)
 
-    signal.signal(signal.SIGALRM, kill_child)
-    signal.alarm(10)
-
-signal.signal(signal.SIGINT, term_handler)
 signal.signal(signal.SIGTERM, term_handler)
 
 
