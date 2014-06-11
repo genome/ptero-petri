@@ -10,7 +10,6 @@ NUM_WORKERS = 4
 
 
 instance = None
-descendents = {}
 
 
 def mkdir_p(path):
@@ -53,8 +52,6 @@ def setUp():
         time.sleep(wait_time())
         if instance.poll() is not None:
             raise RuntimeError("honcho instance terminated prematurely")
-        else:
-            descendents = get_descendents()
 
 def signal_processes(processes, sig):
     signaled_someone = False
@@ -68,13 +65,12 @@ def signal_processes(processes, sig):
     return signaled_someone
 
 def get_descendents():
-    processes = psutil.Process(instance.pid).get_children(recursive=True)
-    return dict([(x.pid, x) for x in processes])
+    return psutil.Process(instance.pid).get_children(recursive=True)
 
 def cleanup():
     ec = instance.poll()
     if ec is None:
-        descendents.update(get_descendents())
+        descendents = get_descendents()
 
         try:
             instance.send_signal(signal.SIGINT)
@@ -82,11 +78,11 @@ def cleanup():
         except psutil.TimeoutExpired:
             pass
 
-        if not signal_processes(descendents.values(), signal.SIGINT):
+        if not signal_processes(descendents, signal.SIGINT):
             return
 
         time.sleep(3)
-        signal_processes(descendents.values(), signal.SIGKILL)
+        signal_processes(descendents, signal.SIGKILL)
     else:
         sys.stderr.write('Unexpected exit of services:  code = (%s)\n' % ec)
 
