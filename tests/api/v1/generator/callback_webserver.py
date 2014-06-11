@@ -26,7 +26,12 @@ def parse_arguments():
 app = Flask(__name__)
 
 
-@app.route('/<path:callback_name>', methods=['PUT'])
+@app.route('/ping', methods=['GET'])
+def ping():
+    return 'PONG'
+
+
+@app.route('/callbacks/<path:callback_name>', methods=['PUT'])
 def log_request(callback_name):
     try:
         print callback_name

@@ -5,5 +5,5 @@
 /.tox
 /AUTHORS
 /ChangeLog
-/logs
 /build
+/var

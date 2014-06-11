@@ -1,5 +1,4 @@
 [run]
-omit = ptero_petri/api/wsgi.py
 branch = True
 parallel = True
 source = ptero_petri

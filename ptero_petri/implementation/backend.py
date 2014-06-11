@@ -11,8 +11,9 @@ ROUTING_KEY = 'petri.place.create_token'
 
 
 class Backend(object):
-    def __init__(self, redis_connection):
+    def __init__(self, redis_connection, amqp_parameters):
         self.redis_connection = redis_connection
+        self.amqp_parameters = amqp_parameters
 
     def create_net(self, net_data):
         translator = Translator(net_data)
@@ -62,9 +63,17 @@ class Backend(object):
 
 
     def _send_message(self, exchange, routing_key, body):
-        connection = pika.BlockingConnection()
+        connection = pika.BlockingConnection(self._pika_connection_params())
         channel = connection.channel()
         channel.confirm_delivery()
         channel.basic_publish(exchange=exchange, routing_key=routing_key,
                 body=body, properties=pika.BasicProperties(content_type='application/json',
                     delivery_mode=1))
+
+    def _pika_connection_params(self):
+        credentials = pika.PlainCredentials('guest', 'guest')
+        return pika.ConnectionParameters(
+                self.amqp_parameters.hostname,
+                self.amqp_parameters.port,
+                self.amqp_parameters.virtual_host,
+                credentials)

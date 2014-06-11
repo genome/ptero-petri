@@ -1,3 +1,4 @@
+from ptero_petri.implementation.petri.webhooks import _retry as retry
 import abc
 import collections
 import errno
@@ -27,9 +28,9 @@ def validate_json(text):
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractproperty
+    @property
     def api_port(self):
-        pass
+        return int(os.environ['PTERO_PETRI_PORT'])
 
     @abc.abstractproperty
     def callback_port(self):
@@ -58,13 +59,11 @@ class TestCaseMixin(object):
         super(TestCaseMixin, self).setUp()
         self._clear_memoized_data()
 
-        self._start_devserver()
         self._start_callback_receipt_webserver()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
         self._stop_callback_receipt_webserver()
-        self._stop_devserver()
 
 
     def _submit_net(self):
@@ -159,7 +158,7 @@ class TestCaseMixin(object):
         return urlparse.urlunparse((
             'http',
             'localhost:%d' % self.callback_port,
-            '/' + callback_name,
+            '/callbacks/' + callback_name,
             '',
             urllib.urlencode(request_data),
             '',
@@ -191,23 +190,6 @@ class TestCaseMixin(object):
         self._expected_callbacks = None
 
 
-    def _start_devserver(self):
-        cmd = [
-                self._devserver_path,
-                '--max-run-time', str(self._max_wait_time),
-                '--port', str(self.api_port),
-                '--logdir', str(self._logdir),
-                '--cover',
-        ]
-        if int(os.environ.get('PTERO_TEST_WEBSERVER_DEBUG', 0)) == 1:
-            cmd.append('--debug')
-
-        self._devserver = subprocess.Popen(cmd, close_fds=True)
-        self._wait_for_devserver()
-
-    def _wait_for_devserver(self):
-        time.sleep(5)
-
     def _start_callback_receipt_webserver(self):
         self._callback_webserver = subprocess.Popen(
                 [self._callback_webserver_path,
@@ -216,20 +198,23 @@ class TestCaseMixin(object):
                     '--port', str(self.callback_port),
                     ],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._wait_for_callback_webserver()
+
+    def _wait_for_callback_webserver(self):
+        response = retry(requests.get, self._callback_ping_url())
+        if response.status_code != 200:
+            raise RuntimeError('Failed to spin up callback webserver: %s'
+                    % response.text)
+
+    def _callback_ping_url(self):
+        return 'http://localhost:%d/ping' % self.callback_port
 
     def _stop_callback_receipt_webserver(self):
         _stop_subprocess(self._callback_webserver)
 
-    def _stop_devserver(self):
-        _stop_subprocess(self._devserver)
-
     @property
     def _callback_webserver_path(self):
         return os.path.join(os.path.dirname(__file__), 'callback_webserver.py')
-
-    @property
-    def _devserver_path(self):
-        return os.path.join(self._repository_root_path, 'devserver')
 
     @property
     def _logdir(self):

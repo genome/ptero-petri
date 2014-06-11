@@ -10,6 +10,8 @@ from pika.spec import Basic
 from ptero_petri.implementation.brokers.amqp.publisher_confirm_manager import PublisherConfirmManager
 from ptero_petri.implementation import exit_codes
 
+exit_process_path = 'ptero_petri.implementation.brokers.amqp.publisher_confirm_manager.exit_process'
+
 class TestPublisherConfirmManager(unittest.TestCase):
     def setUp(self):
         channel = mock.Mock()
@@ -57,7 +59,7 @@ class TestPublisherConfirmManager(unittest.TestCase):
         method_frame.method.multiple = multiple
 
         fake_exit = mock.Mock()
-        with mock.patch('os._exit', new=fake_exit):
+        with mock.patch(exit_process_path, new=fake_exit):
             self.pcm._on_publisher_confirm_nack(method_frame)
             fake_exit.assert_called_once_with(exit_codes.EXECUTE_SYSTEM_FAILURE)
 
