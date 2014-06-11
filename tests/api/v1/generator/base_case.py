@@ -1,3 +1,4 @@
+from ptero_petri.implementation.petri.webhooks import _retry as retry
 import abc
 import collections
 import errno
@@ -157,7 +158,7 @@ class TestCaseMixin(object):
         return urlparse.urlunparse((
             'http',
             'localhost:%d' % self.callback_port,
-            '/' + callback_name,
+            '/callbacks/' + callback_name,
             '',
             urllib.urlencode(request_data),
             '',
@@ -197,6 +198,16 @@ class TestCaseMixin(object):
                     '--port', str(self.callback_port),
                     ],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._wait_for_callback_webserver()
+
+    def _wait_for_callback_webserver(self):
+        response = retry(requests.get, self._callback_ping_url())
+        if response.status_code != 200:
+            raise RuntimeError('Failed to spin up callback webserver: %s'
+                    % response.text)
+
+    def _callback_ping_url(self):
+        return 'http://localhost:%d/ping' % self.callback_port
 
     def _stop_callback_receipt_webserver(self):
         _stop_subprocess(self._callback_webserver)
