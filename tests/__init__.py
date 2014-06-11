@@ -81,11 +81,11 @@ def cleanup():
         except psutil.TimeoutExpired:
             pass
 
-        if not signal_processes(descendents, signal.SIGINT):
+        if not signal_processes(descendents.values(), signal.SIGINT):
             return
 
         time.sleep(3)
-        signal_processes(descendents, signal.SIGKILL)
+        signal_processes(descendents.values(), signal.SIGKILL)
 
         instance.send_signal(signal.SIGINT)
     else:
