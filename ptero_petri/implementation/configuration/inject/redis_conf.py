@@ -13,9 +13,15 @@ class RedisConfiguration(injector.Module):
     @injector.provides(interfaces.IStorage)
     def provide_redis(self):
         if self.path:
-            return redis.Redis(unix_socket_path=self.path)
+            return redis.Redis(unix_socket_path=self.path,
+                    password=self.password)
         else:
-            return redis.Redis(host=self.host, port=self.port)
+            return redis.Redis(host=self.host, port=self.port,
+                    password=self.password)
+
+    @property
+    def password(self):
+        return os.environ.get('PTERO_PETRI_REDIS_PASSWORD')
 
     @property
     def host(self):
