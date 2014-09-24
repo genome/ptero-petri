@@ -15,9 +15,21 @@ LOG = logging.getLogger(__name__)
 
 
 class ConnectionParams(object):
-    def __init__(self, hostname=None, virtual_host=None, port=None,
+    def __init__(self, username=None, password=None,
+            hostname=None, virtual_host=None, port=None,
             retry_delay=None, connection_attempts=None, prefetch_count=None,
             heartbeat_interval=None):
+
+        if username is not None:
+            self.username = username
+        else:
+            self.username = os.environ.get('PTERO_PETRI_AMQP_USERNAME')
+
+        if password is not None:
+            self.password = password
+        else:
+            self.password = os.environ.get('PTERO_PETRI_AMQP_PASSWORD')
+
         if hostname is not None:
             self.hostname = hostname
         else:
@@ -56,8 +68,15 @@ class ConnectionParams(object):
     @property
     def pika_params(self):
         return pika.ConnectionParameters(host=self.hostname, port=self.port,
+                credentials=self._pika_credentials(),
                 virtual_host=self.virtual_host,
                 heartbeat_interval=self.heartbeat_interval)
+
+    def _pika_credentials(self):
+        if self.username is None or self.password is None:
+            return None
+        else:
+            return pika.PlainCredentials(username=self.username, password=self.password)
 
 
 DISCONNECTED = 'disconnected'
