@@ -3,6 +3,7 @@ from .orchestrator.messages import CreateTokenMessage
 from .petri.builder import Builder
 from .petri.net import Net
 from .translator import Translator
+import os
 import pika
 
 
@@ -71,7 +72,9 @@ class Backend(object):
                     delivery_mode=1))
 
     def _pika_connection_params(self):
-        credentials = pika.PlainCredentials('guest', 'guest')
+        credentials = pika.PlainCredentials(
+                username=os.environ.get('PTERO_PETRI_AMQP_USERNAME', 'guest'),
+                password=os.environ.get('PTERO_PETRI_AMQP_USERNAME', 'guest'))
         return pika.ConnectionParameters(
                 self.amqp_parameters.hostname,
                 self.amqp_parameters.port,
