@@ -74,7 +74,7 @@ class Backend(object):
     def _pika_connection_params(self):
         credentials = pika.PlainCredentials(
                 username=os.environ.get('PTERO_PETRI_AMQP_USERNAME', 'guest'),
-                password=os.environ.get('PTERO_PETRI_AMQP_USERNAME', 'guest'))
+                password=os.environ.get('PTERO_PETRI_AMQP_PASSWORD', 'guest'))
         return pika.ConnectionParameters(
                 self.amqp_parameters.hostname,
                 self.amqp_parameters.port,
