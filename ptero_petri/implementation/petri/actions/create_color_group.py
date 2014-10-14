@@ -17,17 +17,18 @@ class CreateColorGroupAction(BasicActionBase):
                 color_group_idx=color_descriptor.group.idx,
                 data={'color_group_idx': new_color_group.idx})
 
-        webhooks.send_webhook(
-                url=self.notify_url,
-                response_data={
-                    'color_descriptor': color_descriptor,
-                    'net_key': net.key,
-                    'response_places': self.response_places,
-                },
-                data={
-                    'group': new_color_group.as_dict
-                }
-        )
+        if 'url' in self.args:
+            webhooks.send_webhook(
+                    url=self.notify_url,
+                    response_data={
+                        'color_descriptor': color_descriptor,
+                        'net_key': net.key,
+                        'response_places': self.response_places,
+                    },
+                    data={
+                        'group': new_color_group.as_dict
+                    }
+            )
 
 
         return [output_token], defer.succeed(None)
