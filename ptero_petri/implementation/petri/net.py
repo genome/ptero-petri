@@ -181,9 +181,16 @@ class Net(rom.Object):
         end = self._incr_counter(_COLOR_KEY, size)
         begin = end - size
 
-        cg = ColorGroup(idx=group_id, parent_color=parent_color,
+        color_lineage = None
+        if parent_color is not None and parent_color_group_idx is not None:
+            parent_cg = self.color_groups[parent_color_group_idx]
+            color_lineage = list(parent_cg.color_lineage)
+            color_lineage.append(parent_color)
+
+        cg = ColorGroup(idx=group_id,
                 parent_color_group_idx=parent_color_group_idx,
-                begin=begin, end=end)
+                begin=begin, end=end,
+                color_lineage=color_lineage)
 
         self.color_groups[group_id] = cg
 
