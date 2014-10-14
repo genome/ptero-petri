@@ -38,4 +38,9 @@ class BarrierActionBase(ActionBase):
 
 
 class BasicActionBase(ActionBase):
-    pass
+    def get_merged_token_data(self, net, active_tokens):
+        result = {}
+        tokens = [net.token(t) for t in active_tokens]
+        for t in tokens:
+            result.update(t.data.value)
+        return result
