@@ -19,14 +19,14 @@ class MergeMixin(object):
                     'Failed to merge token data for tokens: %s'
                     % [t for t in active_tokens])
 
-    def get_merged_token(self, net, color_descriptor, active_tokens):
+    def get_merged_token(self, net, color, color_group_idx, active_tokens):
         if len(active_tokens) == 1:
             new_token_idx = head(active_tokens)
             new_token = net.token(new_token_idx)
 
         else:
-            new_token = net.create_token(color=color_descriptor.color,
-                    color_group_idx=color_descriptor.group.idx)
+            new_token = net.create_token(color=color,
+                    color_group_idx=color_group_idx)
             self.merge_data(net, new_token, active_tokens)
 
         return new_token
@@ -34,7 +34,9 @@ class MergeMixin(object):
 
 class BasicMergeAction(BasicActionBase, MergeMixin):
     def execute(self, net, color_descriptor, active_tokens, service_interfaces):
-        new_token = self.get_merged_token(net, color_descriptor, active_tokens)
+        new_token = self.get_merged_token(net, color=color_descriptor.color,
+                color_group_idx=color_descriptor.group.idx,
+                active_tokens=active_tokens)
 
         return [new_token], defer.succeed(None)
 

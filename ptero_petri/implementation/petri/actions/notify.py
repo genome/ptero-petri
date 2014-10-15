@@ -7,7 +7,9 @@ from twisted.internet import defer
 
 class NotifyAction(BasicActionBase, MergeMixin):
     def execute(self, net, color_descriptor, active_tokens, service_interfaces):
-        new_token = self.get_merged_token(net, color_descriptor, active_tokens)
+        new_token = self.get_merged_token(net, color=color_descriptor.color,
+                color_group_idx=color_descriptor.group.idx,
+                active_tokens=active_tokens)
 
         data = None
         if 'requested_data' in self.args:

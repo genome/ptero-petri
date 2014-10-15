@@ -1,0 +1,66 @@
+{
+    "entry_places": ["start"],
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "outputs": ["wait_for_split_size", "convert_counter"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url("get_split_size",
+                            response_name="send_data",
+                            color_group_size=3) }},
+                "requested_data": ["color_group_size"],
+                "response_places": {
+                    "send_data": "split_size_place"
+                }
+            }
+        },
+        {
+            "inputs": ["wait_for_split_size", "split_size_place"],
+            "outputs": ["create_cg_in"]
+        },
+
+        {
+            "inputs": ["create_cg_in"],
+            "outputs": ["split_in"],
+            "action": {
+                "type": "create-color-group",
+                "url": {{
+                    callback_url("notify/cg_created")
+                }}
+            }
+        },
+
+        {
+            "inputs": ["split_in"],
+            "outputs": ["split_out"],
+            "action": {
+                "type": "split"
+            }
+        },
+
+        {
+            "inputs": ["split_out"],
+            "outputs": ["convert_callback"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('notify/middle') }}
+            }
+        },
+
+        {
+            "inputs": ["convert_callback"],
+            "outputs": ["convert_output"],
+            "action": {
+                "type": "convert-color-to-parent"
+            }
+        },
+        {
+            "inputs": ["convert_output", "convert_counter"],
+            "action": {
+                "type": "notify",
+                "url": {{ callback_url('notify/convert') }}
+            }
+        }
+    ]
+}
