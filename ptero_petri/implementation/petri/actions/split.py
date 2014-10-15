@@ -5,9 +5,9 @@ from twisted.internet import defer
 
 class SplitAction(BasicActionBase):
     def execute(self, net, color_descriptor, active_tokens, service_interfaces):
-        input_token = net.token(head(active_tokens))
+        merged_data = self.get_merged_token_data(net, active_tokens)
 
-        color_group_idx = int(input_token.data['color_group_idx'])
+        color_group_idx = int(merged_data['color_group_idx'])
         color_group = net.color_group(color_group_idx)
 
         tokens = self._create_tokens(color_group, net=net)

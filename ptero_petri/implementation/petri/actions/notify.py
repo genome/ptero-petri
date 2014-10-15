@@ -1,13 +1,13 @@
 from .. import webhooks
 from ...container_utils import head
 from .base import BasicActionBase
+from .merge import MergeMixin
 from twisted.internet import defer
 
 
-class NotifyAction(BasicActionBase):
+class NotifyAction(BasicActionBase, MergeMixin):
     def execute(self, net, color_descriptor, active_tokens, service_interfaces):
-        new_token_idx = head(active_tokens)
-        new_token = net.token(new_token_idx)
+        new_token = self.get_merged_token(net, color_descriptor, active_tokens)
 
         data = None
         if 'requested_data' in self.args:
