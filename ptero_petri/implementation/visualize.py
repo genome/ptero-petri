@@ -76,6 +76,7 @@ class DotVisualizer(object):
                 self._transition_name(i), self._get_transition_color(t))
 
     _ACTION_COLOR_MAP = {
+        'convert-to-parent-color': 'green',
         'create-color-group': 'red',
         'join': 'red',
         'notify': 'blue',
