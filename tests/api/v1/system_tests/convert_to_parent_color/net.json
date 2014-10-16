@@ -52,7 +52,7 @@
             "inputs": ["convert_callback"],
             "outputs": ["convert_output"],
             "action": {
-                "type": "convert-color-to-parent"
+                "type": "convert-to-parent-color"
             }
         },
         {

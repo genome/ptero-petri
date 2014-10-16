@@ -8,7 +8,7 @@ import itertools
 
 
 _ACTION_CLASSES = {
-    'convert-color-to-parent': ConvertToParentColorAction,
+    'convert-to-parent-color': ConvertToParentColorAction,
     'create-color-group': CreateColorGroupAction,
     'join': JoinAction,
     'notify': NotifyAction,
