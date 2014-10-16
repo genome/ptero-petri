@@ -1,0 +1,11 @@
+get_split_size:
+    count: 1
+notify/cg_created:
+    count: 1
+    depends: [get_split_size]
+notify/middle:
+    count: 3
+    depends: [notify/cg_created]
+notify/convert:
+    count: 1
+    depends: [notify/middle]

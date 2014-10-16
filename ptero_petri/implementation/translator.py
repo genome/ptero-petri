@@ -1,3 +1,4 @@
+from .petri.actions.convert_to_parent_color import ConvertToParentColorAction
 from .petri.actions.create_color_group import CreateColorGroupAction
 from .petri.actions.join import JoinAction
 from .petri.actions.notify import NotifyAction
@@ -7,6 +8,7 @@ import itertools
 
 
 _ACTION_CLASSES = {
+    'convert-to-parent-color': ConvertToParentColorAction,
     'create-color-group': CreateColorGroupAction,
     'join': JoinAction,
     'notify': NotifyAction,
