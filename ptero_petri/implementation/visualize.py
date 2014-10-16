@@ -44,11 +44,11 @@ class DotVisualizer(object):
         for transition_dict in self.net_data.get('transitions', []):
             for name in ['inputs', 'outputs']:
                 result.update(set(transition_dict.get(name, [])))
-        return [p.replace('-', '_') for p in result]
+        return [_quote(p) for p in result]
 
     def _format_entry_points(self):
         result = ['{', 'rank=source']
-        result.extend([ep.replace('-', '_')
+        result.extend([_quote(ep)
             for ep in self.net_data.get('entry_places', [])])
         result.append('}')
         return result
@@ -109,8 +109,10 @@ class DotVisualizer(object):
         return 't_%d' % index
 
     def _format_arc(self, f, t):
-        return '%s -> %s' % (f, t)
+        return '%s -> %s' % (_quote(f), _quote(t))
 
+def _quote(str):
+    return '"%s"' % str
 
 def parse_args():
     parser = argparse.ArgumentParser()
