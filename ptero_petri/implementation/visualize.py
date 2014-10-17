@@ -76,6 +76,7 @@ class DotVisualizer(object):
                 self._transition_name(i), self._get_transition_color(t))
 
     _ACTION_COLOR_MAP = {
+        'convert-to-parent-color': 'green',
         'create-color-group': 'red',
         'join': 'red',
         'notify': 'blue',
@@ -111,8 +112,10 @@ class DotVisualizer(object):
     def _format_arc(self, f, t):
         return '%s -> %s' % (_quote(f), _quote(t))
 
+
 def _quote(str):
     return '"%s"' % str
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
