@@ -7,7 +7,7 @@ Color = int
 
 class ColorGroup(object):
     def __init__(self, idx, parent_color_group_idx, begin, end,
-            color_lineage=None, parent_color=None):
+            color_lineage=None, begin_lineage=None, parent_color=None):
         # NOTE: parent color is ignored
 
         self.idx = idx
@@ -20,6 +20,12 @@ class ColorGroup(object):
 
         else:
             self.color_lineage = []
+
+        if begin_lineage:
+            self.begin_lineage = begin_lineage
+
+        else:
+            self.begin_lineage = []
 
     @property
     def size(self):
@@ -48,8 +54,8 @@ class ColorGroup(object):
             "parent_color": self.parent_color,  # XXX For legacy compat only
             "parent_color_group_idx": self.parent_color_group_idx,
             "color_lineage": self.color_lineage,
+            "begin_lineage": self.begin_lineage,
         }
-
 
 
 def color_group_enc(value):

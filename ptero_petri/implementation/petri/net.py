@@ -182,15 +182,19 @@ class Net(rom.Object):
         begin = end - size
 
         color_lineage = None
+        begin_lineage = None
         if parent_color is not None and parent_color_group_idx is not None:
             parent_cg = self.color_groups[parent_color_group_idx]
             color_lineage = list(parent_cg.color_lineage)
             color_lineage.append(parent_color)
+            begin_lineage = list(parent_cg.begin_lineage)
+            begin_lineage.append(parent_cg.begin)
 
         cg = ColorGroup(idx=group_id,
                 parent_color_group_idx=parent_color_group_idx,
                 begin=begin, end=end,
-                color_lineage=color_lineage)
+                color_lineage=color_lineage,
+                begin_lineage=begin_lineage)
 
         self.color_groups[group_id] = cg
 
