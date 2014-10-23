@@ -2,6 +2,7 @@
 branch = True
 parallel = True
 source = ptero_petri
+omit = ptero_petri/implementation/visualize.py
 
 [report]
 show_missing = True
