@@ -7,7 +7,6 @@ __all__ = ['Factory']
 class Factory(object):
     def __init__(self):
         self._initialized = False
-        self._injector = None
         self._redis = None
 
     def create_backend(self):
