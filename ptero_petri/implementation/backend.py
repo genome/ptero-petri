@@ -2,8 +2,6 @@ from . import exceptions
 from .petri.builder import Builder
 from .petri.net import Net
 from .translator import Translator
-import os
-import pika
 
 
 EXCHANGE = 'ptero'
@@ -11,9 +9,8 @@ ROUTING_KEY = 'petri.place.create_token'
 
 
 class Backend(object):
-    def __init__(self, redis_connection, amqp_parameters):
+    def __init__(self, redis_connection):
         self.redis_connection = redis_connection
-        self.amqp_parameters = amqp_parameters
 
     def create_net(self, net_data):
         translator = Translator(net_data)
@@ -57,22 +54,3 @@ class Backend(object):
 
     def cleanup(self):
         pass
-
-
-    def _send_message(self, exchange, routing_key, body):
-        connection = pika.BlockingConnection(self._pika_connection_params())
-        channel = connection.channel()
-        channel.confirm_delivery()
-        channel.basic_publish(exchange=exchange, routing_key=routing_key,
-                body=body, properties=pika.BasicProperties(content_type='application/json',
-                    delivery_mode=1))
-
-    def _pika_connection_params(self):
-        credentials = pika.PlainCredentials(
-                username=os.environ.get('PTERO_PETRI_AMQP_USERNAME', 'guest'),
-                password=os.environ.get('PTERO_PETRI_AMQP_PASSWORD', 'guest'))
-        return pika.ConnectionParameters(
-                self.amqp_parameters.hostname,
-                self.amqp_parameters.port,
-                self.amqp_parameters.virtual_host,
-                credentials)
