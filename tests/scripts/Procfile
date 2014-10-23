@@ -1,5 +1,4 @@
-web: tests/scripts/sigterm_wrapper coverage run ptero_petri/api/wsgi.py --port $PTERO_PETRI_PORT
-orchestrator: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTERO_PETRI_CELERY_RESULT_BACKEND coverage run ptero_petri/implementation/orchestrator/main.py
+web: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTERO_PETRI_CELERY_RESULT_BACKEND tests/scripts/sigterm_wrapper coverage run ptero_petri/api/wsgi.py --port $PTERO_PETRI_PORT
 persistance_redis: redis-server --port $PTERO_PETRI_REDIS_PORT
 celery_redis: redis-server --port $PTERO_PETRI_CELERY_REDIS_PORT
 rabbit: RABBITMQ_NODE_PORT=$PTERO_PETRI_AMQP_PORT RABBITMQ_NODENAME=ptero-petri-rabbitmq RABBITMQ_LOG_BASE=$PWD/var/log RABBITMQ_MNESIA_BASE=$PWD/var/rabbitmq-data rabbitmq-server

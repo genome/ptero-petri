@@ -69,11 +69,9 @@ class TestNet(NetTest):
         home = self.net.add_place("home")
         place_idx = home.index.value
 
-        svcs = MagicMock()
         color = 0
-        self.net.notify_place(place_idx, color, svcs)
+        self.net.notify_place(place_idx, color)
 
-        self.assertEqual(0, len(svcs.mock_calls))
         self.assertRaises(rom.NotInRedisError, getattr,
                 home.first_token_timestamp, "value")
 
@@ -84,38 +82,10 @@ class TestNet(NetTest):
         self.net.put_token(place_idx, self.token)
         color = self.token.color.value
 
-        svcs = MagicMock()
-        self.net.notify_place(place_idx, color+1, svcs)
+        self.net.notify_place(place_idx, color+1)
 
-        self.assertEqual(0, len(svcs.mock_calls))
         self.assertRaises(rom.NotInRedisError, getattr,
                 home.first_token_timestamp, "value")
-
-    def test_notify_place(self):
-        home = self.net.add_place("home")
-        place_idx = home.index.value
-        home.arcs_out = [0, 1, 2]
-
-        self.net.put_token(place_idx, self.token)
-        color = self.token.color.value
-
-        orchestrator = Mock()
-        svcs = {"orchestrator": orchestrator}
-        self.conn.time = lambda: (123, 0)
-        self.net.notify_place(place_idx, color, svcs)
-
-        calls = orchestrator.method_calls
-        self.assertEqual(3, len(calls))
-
-        fn = orchestrator.notify_transition
-        fn.assert_any_call(net_key='net', transition_idx=0,
-                place_idx=place_idx, token_idx=ANY)
-        fn.assert_any_call(net_key='net', transition_idx=1,
-                place_idx=place_idx, token_idx=ANY)
-        fn.assert_any_call(net_key='net', transition_idx=2,
-                place_idx=place_idx, token_idx=ANY)
-        self.assertEqual(123.0, home.first_token_timestamp.value)
-
 
     def test_delete(self):
         p = self.net.add_place('p')

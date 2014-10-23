@@ -28,31 +28,28 @@ class Backend(object):
 
     def create_token(self, net_key, place_idx):
         net = Net(connection=self.redis_connection, key=net_key)
-        color_group = net.add_color_group(1)
+        self._validate_place_idx(net, place_idx)
 
-        self.put_token(net_key, place_idx, color_group_idx=color_group.idx,
-                color=color_group.begin)
+        color_group = net.add_color_group(1)
+        net.create_put_notify(place_idx, color=color_group.begin,
+                color_group_idx=color_group.idx)
 
         return color_group.begin
 
     def put_token(self, net_key, place_idx, color_group_idx, color, data=None):
-        self._validate_place_idx(net_key, place_idx)
-        self._validate_color_in_color_group(net_key, color, color_group_idx)
-
-        message = CreateTokenMessage(net_key=net_key, place_idx=place_idx,
-                color=color, color_group_idx=color_group_idx, data=data)
-
-        self._send_message(EXCHANGE, ROUTING_KEY, message.encode())
-
-    def _validate_place_idx(self, net_key, place_idx):
         net = Net(connection=self.redis_connection, key=net_key)
+        self._validate_place_idx(net, place_idx)
+        self._validate_color_in_color_group(net, color, color_group_idx)
+        net.create_put_notify(place_idx=place_idx, color=color,
+                color_group_idx=color_group_idx, data=data)
+
+    def _validate_place_idx(self, net, place_idx):
         if not place_idx < net.num_places:
             raise exceptions.InvalidPlace(
                     'Invalid place index (%d) given for net (%s).'
                     % (place_idx, net.key))
 
-    def _validate_color_in_color_group(self, net_key, color, color_group_idx):
-        net = Net(connection=self.redis_connection, key=net_key)
+    def _validate_color_in_color_group(self, net, color, color_group_idx):
         color_group = net.color_group(color_group_idx)
         if not (color >= color_group.begin and color < color_group.end):
             raise exceptions.InvalidColor(

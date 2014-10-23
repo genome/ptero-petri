@@ -2,11 +2,10 @@ from .. import webhooks
 from ...container_utils import head
 from .base import BasicActionBase
 from .merge import MergeMixin
-from twisted.internet import defer
 
 
 class NotifyAction(BasicActionBase, MergeMixin):
-    def execute(self, net, color_descriptor, active_tokens, service_interfaces):
+    def execute(self, net, color_descriptor, active_tokens):
         new_token = self.get_merged_token(net, color=color_descriptor.color,
                 color_group_idx=color_descriptor.group.idx,
                 active_tokens=active_tokens)
@@ -26,7 +25,7 @@ class NotifyAction(BasicActionBase, MergeMixin):
                 },
                 data=color_descriptor.as_dict)
 
-        return [new_token], defer.succeed(None)
+        return [new_token]
 
     @property
     def notify_url(self):

@@ -11,7 +11,7 @@ from unittest import main
 class SimpleAction(BarrierActionBase):
     count = rom.Property(rom.Int)
 
-    def execute(self, color_descriptor, active_tokens, net, service_interfaces):
+    def execute(self, color_descriptor, active_tokens, net):
         self.count.incr(1)
         color = color_descriptor.color
         color_group_idx = color_descriptor.group.idx
@@ -145,8 +145,7 @@ class TestBarrier(NetTest):
         self.assertEqual(1,
                 len(trans.active_tokens(color_descriptor).value))
 
-        svcs = MagicMock()
-        new_tokens = trans.fire(self.net, color_descriptor, svcs)
+        new_tokens = trans.fire(self.net, color_descriptor)
         self.assertEqual(1, action.count.value)
         self.assertEqual(1, len(new_tokens))
         token = new_tokens[0]

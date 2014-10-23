@@ -1,10 +1,9 @@
 from .. import webhooks
 from .base import BasicActionBase
-from twisted.internet import defer
 
 
 class CreateColorGroupAction(BasicActionBase):
-    def execute(self, net, color_descriptor, active_tokens, service_interfaces):
+    def execute(self, net, color_descriptor, active_tokens):
         merged_data = self.get_merged_token_data(net, active_tokens)
 
         size = int(merged_data['color_group_size'])
@@ -30,7 +29,7 @@ class CreateColorGroupAction(BasicActionBase):
             )
 
 
-        return [output_token], defer.succeed(None)
+        return [output_token]
 
 
     @property
