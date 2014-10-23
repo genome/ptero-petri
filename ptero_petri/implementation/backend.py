@@ -1,5 +1,4 @@
 from . import exceptions
-from .orchestrator.messages import CreateTokenMessage
 from .petri.builder import Builder
 from .petri.net import Net
 from .translator import Translator
