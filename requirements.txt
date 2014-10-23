@@ -1,4 +1,5 @@
 blist
+celery
 flask
 flask-restful
 injector
