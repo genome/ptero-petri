@@ -1,11 +1,10 @@
+from . import celery_tasks
 import celery
 import os
 
 
-TASK_PATH = 'ptero_petri.implementation.celery_tasks'
-
-
-app = celery.Celery('PTero-petri-celery', include=TASK_PATH)
+app = celery.Celery('PTero-petri-celery',
+        include='ptero_petri.implementation.celery_tasks')
 
 
 _DEFAULT_CELERY_CONFIG = {
