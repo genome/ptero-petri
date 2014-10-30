@@ -3,7 +3,6 @@ from .. import lua
 from ... import rom
 from ...container_utils import head
 from .base import BarrierActionBase, BasicActionBase
-from twisted.internet import defer
 
 
 _merge_hashes_script = rom.Script(lua.load('merge_hashes'))
@@ -33,15 +32,14 @@ class MergeMixin(object):
 
 
 class BasicMergeAction(BasicActionBase, MergeMixin):
-    def execute(self, net, color_descriptor, active_tokens, service_interfaces):
+    def execute(self, net, color_descriptor, active_tokens):
         new_token = self.get_merged_token(net, color=color_descriptor.color,
                 color_group_idx=color_descriptor.group.idx,
                 active_tokens=active_tokens)
 
-        return [new_token], defer.succeed(None)
+        return [new_token]
 
 
 class BarrierMergeAction(BarrierActionBase, MergeMixin):
-    def execute(self, net, color_descriptor,
-            active_tokens, service_interfaces):
+    def execute(self, net, color_descriptor, active_tokens):
         raise NotImplementedError(":(")

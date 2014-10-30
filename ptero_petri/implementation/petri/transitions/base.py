@@ -1,7 +1,7 @@
 from .. import lua
 from ... import rom
+from ..petri_tasks import execute_task
 from itertools import product
-from twisted.internet import defer
 import logging
 
 
@@ -56,15 +56,14 @@ class TransitionBase(rom.Object):
             return
 
 
-    def fire(self, net, color_descriptor, service_interfaces):
+    def fire(self, net, color_descriptor):
         active_tokens = self.active_tokens(color_descriptor)
         action = self.action
         if action is None:
             action = self.DEFAULT_ACTION_CLASS(self.connection, self.action_key)
 
         return action.execute(net=net, active_tokens=active_tokens,
-                color_descriptor=color_descriptor,
-                service_interfaces=service_interfaces)
+                color_descriptor=color_descriptor)
 
     def push_tokens(self, net, color_descriptor, tokens):
         keys = [self.active_tokens(color_descriptor).key, self.arcs_out.key,
@@ -79,15 +78,10 @@ class TransitionBase(rom.Object):
         LOG.debug("rv=%r", rv)
         return rv[0]
 
-    def notify_places(self, net_key, colors, service_interfaces):
-        deferreds = []
-
-        orchestrator = service_interfaces['orchestrator']
+    def notify_places(self, net_key, colors,):
         for place_idx, color in product(self.arcs_out, colors):
-            deferred = orchestrator.notify_place(net_key, place_idx, color)
-            deferreds.append(deferred)
-
-        return defer.DeferredList(deferreds)
+            execute_task('NotifyPlace', net_key=net_key, place_idx=place_idx,
+                    color=color)
 
     def active_tokens(self, color_descriptor):
         return rom.Set(connection=self.connection,

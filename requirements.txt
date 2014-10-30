@@ -1,12 +1,7 @@
-blist
+celery
 flask
 flask-restful
-injector
 librabbitmq
-pika
-psutil
-python-statsd
 redis
 requests
 simplejson
-twisted

@@ -1,11 +1,11 @@
 from . import lua
 from .. import rom
+from .petri_tasks import execute_task
 from .color import ColorGroup
 from .color import color_group_enc, color_group_dec
 from .exceptions import ForeignTokenError, PlaceNotFoundError
 from .place import Place
 from .token import Token
-from twisted.internet import defer
 from uuid import uuid4
 
 import base64
@@ -124,28 +124,20 @@ class Net(rom.Object):
         rv = self._put_token_script(keys=keys, args=args)
         return rv
 
-    def notify_place(self, place_idx, color, service_interfaces):
+    def notify_place(self, place_idx, color):
         key = self.marking_key(color, place_idx)
         token_idx = self.color_marking.get(key)
         if token_idx is not None:
-            deferreds = []
             place = self.place(place_idx)
             place.first_token_timestamp.setnx()
 
             arcs = place.arcs_out.value
-            orchestrator = service_interfaces['orchestrator']
             for transition_idx in arcs:
-                df = orchestrator.notify_transition(net_key=self.key,
+                execute_task('NotifyTransition', net_key=self.key,
                         transition_idx=transition_idx, place_idx=place_idx,
                         token_idx=token_idx)
-                deferreds.append(df)
 
-            return defer.DeferredList(deferreds)
-        else:
-            return defer.succeed(None)
-
-    def notify_transition(self, transition_idx, place_idx, token_idx,
-            service_interfaces):
+    def notify_transition(self, transition_idx, place_idx, token_idx):
         trans = self.transition(transition_idx)
         token = self.token(token_idx)
         color_descriptor = token.color_descriptor
@@ -154,18 +146,13 @@ class Net(rom.Object):
                 self.color_marking.key, self.group_marking.key)
 
         if consume_rv == 0:
-            new_tokens, deferred = trans.fire(self,
-                    color_descriptor, service_interfaces)
+            new_tokens = trans.fire(self, color_descriptor)
             if not new_tokens:
                 LOG.debug('Got no tokens from transition ("%s": %s) '
                         'on net (%s).', trans.name.value, trans.index, self.key)
             colors = [x.color.value for x in new_tokens]
             trans.push_tokens(self, color_descriptor, new_tokens)
-            trans.notify_places(self.key, colors, service_interfaces)
-
-            return deferred
-        else:
-            return defer.succeed(None)
+            trans.notify_places(self.key, colors)
 
     def color_group(self, idx):
         return self.color_groups[idx]
@@ -228,11 +215,10 @@ class Net(rom.Object):
                 index=idx, data=data, color=color,
                 color_group_idx=color_group_idx)
 
-    def create_put_notify(self, place_idx, service_interfaces,
-            color, color_group_idx, data=None):
+    def create_put_notify(self, place_idx, color, color_group_idx, data=None):
         token = self.create_token(color, color_group_idx, data)
         self.put_token(place_idx, token)
-        return self.notify_place(place_idx, color, service_interfaces)
+        self.notify_place(place_idx, color)
 
     @staticmethod
     def marking_key(tag, place_idx):

@@ -1,10 +1,9 @@
 from ...container_utils import head
 from .base import BasicActionBase
-from twisted.internet import defer
 
 
 class SplitAction(BasicActionBase):
-    def execute(self, net, color_descriptor, active_tokens, service_interfaces):
+    def execute(self, net, color_descriptor, active_tokens):
         merged_data = self.get_merged_token_data(net, active_tokens)
 
         color_group_idx = int(merged_data['color_group_idx'])
@@ -12,7 +11,7 @@ class SplitAction(BasicActionBase):
 
         tokens = self._create_tokens(color_group, net=net)
 
-        return tokens, defer.succeed(None)
+        return tokens
 
     def _create_tokens(self, color_group, net):
         tokens = []

@@ -1,4 +1,3 @@
-from ptero_petri.implementation.petri.webhooks import _retry as retry
 import abc
 import collections
 import errno
@@ -7,7 +6,6 @@ import json
 import os
 import requests
 import signal
-import simplejson
 import subprocess
 import sys
 import time
@@ -201,7 +199,7 @@ class TestCaseMixin(object):
         self._wait_for_callback_webserver()
 
     def _wait_for_callback_webserver(self):
-        response = retry(requests.get, self._callback_ping_url())
+        response = _retry(requests.get, self._callback_ping_url())
         if response.status_code != 200:
             raise RuntimeError('Failed to spin up callback webserver: %s'
                     % response.text)
