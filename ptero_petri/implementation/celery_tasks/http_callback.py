@@ -7,6 +7,8 @@ __all__ = ['HTTPCallbackTask']
 
 
 class HTTPCallbackTask(celery.Task):
+    ignore_result = True
+
     def run(self, url, **kwargs):
         response = requests.put(url, data=self.body(kwargs),
                 headers={'Content-Type': 'application/json'})
