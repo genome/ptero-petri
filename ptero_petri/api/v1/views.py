@@ -7,8 +7,8 @@ class NetView(Resource):
 
 class TokenListView(Resource):
     def post(self, net_key, place_idx):
-        color = g.backend.create_token(net_key, place_idx)
-        return {'color': color}, 201
+        color = g.backend.put_token(net_key, place_idx)
+        return {}, 201
 
     def put(self, net_key, place_idx):
         color_group_idx = int(request.args['color_group'])
