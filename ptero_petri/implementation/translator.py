@@ -33,9 +33,12 @@ class Translator(object):
 
     def attach_places(self, future_net):
         for place_name in self.get_places():
+            add_to_lookup = (place_name in
+                    self.net_data.get('entry_places', set()).union(
+                    self.net_data.get('initialMarking', set())))
             self.place_to_future_place[place_name] = \
                     future_net.add_place(name=place_name,
-                            is_entry=place_name in self.net_data['entry_places'])
+                            has_lookup=add_to_lookup)
 
     def attach_transitions(self, future_net):
         for transition_dict in self.get_transitions():

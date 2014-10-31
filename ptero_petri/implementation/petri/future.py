@@ -78,9 +78,9 @@ class FutureNode(object):
 
 
 class FuturePlace(FutureNode):
-    def __init__(self, is_entry=False, *args, **kwargs):
+    def __init__(self, has_lookup=False, *args, **kwargs):
         FutureNode.__init__(self, *args, **kwargs)
-        self.is_entry = is_entry
+        self.has_lookup = has_lookup
 
     def add_arc_in(self, transition):
         assert isinstance(transition, FutureTransition)

@@ -45,7 +45,8 @@ class TestCaseMixin(object):
 
     def test_got_expected_callbacks(self):
         start_link = self._submit_net()
-        self._create_start_token(start_link)
+        if start_link:
+            self._create_start_token(start_link)
 
         self._wait_for_callback_output()
         self._print_callback_server_output()
@@ -69,7 +70,7 @@ class TestCaseMixin(object):
                 headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
         json = response.json()
-        return json['entry_links']['start']
+        return json['entry_links'].get('start')
 
     @property
     def _submit_url(self):

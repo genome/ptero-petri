@@ -8,13 +8,16 @@ __all__ = ['CreateToken']
 class CreateToken(celery.Task):
     ignore_result = True
 
-    def run(self, net_key, place_idx, color=None, color_group_idx=None,
-            data=None):
+    def run(self, net_key, place_idx=None, place_name=None, color=None,
+            color_group_idx=None, data=None):
         if data is None:
             data = {}
 
         from .. import storage
         net = get_object(storage.connection, net_key)
+
+        if place_idx is None:
+            place_idx = net.place_lookup[place_name]
 
         if color is None:
             color_group = net.add_color_group(1)
