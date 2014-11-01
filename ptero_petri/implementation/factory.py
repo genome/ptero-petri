@@ -12,10 +12,6 @@ class Factory(object):
         self._initialize()
         return backend.Backend()
 
-    def purge(self):
-        self._initialize()
-        self._redis.flushall()
-
     def _initialize(self):
         # Lazy initialize to be pre-fork friendly.
         if not self._initialized:
