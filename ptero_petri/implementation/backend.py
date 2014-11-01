@@ -28,10 +28,6 @@ class Backend(object):
         return celery.current_app.tasks[
                 'ptero_petri.implementation.celery_tasks.create_token.CreateToken']
 
-        task.delay(net_key, place_idx=place_idx, color=color,
-                color_group_idx=color_group_idx, data=data)
-
-
     def _place_initial_tokens(self, net_key, initial_marking):
         for place_name in initial_marking:
             self.put_token.delay(net_key, place_name=place_name)
