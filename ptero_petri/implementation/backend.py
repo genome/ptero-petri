@@ -1,6 +1,5 @@
 from . import exceptions
 from .petri.builder import Builder
-from .petri.net import Net
 from .translator import Translator
 import celery
 
