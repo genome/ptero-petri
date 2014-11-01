@@ -7,9 +7,6 @@ import uuid
 
 
 class Backend(object):
-    def __init__(self, redis_connection):
-        self.redis_connection = redis_connection
-
     def create_net(self, net_data):
         net_key = generate_net_key()
 

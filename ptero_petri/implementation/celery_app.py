@@ -1,4 +1,6 @@
 from . import celery_tasks
+from . import storage
+from celery.signals import worker_init
 import celery
 import os
 
@@ -21,3 +23,7 @@ for var, default in _DEFAULT_CELERY_CONFIG.iteritems():
         app.conf[var] = os.environ[var]
     else:
         app.conf[var] = default
+
+@worker_init.connect
+def initialize_sqlalchemy_session(signal, sender):
+    app.storage = storage.get_connection()

@@ -1,3 +1,4 @@
+from .storage_mixin import StorageMixin
 from ..petri.builder import Builder
 from ..translator import Translator
 import celery
@@ -6,17 +7,15 @@ import celery
 __all__ = ['SubmitNet']
 
 
-class SubmitNet(celery.Task):
+class SubmitNet(celery.Task, StorageMixin):
     ignore_result = True
 
     def run(self, net_key, net_data):
-        from .. import storage
-
         net_data['entry_places'] = set(net_data.get('entry_places', []))
         net_data['initialMarking'] = set(net_data.get('initialMarking', []))
 
         translator = Translator(net_data)
-        builder    = Builder(storage.connection)
+        builder    = Builder(self.storage)
         stored_net = builder.store(translator.future_net, translator.variables,
                 translator.constants, net_key=net_key)
 

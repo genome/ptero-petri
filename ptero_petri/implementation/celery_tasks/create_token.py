@@ -1,11 +1,11 @@
-from ..rom import get_object
+from .storage_mixin import StorageMixin
 import celery
 
 
 __all__ = ['CreateToken']
 
 
-class CreateToken(celery.Task):
+class CreateToken(celery.Task, StorageMixin):
     ignore_result = True
 
     def run(self, net_key, place_idx=None, place_name=None, color=None,
@@ -13,8 +13,7 @@ class CreateToken(celery.Task):
         if data is None:
             data = {}
 
-        from .. import storage
-        net = get_object(storage.connection, net_key)
+        net = self.get_net(net_key)
 
         if place_idx is None:
             place_idx = net.place_lookup[place_name]
