@@ -1,6 +1,6 @@
-from flask import g, request, url_for
+from flask import g, request
 from flask.ext.restful import Resource
-import traceback
+
 
 class NetView(Resource):
     pass
@@ -24,15 +24,7 @@ class TokenListView(Resource):
 class NetListView(Resource):
     def post(self):
         net_data = request.json
-        net_data['entry_places'] = set(net_data.get('entry_places', []))
-        net_data['initialMarking'] = set(net_data.get('initialMarking', []))
 
         net_info = g.backend.create_net(net_data)
 
-        entry_links = {}
-        for place_name, place_idx in net_info['entry_place_info'].items():
-            entry_links[place_name] = url_for('token-list',
-                    net_key=net_info['net_key'],
-                    place_idx=place_idx,
-                    _external=True)
-        return {'net_key': net_info['net_key'], 'entry_links': entry_links}, 201
+        return net_info, 201

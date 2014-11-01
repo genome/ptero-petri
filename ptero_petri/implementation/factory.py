@@ -21,5 +21,12 @@ class Factory(object):
         # Lazy initialize to be pre-fork friendly.
         if not self._initialized:
             self._initialized = True
-            from . import storage
-            self._redis = storage.connection
+            self._initialize_storage()
+            self._initialize_celery()
+
+    def _initialize_storage(self):
+        from . import storage
+        self._redis = storage.connection
+
+    def _initialize_celery(self):
+        from . import celery_app

@@ -1,7 +1,9 @@
 from . import exceptions
 from .petri.builder import Builder
 from .translator import Translator
+import base64
 import celery
+import uuid
 
 
 class Backend(object):
@@ -9,18 +11,16 @@ class Backend(object):
         self.redis_connection = redis_connection
 
     def create_net(self, net_data):
-        translator = Translator(net_data)
-        builder    = Builder(self.redis_connection)
-        stored_net = builder.store(translator.future_net, translator.variables,
-                translator.constants)
+        net_key = generate_net_key()
 
-        self._place_initial_tokens(stored_net.key,
-                net_data.get('initialMarking'))
+        self.submit_net.delay(net_key, net_data)
 
-        return {
-                'net_key': stored_net.key,
-                'entry_place_info': stored_net.place_lookup.value
-        }
+        return {'net_key': net_key}
+
+    @property
+    def submit_net(self):
+        return celery.current_app.tasks[
+                'ptero_petri.implementation.celery_tasks.submit_net.SubmitNet']
 
     @property
     def put_token(self):
@@ -33,3 +33,7 @@ class Backend(object):
 
     def cleanup(self):
         pass
+
+
+def generate_net_key():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]

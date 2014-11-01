@@ -1,5 +1,5 @@
 {
-    "entry_places": ["start"],
+    "initialMarking": ["start"],
     "transitions": [
         {
             "inputs": ["start"],
