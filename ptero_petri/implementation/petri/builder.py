@@ -21,8 +21,8 @@ class Builder(object):
 
         for place, index in future_places.iteritems():
             self.store_place(stored_net, place, index, future_transitions)
-            if place.is_entry:
-                stored_net.entry_places[place.name] = index
+            if place.has_lookup:
+                stored_net.place_lookup[place.name] = index
 
         for transition, index in future_transitions.iteritems():
             self.store_transition(stored_net, transition, index, future_places)

@@ -1,5 +1,4 @@
 {
-    "entry_places": ["start"],
     "transitions": [
         {
             "inputs": ["start"],
@@ -8,5 +7,6 @@
                 "url": {{ callback_url('simple/callback') }}
             }
         }
-    ]
+    ],
+    "initialMarking": ["start"]
 }

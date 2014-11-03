@@ -7,14 +7,15 @@ class NetView(Resource):
 
 class TokenListView(Resource):
     def post(self, net_key, place_idx):
-        color = g.backend.create_token(net_key, place_idx)
-        return {'color': color}, 201
+        color = g.backend.put_token.delay(net_key, place_idx)
+        return {}, 201
 
     def put(self, net_key, place_idx):
         color_group_idx = int(request.args['color_group'])
         color = int(request.args['color'])
 
-        g.backend.put_token(net_key, place_idx, color_group_idx, color,
+        g.backend.put_token.delay(net_key=net_key, place_idx=place_idx,
+                color=color, color_group_idx=color_group_idx,
                 data=request.json)
 
         return {}, 201
@@ -23,7 +24,8 @@ class TokenListView(Resource):
 class NetListView(Resource):
     def post(self):
         net_data = request.json
-        net_data['entry_places'] = set(net_data['entry_places'])
+        net_data['entry_places'] = set(net_data.get('entry_places', []))
+        net_data['initialMarking'] = set(net_data.get('initialMarking', []))
 
         net_info = g.backend.create_net(net_data)
 

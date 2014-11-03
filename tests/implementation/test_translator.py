@@ -14,7 +14,7 @@ class TestTranslator(TestCase):
 
     def test_null_transition(self):
         net_data = {
-            'entry_places': [],
+            'entry_places': set(),
             'transitions': [ { } ]
         }
         translator = Translator(net_data)
@@ -27,7 +27,7 @@ class TestTranslator(TestCase):
 
     def test_simple_transition(self):
         net_data = {
-            'entry_places': ['start'],
+            'entry_places': {'start'},
             'transitions': [ {
                 'inputs': ['start'],
                 'outputs': ['stop'],
@@ -42,13 +42,13 @@ class TestTranslator(TestCase):
         self.assertIsNone(t.action)
         self.assertEqual('start', get_unique_arc_in(t).name)
         self.assertEqual('stop', get_unique_arc_out(t).name)
-        self.assertTrue(get_unique_arc_in(t).is_entry)
-        self.assertFalse(get_unique_arc_out(t).is_entry)
+        self.assertTrue(get_unique_arc_in(t).has_lookup)
+        self.assertFalse(get_unique_arc_out(t).has_lookup)
 
     def test_transition_action(self):
         test_url = 'foobar'
         net_data = {
-            'entry_places': [],
+            'entry_places': set(),
             'transitions': [ {
                 'action': {
                     'type': 'notify',
