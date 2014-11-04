@@ -6,7 +6,7 @@ import sys
 import time
 
 
-NUM_ORCHESTRATORS = 2
+NUM_WORKERS = 2
 
 
 instance = None
@@ -36,7 +36,7 @@ def procfile_path():
 
 def service_command_line():
     return ['honcho', '-f', procfile_path(), 'start',
-            '-c', 'orchestrator=%d' % NUM_ORCHESTRATORS]
+            '-c', 'worker=%d' % NUM_WORKERS]
 
 
 def setUp():

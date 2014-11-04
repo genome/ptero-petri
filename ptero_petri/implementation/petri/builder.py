@@ -14,10 +14,11 @@ class Builder(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def store(self, future_net, variables, constants):
+    def store(self, future_net, variables, constants, net_key=None):
         future_places, future_transitions = gather_nodes(future_net)
 
-        stored_net = self.create_stored_net(future_net, variables, constants)
+        stored_net = self.create_stored_net(future_net, variables, constants,
+                net_key=net_key)
 
         for place, index in future_places.iteritems():
             self.store_place(stored_net, place, index, future_transitions)
@@ -36,8 +37,8 @@ class Builder(object):
         return stored_net
 
 
-    def create_stored_net(self, future_net, variables, constants):
-        stored_net = Net.create(self.connection)
+    def create_stored_net(self, future_net, variables, constants, net_key=None):
+        stored_net = Net.create(connection=self.connection, key=net_key)
         stored_net.name = future_net.name
 
         stored_net.variables = variables

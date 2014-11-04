@@ -6,13 +6,8 @@ import flask
 __all__ = ['create_app']
 
 
-def create_app(purge=False):
+def create_app():
     factory = Factory()
-
-    if purge:  # This is used to create a clean test environment.
-        factory.purge()
-    else:
-        pass  # pragma: no cover
 
     app = _create_app_from_blueprints()
 
