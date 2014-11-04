@@ -1,9 +1,13 @@
 from flask import g, request
 from flask.ext.restful import Resource
+import base64
+import uuid
 
 
 class NetView(Resource):
-    pass
+    def put(self, net_key):
+        return _submit_net(net_key)
+
 
 class TokenListView(Resource):
     def post(self, net_key, place_idx):
@@ -23,8 +27,17 @@ class TokenListView(Resource):
 
 class NetListView(Resource):
     def post(self):
-        net_data = request.json
+        net_key = _generate_net_key()
+        return _submit_net(net_key)
 
-        net_info = g.backend.create_net(net_data)
 
-        return net_info, 201
+def _submit_net(net_key):
+    net_data = request.json
+
+    net_info = g.backend.create_net(net_data, net_key=net_key)
+
+    return net_info, 201
+
+
+def _generate_net_key():
+    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]

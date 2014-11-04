@@ -1,15 +1,11 @@
 from . import exceptions
 from .petri.builder import Builder
 from .translator import Translator
-import base64
 import celery
-import uuid
 
 
 class Backend(object):
-    def create_net(self, net_data):
-        net_key = generate_net_key()
-
+    def create_net(self, net_data, net_key):
         self.submit_net.delay(net_key, net_data)
 
         return {'net_key': net_key}
@@ -26,7 +22,3 @@ class Backend(object):
 
     def cleanup(self):
         pass
-
-
-def generate_net_key():
-    return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
