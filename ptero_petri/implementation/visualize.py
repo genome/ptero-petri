@@ -1,5 +1,5 @@
 import argparse
-import simplejson
+import json
 import sys
 
 
@@ -130,7 +130,7 @@ def main():
     args = parse_args()
 
     with _open_file(args.input, sys.stdin, 'r') as infile:
-        net_data = simplejson.load(infile)
+        net_data = json.load(infile)
 
     v = DotVisualizer(net_data)
     dot_output = v.dot()
