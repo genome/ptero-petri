@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "POST /v1/nets",
+    "description": "Create a new net.",
+    "definitions": {
+        "transition": {
+            "type": "object",
+            "description": "TODO write a description",
+            "properties": {
+                "action": { "$ref": "#/definitions/action" },
+                "inputs": { "$ref": "#/definitions/places" },
+                "outputs": { "$ref": "#/definitions/places" },
+                "type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "enum": ["barrier", "basic"]
+                }
+            },
+            "required": ["inputs"],
+            "additionalProperties": false
+        },
+        "places": {
+            "type": "array",
+            "description": "TODO should a places list have at least one place? is unique appropriate?",
+            "uniqueItems": true,
+            "items": { "$ref": "#/definitions/place" }
+        },
+        "place": {
+            "type": "string",
+            "description": "TODO is empty place name okay?",
+            "minLength": 1
+        },
+        "action": {
+            "type": "object",
+            "description": "TODO may type or url be empty strings?",
+            "properties": {
+                "type": { "type": "string" }
+            }
+        }
+    },
+    "type": "object",
+    "properties": {
+        "initialMarking": {
+            "type": "array",
+            "items": {"$ref": "#/definitions/place"},
+            "minItems": 1
+        },
+        "transitions": {
+            "type": "array",
+            "description": "TODO disallow 0 transitions?",
+            "items": { "$ref": "#/definitions/transition" },
+            "minItems": 1
+        }
+    },
+    "required": ["initialMarking", "transitions"],
+    "additionalProperties": false
+}
