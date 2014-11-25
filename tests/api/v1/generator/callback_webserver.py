@@ -4,7 +4,7 @@ from flask import Flask, request
 import argparse
 import requests
 import signal
-import simplejson
+import json
 import sys
 
 
@@ -70,7 +70,7 @@ def send_request(request_args):
         request_data = {}
         for k, v in data.iteritems():
             request_data[k] = v[0]  # always take the first element
-        response = requests.put(url, data=simplejson.dumps(request_data),
+        response = requests.put(url, data=json.dumps(request_data),
                 headers={'Content-Type': 'application/json'})
         sys.stderr.write('  Callback response: %s\n' % response)
 
