@@ -1,7 +1,6 @@
 from flask import request
 import json
 import jsonschema
-import os
 import pkg_resources
 
 
@@ -10,8 +9,9 @@ def _load_schema(schema_name):
         _schema_path(schema_name)))
 
 
+_BASE_PATH = '/'.join(__package__.split('.')[1:])
 def _schema_path(schema_name):
-    return os.path.join('schemas', 'v1', '%s.json' % schema_name)
+    return '%s/schemas/%s.json' % (_BASE_PATH, schema_name)
 
 
 _POST_NET_SCHEMA = _load_schema('post_net')
