@@ -1,12 +1,17 @@
+from . import validators
 from flask import g, request
 from flask.ext.restful import Resource
+from jsonschema import ValidationError
 import base64
 import uuid
 
 
 class NetView(Resource):
     def put(self, net_key):
-        return _submit_net(net_key)
+        try:
+            return _submit_net(net_key)
+        except ValidationError as e:
+            return {'error': e.message}, 400
 
 
 class TokenListView(Resource):
@@ -28,11 +33,14 @@ class TokenListView(Resource):
 class NetListView(Resource):
     def post(self):
         net_key = _generate_net_key()
-        return _submit_net(net_key)
+        try:
+            return _submit_net(net_key)
+        except ValidationError as e:
+            return {'error': e.message}, 400
 
 
 def _submit_net(net_key):
-    net_data = request.json
+    net_data = validators.get_net_post_data()
 
     net_info = g.backend.create_net(net_data, net_key=net_key)
 
