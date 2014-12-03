@@ -16,5 +16,7 @@ _REGISTERED_TASKS = {
     'NotifyTransition': _BASE_PATH + 'notify_transition.NotifyTransition',
     'NotifyPlace': _BASE_PATH + 'notify_place.NotifyPlace',
 }
+
+
 def _full_task_name(name):
     return _REGISTERED_TASKS[name]

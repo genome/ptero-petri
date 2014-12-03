@@ -2,7 +2,7 @@ import os
 import redis
 
 
-__all__ = ['connection']
+__all__ = ['get_connection']
 
 
 _HOST = os.environ.get('PTERO_PETRI_REDIS_HOST')

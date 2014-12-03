@@ -1,6 +1,5 @@
 from .. import lua
 from ... import rom
-from ptero_petri.implementation import rom
 from ..actions.base import BarrierActionBase
 from ..actions.merge import BarrierMergeAction
 from .base import TransitionBase
@@ -17,7 +16,7 @@ class BarrierTransition(TransitionBase):
     _consume_tokens = rom.Script(lua.load('consume_tokens_barrier'))
 
     def consume_tokens(self, enabler, color_descriptor, color_marking_key,
-            group_marking_key):
+                       group_marking_key):
 
         color_group = color_descriptor.group
 

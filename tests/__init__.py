@@ -2,7 +2,6 @@ import errno
 import os
 import psutil
 import signal
-import sys
 import time
 
 
@@ -28,11 +27,14 @@ def wait_time():
     else:
         return 5
 
+
 def this_dir():
     return os.path.dirname(__file__)
 
+
 def procfile_path():
     return os.path.join(this_dir(), 'scripts', 'Procfile')
+
 
 def service_command_line():
     return ['honcho', '-f', procfile_path(), 'start',
@@ -49,10 +51,11 @@ def setUp():
 
     if not os.environ.get('SKIP_PROCFILE'):
         instance = psutil.Popen(service_command_line(),
-                shell=False, stdout=outlog, stderr=errlog)
+                                shell=False, stdout=outlog, stderr=errlog)
         time.sleep(wait_time())
         if instance.poll() is not None:
             raise RuntimeError("honcho instance terminated prematurely")
+
 
 def signal_processes(processes, sig):
     signaled_someone = False
@@ -65,8 +68,10 @@ def signal_processes(processes, sig):
 
     return signaled_someone
 
+
 def get_descendents():
     return psutil.Process(instance.pid).get_children(recursive=True)
+
 
 def cleanup():
     descendents = get_descendents()

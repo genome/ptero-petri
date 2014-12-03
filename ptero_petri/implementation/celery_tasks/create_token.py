@@ -24,4 +24,4 @@ class CreateToken(celery.Task, StorageMixin):
             color_group_idx = color_group.idx
 
         return net.create_put_notify(place_idx, color=color,
-                color_group_idx=color_group_idx, data=data)
+                                     color_group_idx=color_group_idx, data=data)

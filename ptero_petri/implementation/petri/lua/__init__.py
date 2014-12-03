@@ -2,6 +2,7 @@ import os.path
 
 BASE_PATH = os.path.dirname(__file__)
 
+
 def load(*module_names):
     parts = []
     for mn in module_names:

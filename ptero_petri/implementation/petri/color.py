@@ -6,8 +6,9 @@ Color = int
 
 
 class ColorGroup(object):
+
     def __init__(self, idx, parent_color_group_idx, begin, end,
-            color_lineage=None, begin_lineage=None, parent_color=None):
+                 color_lineage=None, begin_lineage=None, parent_color=None):
         # NOTE: parent color is ignored
 
         self.idx = idx
@@ -68,7 +69,9 @@ def color_group_dec(value):
 
 _ColorDescriptorBase = namedtuple("_ColorDescriptorBase", ["color", "group"])
 
+
 class ColorDescriptor(_ColorDescriptorBase):
+
     @property
     def as_dict(self):
         return {

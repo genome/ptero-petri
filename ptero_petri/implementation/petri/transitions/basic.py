@@ -16,7 +16,7 @@ class BasicTransition(TransitionBase):
     _consume_tokens = rom.Script(lua.load('consume_tokens_basic'))
 
     def consume_tokens(self, enabler, color_descriptor, color_marking_key,
-            group_marking_key):
+                       group_marking_key):
 
         active_tokens_key = self.active_tokens_key(color_descriptor)
         state_key = self.state_key(color_descriptor)

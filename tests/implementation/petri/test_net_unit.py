@@ -4,6 +4,7 @@ from unittest import main
 
 
 class TestNet(FakeRedisTest):
+
     def setUp(self):
         FakeRedisTest.setUp(self)
         self.net = Net.create(connection=self.conn)
@@ -16,14 +17,14 @@ class TestNet(FakeRedisTest):
 
     def test_set_initial_color_raises(self):
         net = self.net
-        color_group = net.add_color_group(1)
+        net.add_color_group(1)
         with self.assertRaises(ValueError):
             net.set_initial_color(42)
 
     def test_color_group(self):
         net = self.net
         cg = net.add_color_group(parent_color=None, parent_color_group_idx=None,
-                size=2)
+                                 size=2)
         self.assertIsInstance(cg, ColorGroup)
         self.assertIsNone(cg.parent_color)
         self.assertIsNone(cg.parent_color_group_idx)

@@ -32,7 +32,7 @@ class TransitionBase(rom.Object):
             yield key
 
     def consume_tokens(self, enabler, color_descriptor, color_marking_key,
-            group_marking_key):
+                       group_marking_key):
         raise NotImplementedError()
 
     def state_key(self, color_descriptor):
@@ -40,7 +40,6 @@ class TransitionBase(rom.Object):
 
     def active_tokens_key(self, color_descriptor):
         raise NotImplementedError()
-
 
     @property
     def action_key(self):
@@ -55,15 +54,15 @@ class TransitionBase(rom.Object):
         except rom.NotInRedisError:
             return
 
-
     def fire(self, net, color_descriptor):
         active_tokens = self.active_tokens(color_descriptor)
         action = self.action
         if action is None:
-            action = self.DEFAULT_ACTION_CLASS(self.connection, self.action_key)
+            action = self.DEFAULT_ACTION_CLASS(
+                self.connection, self.action_key)
 
         return action.execute(net=net, active_tokens=active_tokens,
-                color_descriptor=color_descriptor)
+                              color_descriptor=color_descriptor)
 
     def push_tokens(self, net, color_descriptor, tokens):
         keys = [self.active_tokens(color_descriptor).key, self.arcs_out.key,
@@ -72,7 +71,8 @@ class TransitionBase(rom.Object):
 
         args = [len(tokens)]
         for t in tokens:
-            args.extend([t.color_group_idx.value, t.color.value, t.index.value])
+            args.extend(
+                [t.color_group_idx.value, t.color.value, t.index.value])
 
         rv = self._push_tokens_script(keys=keys, args=args)
         LOG.debug("rv=%r", rv)
@@ -81,13 +81,12 @@ class TransitionBase(rom.Object):
     def notify_places(self, net_key, colors,):
         for place_idx, color in product(self.arcs_out, colors):
             execute_task('NotifyPlace', net_key=net_key, place_idx=place_idx,
-                    color=color)
+                         color=color)
 
     def active_tokens(self, color_descriptor):
         return rom.Set(connection=self.connection,
-                key=self.active_tokens_key(color_descriptor))
-
+                       key=self.active_tokens_key(color_descriptor))
 
     def set_action(self, cls, args=None, response_places=None):
         return cls.create(self.connection, self.action_key, args=args,
-                response_places=response_places)
+                          response_places=response_places)

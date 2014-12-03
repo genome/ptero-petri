@@ -4,11 +4,14 @@ from flask import Flask, request
 import argparse
 import requests
 import signal
+import traceback
 import json
 import sys
 
 
 _REMAINING_CALLBACKS_EXPECTED = None
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--expected-callbacks', type=int, default=1)
@@ -63,7 +66,8 @@ def decrement_callback_count():
 
 def send_request(request_args):
     if 'response_name' in request_args:
-        url = request.get_json().get('response_links').get(request_args['response_name'])
+        url = request.get_json().get('response_links').get(
+            request_args['response_name'])
         data = dict(request_args)
         del data['response_name']
 
@@ -71,7 +75,7 @@ def send_request(request_args):
         for k, v in data.iteritems():
             request_data[k] = v[0]  # always take the first element
         response = requests.put(url, data=json.dumps(request_data),
-                headers={'Content-Type': 'application/json'})
+                                headers={'Content-Type': 'application/json'})
         sys.stderr.write('  Callback response: %s\n' % response)
 
 

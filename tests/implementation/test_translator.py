@@ -4,8 +4,9 @@ from unittest import TestCase, main
 
 
 class TestTranslator(TestCase):
+
     def test_null_net(self):
-        net_data = { }
+        net_data = {}
         translator = Translator(net_data)
         future_net = translator.future_net
         self.assertEqual(0, len(future_net.places))
@@ -15,7 +16,7 @@ class TestTranslator(TestCase):
     def test_null_transition(self):
         net_data = {
             'entry_places': set(),
-            'transitions': [ { } ]
+            'transitions': [{}]
         }
         translator = Translator(net_data)
         future_net = translator.future_net
@@ -28,10 +29,10 @@ class TestTranslator(TestCase):
     def test_simple_transition(self):
         net_data = {
             'entry_places': {'start'},
-            'transitions': [ {
+            'transitions': [{
                 'inputs': ['start'],
                 'outputs': ['stop'],
-            } ]
+            }]
         }
         translator = Translator(net_data)
         future_net = translator.future_net
@@ -49,12 +50,12 @@ class TestTranslator(TestCase):
         test_url = 'foobar'
         net_data = {
             'entry_places': set(),
-            'transitions': [ {
+            'transitions': [{
                 'action': {
                     'type': 'notify',
                     'url': test_url,
                 },
-            } ]
+            }]
         }
         translator = Translator(net_data)
         future_net = translator.future_net
@@ -65,6 +66,7 @@ class TestTranslator(TestCase):
         t = future_net.transitions.pop()
         self.assertIsInstance(t.action, FutureAction)
         self.assertEqual(test_url, t.action.args['url'])
+
 
 def get_unique_arc_out(source):
     return list(source.arcs_out)[0]

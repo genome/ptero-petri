@@ -10,6 +10,7 @@ import unittest
 _TIMEOUT = 1
 _MIN_REDIS_VERSION = (2, 6, 0)
 
+
 class RedisTest(unittest.TestCase):
 
     @classmethod
@@ -42,7 +43,7 @@ class RedisTest(unittest.TestCase):
             cls.conn.ping()
         except redis.exceptions.ConnectionError as ex:
             raise RuntimeError("Failed to connect to redis, aborting test: %s"
-                    % ex)
+                               % ex)
 
 
 def is_connected(conn):
@@ -57,7 +58,7 @@ def is_connected(conn):
 def start_redis(unix_socket):
     validate_redis_version()
     return subprocess.Popen(construct_redis_command(unix_socket),
-            stdout=open(os.devnull))
+                            stdout=open(os.devnull))
 
 
 def config_path():
@@ -69,7 +70,7 @@ def validate_redis_version():
 
     if cmp(redis_version, _MIN_REDIS_VERSION) < 0:
         raise RuntimeError('redis-server version error:  got %r, expected >= %r'
-                % (redis_version, _MIN_REDIS_VERSION))
+                           % (redis_version, _MIN_REDIS_VERSION))
 
 
 def get_redis_version():
@@ -80,7 +81,7 @@ def get_redis_version():
         raise RuntimeError("redis-server not in path")
     except subprocess.CalledProcessError:
         raise RuntimeError(
-                'Failed to check redis-server version (might be too old)')
+            'Failed to check redis-server version (might be too old)')
 
     return extract_version(result)
 

@@ -26,26 +26,28 @@ _COLOR_GROUP_KEY = "G"
 class Net(rom.Object):
     name = rom.Property(rom.String)
     color_groups = rom.Property(rom.Hash, value_encoder=color_group_enc,
-            value_decoder=color_group_dec)
+                                value_decoder=color_group_dec)
 
-    color_marking = rom.Property(rom.Hash, value_encoder=int, value_decoder=int)
-    group_marking = rom.Property(rom.Hash, value_encoder=int, value_decoder=int)
+    color_marking = rom.Property(
+        rom.Hash, value_encoder=int, value_decoder=int)
+    group_marking = rom.Property(
+        rom.Hash, value_encoder=int, value_decoder=int)
 
     counters = rom.Property(rom.Hash, value_encoder=int, value_decoder=int)
 
     variables = rom.Property(rom.Hash, value_encoder=rom.json_enc,
-            value_decoder=rom.json_dec)
+                             value_decoder=rom.json_dec)
     _constants = rom.Property(rom.Hash, value_encoder=rom.json_enc,
-            value_decoder=rom.json_dec)
+                              value_decoder=rom.json_dec)
 
     _put_token_script = rom.Script(lua.load('put_token'))
 
     place_lookup = rom.Property(rom.Hash, value_encoder=int,
-            value_decoder=int)
+                                value_decoder=int)
 
     def additional_associated_iterkeys(self):
         return itertools.chain(*map(self.associated_iterkeys_for_attribute,
-            ['place', 'token', 'transition']))
+                                    ['place', 'token', 'transition']))
 
     def associated_iterkeys_for_attribute(self, attribute):
         for place_idx in xrange(getattr(self, 'num_%ss' % attribute)):
@@ -53,7 +55,6 @@ class Net(rom.Object):
             for key in obj.associated_iterkeys():
                 yield key
             yield obj.key
-
 
     @classmethod
     def make_default_key(cls):
@@ -81,14 +82,13 @@ class Net(rom.Object):
         if self.counters.setnx(_TRANSITION_KEY, new_value) == 0:
             raise ValueError('Tried to overwrite num_transitions')
 
-
     def constant(self, key, default=None):
         return self._constants.get(key, default)
 
     def set_constant(self, key, value):
         if self._constants.setnx(key, value) == 0:
             raise TypeError("Tried to overwrite constant %s in net %s" %
-                    (key, self.key))
+                            (key, self.key))
 
     def set_variable(self, key, value):
         self.variables[key] = value
@@ -96,26 +96,26 @@ class Net(rom.Object):
     def variable(self, key, default=None):
         return self.variables.get(key, default)
 
-
     def add_place(self, name):
         idx = self._incr_counter(_PLACE_KEY) - 1
         return Place.create(self.connection, self.place_key(idx),
-                index=idx, name=name)
+                            index=idx, name=name)
 
     def add_transition(self, cls, *args, **kwargs):
         idx = self._incr_counter(_TRANSITION_KEY) - 1
         return cls.create(self.connection, self.transition_key(idx),
-                *args, **kwargs)
+                          *args, **kwargs)
 
     def put_token(self, place_idx, token):
         if place_idx >= self.num_places:
             raise PlaceNotFoundError("Attempted to put token into place %s "
-                    "(%d places exist)" % (place_idx, self.num_places))
+                                     "(%d places exist)" % (
+                                         place_idx, self.num_places))
 
         token_idx = token.index.value
         if token.key != self.token_key(token_idx):
             raise ForeignTokenError("Token %s cannot be placed in net %s" %
-                    (token.key, self.key))
+                                    (token.key, self.key))
 
         keys = [self.color_marking.key, self.group_marking.key]
         args = [place_idx, token_idx, token.color.value,
@@ -134,8 +134,8 @@ class Net(rom.Object):
             arcs = place.arcs_out.value
             for transition_idx in arcs:
                 execute_task('NotifyTransition', net_key=self.key,
-                        transition_idx=transition_idx, place_idx=place_idx,
-                        token_idx=token_idx)
+                             transition_idx=transition_idx, place_idx=place_idx,
+                             token_idx=token_idx)
 
     def notify_transition(self, transition_idx, place_idx, token_idx):
         trans = self.transition(transition_idx)
@@ -143,13 +143,15 @@ class Net(rom.Object):
         color_descriptor = token.color_descriptor
 
         consume_rv = trans.consume_tokens(place_idx, color_descriptor,
-                self.color_marking.key, self.group_marking.key)
+                                          self.color_marking.key,
+                                          self.group_marking.key)
 
         if consume_rv == 0:
             new_tokens = trans.fire(self, color_descriptor)
             if not new_tokens:
                 LOG.debug('Got no tokens from transition ("%s": %s) '
-                        'on net (%s).', trans.name.value, trans.index, self.key)
+                          'on net (%s).', trans.name.value, trans.index,
+                          self.key)
             colors = [x.color.value for x in new_tokens]
             trans.push_tokens(self, color_descriptor, new_tokens)
             trans.notify_places(self.key, colors)
@@ -160,10 +162,10 @@ class Net(rom.Object):
     def set_initial_color(self, initial_color):
         if self.counters.setnx(_COLOR_KEY, initial_color) == 0:
             raise ValueError("Cannot set initial color, since "
-                    "color has already been incremented")
+                             "color has already been incremented")
 
     def add_color_group(self, size, parent_color=None,
-            parent_color_group_idx=None):
+                        parent_color_group_idx=None):
         group_id = self._incr_counter(_COLOR_GROUP_KEY) - 1
         end = self._incr_counter(_COLOR_KEY, size)
         begin = end - size
@@ -178,10 +180,10 @@ class Net(rom.Object):
             begin_lineage.append(parent_cg.begin)
 
         cg = ColorGroup(idx=group_id,
-                parent_color_group_idx=parent_color_group_idx,
-                begin=begin, end=end,
-                color_lineage=color_lineage,
-                begin_lineage=begin_lineage)
+                        parent_color_group_idx=parent_color_group_idx,
+                        begin=begin, end=end,
+                        color_lineage=color_lineage,
+                        begin_lineage=begin_lineage)
 
         self.color_groups[group_id] = cg
 
@@ -212,8 +214,8 @@ class Net(rom.Object):
         idx = self._incr_counter(_TOKEN_KEY) - 1
         key = self.token_key(idx)
         return Token.create(self.connection, key, net_key=self.key,
-                index=idx, data=data, color=color,
-                color_group_idx=color_group_idx)
+                            index=idx, data=data, color=color,
+                            color_group_idx=color_group_idx)
 
     def create_put_notify(self, place_idx, color, color_group_idx, data=None):
         token = self.create_token(color, color_group_idx, data)
