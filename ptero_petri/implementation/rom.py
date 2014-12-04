@@ -337,8 +337,8 @@ class List(EncodableContainer):
             return self.connection.lset(self.key, idx, self._encode_value(val))
         except redis.ResponseError:
             raise RomIndexError("list index out of range "
-                                "(key=%s, size=%d, index=%d)" % (self.key,
-                                    len(self), idx))
+                                "(key=%s, size=%d, index=%d)"
+                                % (self.key, len(self), idx))
 
     def __len__(self):
         return self.connection.llen(self.key)
@@ -510,8 +510,8 @@ class ObjectMeta(type):
                 result = cls._class_registry[class_info]
             except KeyError:
                 raise ImportError("Expected to register class %s when loading "
-                        "module %s but failed to." % (class_name,
-                            class_module))
+                                  "module %s but failed to."
+                                  % (class_name, class_module))
         return result
 
 
@@ -550,8 +550,8 @@ class Object(object):
                 propdef = self._rom_properties[name]
             except KeyError:
                 raise AttributeError("No such property or relation '%s'"
-                                     " on class %s" % (name,
-                                         self.__class__.__name__))
+                                     " on class %s"
+                                     % (name, self.__class__.__name__))
             else:
                 cls = propdef.cls
                 prop = cls.create(connection=self.connection,
@@ -584,8 +584,8 @@ class Object(object):
 
         if class_info != self._info:
             raise TypeError("Classinfo for %s isn't correct, found '%s' "
-                            "expected '%s'" % (self.key, class_info,
-                                self._info))
+                            "expected '%s'"
+                            % (self.key, class_info, self._info))
 
         return True
 

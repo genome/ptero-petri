@@ -13,7 +13,7 @@ def base_dir():
 
 generator.create_test_cases(target_module=MODULE,
                             test_case_directory=os.path.join(base_dir(),
-                                'system_tests'))
+                                                             'system_tests'))
 
 
 if __name__ == '__main__':

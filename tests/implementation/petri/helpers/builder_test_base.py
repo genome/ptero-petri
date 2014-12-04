@@ -63,8 +63,9 @@ class BuilderTestBase(object):
         fp.add_arc_out(future.FutureBasicTransition())
 
         future_transitions = {x: i
-                              for i, x in enumerate(itertools.chain(fp.arcs_in,
-                                  fp.arcs_out))}
+                              for i, x in
+                              enumerate(itertools.chain(fp.arcs_in,
+                                                        fp.arcs_out))}
 
         p = self.builder.store_place(
             self.stored_net, fp, 0, future_transitions)
@@ -84,8 +85,8 @@ class BuilderTestBase(object):
         ft.add_arc_out(future.FuturePlace())
 
         future_places = {x: i
-                         for i, x in enumerate(itertools.chain(ft.arcs_in,
-                             ft.arcs_out))}
+                         for i, x in
+                         enumerate(itertools.chain(ft.arcs_in, ft.arcs_out))}
 
         t = self.builder.store_transition(
             self.stored_net, ft, 0, future_places)

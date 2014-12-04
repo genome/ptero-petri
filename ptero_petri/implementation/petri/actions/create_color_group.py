@@ -18,7 +18,7 @@ class CreateColorGroupAction(BasicActionBase):
         output_token = net.create_token(color=color_descriptor.color,
                                         color_group_idx=group_idx,
                                         data={'color_group_idx':
-                                            new_color_group.idx})
+                                              new_color_group.idx})
 
         if 'url' in self.args:
             webhooks.send_webhook(
