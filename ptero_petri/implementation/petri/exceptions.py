@@ -5,8 +5,10 @@ class PetriNetError(RuntimeError):
 class TokenError(PetriNetError):
     pass
 
+
 class BadTokenDataError(TokenError):
     pass
+
 
 class ForeignTokenError(TokenError):
     pass

@@ -3,7 +3,6 @@
 from .redishelpers.redistest import RedisTest
 from mock import Mock, patch
 from ptero_petri.implementation import rom
-import os
 import redis
 import unittest
 
@@ -16,6 +15,7 @@ _return_keys_script = "return KEYS"
 
 _return_args_script = "return ARGV"
 
+
 class ScriptObj(rom.Object):
     good = rom.Script(script_body=_good_script)
     bad = rom.Script(script_body=_bad_script)
@@ -24,6 +24,7 @@ class ScriptObj(rom.Object):
 
 
 class SimpleObj(rom.Object):
+
     """A simple class with one of each type of property to test rom.Object"""
 
     ascalar = rom.Property(rom.String)
@@ -39,6 +40,7 @@ class SimpleObj(rom.Object):
 
 
 class TestRedisOm(RedisTest):
+
     def setUp(self):
         RedisTest.setUp(self)
         self.obj = ScriptObj.create(self.conn, key="x")
@@ -58,15 +60,16 @@ class TestRedisOm(RedisTest):
 
 
 class TestCopyScript(RedisTest):
+
     def test_direct_primitives(self):
         self.conn.set("scalar1", "hello world")
-        rv = rom.copy_key(self.conn, "scalar1", "scalar2")
+        rom.copy_key(self.conn, "scalar1", "scalar2")
         self.assertEqual("hello world", self.conn.get("scalar1"))
         self.assertEqual("hello world", self.conn.get("scalar2"))
 
         h = {"a": "b", "c": "d"}
         self.conn.hmset("h1", h)
-        rv = rom.copy_key(self.conn, "h1", "h2")
+        rom.copy_key(self.conn, "h1", "h2")
         self.assertEqual(h, self.conn.hgetall("h1"))
         self.assertEqual(h, self.conn.hgetall("h2"))
 
@@ -99,7 +102,6 @@ class TestCopyScript(RedisTest):
 
         self.assertEqual("how's it going?", str(s1))
         self.assertEqual("pretty good", str(s2))
-
 
     def test_int(self):
         i1 = rom.Int(self.conn, "x")
@@ -168,7 +170,7 @@ class TestListCopy(RedisTest, RomValueCopyBase):
 class TestJsonListCopy(RedisTest, RomValueCopyBase):
     rom_type = rom.List
     init_args = {"value_encoder": rom.json_enc, "value_decoder": rom.json_dec}
-    three_values = [[1, "two"], [{"three": 4}, None], [[1,2,3,4]]]
+    three_values = [[1, "two"], [{"three": 4}, None], [[1, 2, 3, 4]]]
 
 
 class TestHashCopy(RedisTest, RomValueCopyBase):
@@ -179,10 +181,11 @@ class TestHashCopy(RedisTest, RomValueCopyBase):
 class TestJsonHashCopy(RedisTest, RomValueCopyBase):
     rom_type = rom.Hash
     init_args = {"value_encoder": rom.json_enc, "value_decoder": rom.json_dec}
-    three_values = [{"a": [1,2,3]}, {"c": "d"}, {"e": {"f": [1, None, {}]}}]
+    three_values = [{"a": [1, 2, 3]}, {"c": "d"}, {"e": {"f": [1, None, {}]}}]
 
 
 class TestTimestampCopy(RedisTest):
+
     def test_copy(self):
         # Patch "now" on the timestamp object (which returns the current time
         # in floating point seconds) to return a custom sequence
@@ -199,6 +202,7 @@ class TestTimestampCopy(RedisTest):
 
 
 class TestCopyObject(RedisTest):
+
     def test_copy(self):
         args = {"ascalar": "Scalar value",
                 "ahash": {"a": "b", "c": "d"},
@@ -224,13 +228,15 @@ class TestCopyObject(RedisTest):
             self.assertEqual(expected, value)
 
         keys = self.conn.keys()
-        self.assertEqual(len(initial_keys)*2, len(keys))
+        self.assertEqual(len(initial_keys) * 2, len(keys))
         keys1 = [x.split("/", 1)[1] for x in keys if x.startswith("key1/")]
         keys2 = [x.split("/", 1)[1] for x in keys if x.startswith("key2/")]
 
         self.assertItemsEqual(keys1, keys2)
 
+
 class TestDeleteFunctionality(RedisTest):
+
     def test_value_delete(self):
         v = rom.Value(connection=self.conn, key='test-key')
         v.value = 'test-value'
@@ -241,11 +247,13 @@ class TestDeleteFunctionality(RedisTest):
 
     def test_object_delete(self):
         obj = SimpleObj.create(connection=self.conn, key='test-obj')
-        obj.ahash = {'some hash key':5}
-        print "Redis has %d keys after creating the object." % len(self.conn.keys())
+        obj.ahash = {'some hash key': 5}
+        print "Redis has %d keys after creating the object." % len(
+            self.conn.keys())
 
         obj.delete()
-        print "Redis has %d keys after DELETING the object." % len(self.conn.keys())
+        print "Redis has %d keys after DELETING the object." % len(
+            self.conn.keys())
         print self.conn.keys()
         self.assertEqual(0, len(self.conn.keys()))
 

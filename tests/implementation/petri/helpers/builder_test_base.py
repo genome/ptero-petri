@@ -5,6 +5,7 @@ import itertools
 
 
 class BuilderTestBase(object):
+
     def setUp(self):
         self.builder = builder.Builder(self.conn)
 
@@ -12,7 +13,6 @@ class BuilderTestBase(object):
         self.test_key = 'thing_under_test'
         self.stored_net.place_key.return_value = self.test_key
         self.stored_net.transition_key.return_value = self.test_key
-
 
     def test_store(self):
         skynet = future.FutureNet('skynet')
@@ -40,7 +40,6 @@ class BuilderTestBase(object):
         for k, v in constants.iteritems():
             self.assertEqual(v, stored_net.constant(k))
 
-
     def test_create_stored_net(self):
         future_net = Mock()
         future_net.name = 'netname'
@@ -48,14 +47,13 @@ class BuilderTestBase(object):
         variables = {'hi': 'there!'}
         constants = {'one': 'constant', 'two': 'fish'}
         stored_net = self.builder.create_stored_net(future_net,
-                variables, constants)
+                                                    variables, constants)
 
         self.assertEqual('netname', stored_net.name.value)
         self.assertItemsEqual(variables, stored_net.variables.value)
 
         for k, v in constants.iteritems():
             self.assertEqual(v, stored_net.constant(k))
-
 
     def test_store_place(self):
         fp = future.FuturePlace('Paris')
@@ -65,9 +63,12 @@ class BuilderTestBase(object):
         fp.add_arc_out(future.FutureBasicTransition())
 
         future_transitions = {x: i
-                for i, x in enumerate(itertools.chain(fp.arcs_in, fp.arcs_out))}
+                              for i, x in
+                              enumerate(itertools.chain(fp.arcs_in,
+                                                        fp.arcs_out))}
 
-        p = self.builder.store_place(self.stored_net, fp, 0, future_transitions)
+        p = self.builder.store_place(
+            self.stored_net, fp, 0, future_transitions)
 
         self.assertEqual(p.key, self.test_key)
         self.assertTrue(self.conn.exists(self.test_key))
@@ -84,9 +85,11 @@ class BuilderTestBase(object):
         ft.add_arc_out(future.FuturePlace())
 
         future_places = {x: i
-                for i, x in enumerate(itertools.chain(ft.arcs_in, ft.arcs_out))}
+                         for i, x in
+                         enumerate(itertools.chain(ft.arcs_in, ft.arcs_out))}
 
-        t = self.builder.store_transition(self.stored_net, ft, 0, future_places)
+        t = self.builder.store_transition(
+            self.stored_net, ft, 0, future_places)
 
         self.assertEqual(t.key, self.test_key)
         self.assertTrue(self.conn.exists(self.test_key))

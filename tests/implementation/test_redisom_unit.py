@@ -2,11 +2,11 @@
 
 from .redishelpers.fakeredistest import FakeRedisTest
 from ptero_petri.implementation import rom
-import os
 import unittest
 
 
 class SimpleObj(rom.Object):
+
     """A simple class with one of each type of property to test rom.Object"""
 
     ascalar = rom.Property(rom.String)
@@ -22,11 +22,13 @@ class SimpleObj(rom.Object):
 
 
 class OtherObj(rom.Object):
+
     """Used to test what happens getting an object of the wrong type"""
     pass
 
 
 class TestEncoders(FakeRedisTest):
+
     def test_json_enc_dec(self):
         self.assertEqual('null', rom.json_enc(None))
         self.assertEqual(None, rom.json_dec('null'))
@@ -39,6 +41,7 @@ class TestEncoders(FakeRedisTest):
 
 
 class TestProperty(FakeRedisTest):
+
     def test_property_class_validity(self):
         self.assertRaises(TypeError, rom.Property, basestring)
         self.assertRaises(TypeError, rom.Property, rom.Property)
@@ -54,6 +57,7 @@ class TestProperty(FakeRedisTest):
 
 
 class TestValue(FakeRedisTest):
+
     def setUp(self):
         FakeRedisTest.setUp(self)
         self.x = rom.Value(connection=self.conn, key='x')
@@ -79,6 +83,7 @@ class TestValue(FakeRedisTest):
 
 
 class TestInt(FakeRedisTest):
+
     def setUp(self):
         FakeRedisTest.setUp(self)
         self.x = rom.Int(connection=self.conn, key='x')
@@ -124,6 +129,7 @@ class TestInt(FakeRedisTest):
 
 
 class TestString(FakeRedisTest):
+
     def setUp(self):
         FakeRedisTest.setUp(self)
         self.x = rom.String(connection=self.conn, key='x')
@@ -149,6 +155,7 @@ class TestString(FakeRedisTest):
 
 
 class TestTimestamp(FakeRedisTest):
+
     def test_uninitialized(self):
         ts = rom.Timestamp(self.conn, "ts")
         self.assertRaises(rom.NotInRedisError, getattr, ts, "value")
@@ -198,6 +205,7 @@ class TestTimestamp(FakeRedisTest):
 
 
 class TestList(FakeRedisTest):
+
     def test_value(self):
         l = rom.List(connection=self.conn, key="l")
         self.assertEqual([], l.value)
@@ -258,12 +266,11 @@ class TestList(FakeRedisTest):
     def test_iterator(self):
         l = rom.List(connection=self.conn, key="l")
         l.value = ["a", "b", "c"]
-        seen = [x for x in l]
         self.assertEqual(["a", "b", "c"], l.value)
 
     def test_value_encode_decode(self):
         l = rom.List(connection=self.conn, key='l',
-                value_encoder=rom.json_enc, value_decoder=rom.json_dec)
+                     value_encoder=rom.json_enc, value_decoder=rom.json_dec)
 
         e0 = {'arbitrary': 3}
         e1 = ['data', 7.2]
@@ -278,6 +285,7 @@ class TestList(FakeRedisTest):
 
 
 class TestSet(FakeRedisTest):
+
     def test_value(self):
         s = rom.Set(connection=self.conn, key="s")
         self.assertEqual(set(), s.value)
@@ -315,7 +323,6 @@ class TestSet(FakeRedisTest):
         self.assertEqual(1, rv)
         self.assertEqual(2, size)
         self.assertItemsEqual(["one", "two"], s.value)
-
 
     def test_update(self):
         s = rom.Set(connection=self.conn, key="s")
@@ -367,6 +374,7 @@ class TestSet(FakeRedisTest):
 
 
 class TestHash(FakeRedisTest):
+
     def setUp(self):
         FakeRedisTest.setUp(self)
         self.h = rom.Hash(connection=self.conn, key="h")
@@ -401,7 +409,8 @@ class TestHash(FakeRedisTest):
         self.h["y"] = "z"
         self.assertEqual({"x": "y", "y": "z"}, self.h.value)
 
-        he = rom.Hash(connection=self.conn, key='he', value_encoder=rom.json_enc)
+        he = rom.Hash(
+            connection=self.conn, key='he', value_encoder=rom.json_enc)
         he['x'] = 'y'
         self.assertEqual(he['x'], '"y"')
 
@@ -412,8 +421,8 @@ class TestHash(FakeRedisTest):
         self.assertRaises(KeyError, self.h.__getitem__, "z")
 
     def test_getitem_encoded_null(self):
-        he = rom.Hash(connection=self.conn, key="he", value_encoder=rom.json_enc,
-                value_decoder=rom.json_dec)
+        he = rom.Hash(connection=self.conn, key="he",
+                      value_encoder=rom.json_enc, value_decoder=rom.json_dec)
         he.value = {"x": None}
         self.assertEqual(None, he["x"])
 
@@ -435,19 +444,19 @@ class TestHash(FakeRedisTest):
         self.assertEqual(1, len(self.h))
 
     def test_keys_values(self):
-        native = dict((chr(x), str(x)) for x in xrange(ord('a'), ord('z')+1))
+        native = dict((chr(x), str(x)) for x in xrange(ord('a'), ord('z') + 1))
         self.h.value = native
         self.assertEqual(sorted(native.keys()), sorted(self.h.keys()))
         self.assertEqual(sorted(native.values()), sorted(self.h.values()))
 
     def test_incrby(self):
-        self.h.value = {'a':1}
+        self.h.value = {'a': 1}
         self.assertEqual('1', str(self.h['a']))
         self.assertEqual('3', str(self.h.incrby('a', 2)))
         self.assertEqual('3', str(self.h['a']))
 
     def test_get(self):
-        self.h.value = {'a':1}
+        self.h.value = {'a': 1}
         self.assertEqual('1', str(self.h['a']))
         self.assertEqual('1', str(self.h.get('a')))
         self.assertEqual('default', self.h.get('b', default='default'))
@@ -464,7 +473,7 @@ class TestHash(FakeRedisTest):
         self.assertEqual({"x": "y", "y": "z", "z": "a"}, self.h.value)
 
     def test_iteritems(self):
-        native = dict((chr(x), str(x)) for x in xrange(ord('a'), ord('z')+1))
+        native = dict((chr(x), str(x)) for x in xrange(ord('a'), ord('z') + 1))
         self.h.value = native
         seen = dict((k, v) for k, v in self.h.iteritems())
         self.assertEqual(native, seen)
@@ -496,12 +505,13 @@ class TestHash(FakeRedisTest):
         self.assertEqual(native, seen)
 
         # test .update()
-        upd = {"one": { "two": ["three", "four", "five"] } }
+        upd = {"one": {"two": ["three", "four", "five"]}}
         h.update(upd)
         self.assertEqual(upd["one"], h["one"])
 
 
 class TestObject(FakeRedisTest):
+
     def test_keygen(self):
         # If you are here because you just changed the key generation policy
         # to not include module/class name, then feel free to remove this
@@ -515,6 +525,7 @@ class TestObject(FakeRedisTest):
 
     def test_access_non_property_or(self):
         obj = SimpleObj.create(connection=self.conn, key="x")
+
         def access():
             obj.not_a_member
         self.assertRaises(AttributeError, access)
@@ -524,9 +535,9 @@ class TestObject(FakeRedisTest):
 
     def test_get_object_not_found(self):
         self.assertRaises(KeyError, rom.get_object, connection=self.conn,
-                key="badkey")
+                          key="badkey")
         self.assertRaises(KeyError, SimpleObj.get, connection=self.conn,
-                key="badkey")
+                          key="badkey")
 
     def test_get_object(self):
         obj = SimpleObj.create(connection=self.conn, key="x", ascalar="hi")
@@ -543,13 +554,13 @@ class TestObject(FakeRedisTest):
         self.assertRaises(TypeError, rom.get_object)
 
     def test_get_object_wrong_type(self):
-        obj = SimpleObj.create(connection=self.conn, key="x", ascalar="hi")
+        SimpleObj.create(connection=self.conn, key="x", ascalar="hi")
         self.assertRaises(TypeError, OtherObj.get, connection=self.conn,
-                key="x")
+                          key="x")
 
-        obj = OtherObj.create(connection=self.conn, key="x")
+        OtherObj.create(connection=self.conn, key="x")
         self.assertRaises(TypeError, SimpleObj.get, connection=self.conn,
-                key="x")
+                          key="x")
 
     def test_method_descriptor(self):
         obj = SimpleObj.create(connection=self.conn, key="x")
@@ -558,7 +569,7 @@ class TestObject(FakeRedisTest):
         self.assertEqual(expected, method_descriptor)
         self.assertRaises(KeyError, getattr, obj.a_method_arg, 'value')
         rv = rom.invoke_instance_method(self.conn, method_descriptor,
-                arg="yep")
+                                        arg="yep")
         self.assertEqual("yep", rv)
         self.assertEqual("yep", obj.a_method_arg.value)
 
@@ -572,7 +583,7 @@ class TestObject(FakeRedisTest):
 
     def test_get_object_nexist(self):
         self.assertRaises(KeyError, SimpleObj.get, connection=self.conn,
-                key="x")
+                          key="x")
 
     def test_bad_create(self):
         self.assertRaises(TypeError, SimpleObj.create)
@@ -586,7 +597,7 @@ class TestObject(FakeRedisTest):
         self.assertEqual(set(), obj.aset.value)
 
         obj = SimpleObj.create(connection=self.conn, key="y", ascalar=42,
-                                ahash={'1': '2', '3': '4'})
+                               ahash={'1': '2', '3': '4'})
         self.assertEqual(42, int(obj.ascalar))
         self.assertEqual('42', obj.ascalar.value)
         self.assertEqual({'1': '2', '3': '4'}, obj.ahash.value)
@@ -594,8 +605,8 @@ class TestObject(FakeRedisTest):
         self.assertEqual(set(), obj.aset.value)
 
         obj = SimpleObj.create(connection=self.conn, key="z", ascalar=42,
-                                ahash={'1': '2', '3': '4'},
-                                alist=['5', '4', '3'])
+                               ahash={'1': '2', '3': '4'},
+                               alist=['5', '4', '3'])
         self.assertEqual(42, int(obj.ascalar))
         self.assertEqual('42', obj.ascalar.value)
         self.assertEqual({'1': '2', '3': '4'}, obj.ahash.value)
@@ -603,9 +614,9 @@ class TestObject(FakeRedisTest):
         self.assertEqual(set(), obj.aset.value)
 
         obj = SimpleObj.create(connection=self.conn, key="zz", ascalar=42,
-                                ahash={'1': '2', '3': '4'},
-                                alist=['5', '4', '3'],
-                                aset=['x', 'y', 'z'])
+                               ahash={'1': '2', '3': '4'},
+                               alist=['5', '4', '3'],
+                               aset=['x', 'y', 'z'])
         self.assertEqual(42, int(obj.ascalar))
         self.assertEqual('42', obj.ascalar.value)
         self.assertEqual({'1': '2', '3': '4'}, obj.ahash.value)
@@ -614,7 +625,7 @@ class TestObject(FakeRedisTest):
 
     def test_create_invalid_prop(self):
         self.assertRaises(AttributeError, SimpleObj.create,
-                connection=self.conn, key="x", badprop="bad")
+                          connection=self.conn, key="x", badprop="bad")
 
     def test_subkey(self):
         obj = SimpleObj.create(connection=self.conn, key="x")

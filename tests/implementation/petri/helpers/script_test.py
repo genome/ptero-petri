@@ -1,7 +1,6 @@
 from ...redishelpers.redistest import RedisTest
 from ptero_petri.implementation import rom
 from ptero_petri.implementation.petri import lua
-import unittest
 
 
 def create_holder_class(script_name):
@@ -10,7 +9,9 @@ def create_holder_class(script_name):
 
     return Holder
 
+
 class ScriptTest(object):
+
     def setUp(self):
         RedisTest.setUp(self)
 

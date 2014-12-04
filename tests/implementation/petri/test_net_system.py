@@ -1,14 +1,15 @@
 from .helpers.net_test import NetTest
-from mock import MagicMock, Mock, ANY
 from ptero_petri.implementation import rom
 from ptero_petri.implementation.petri.actions.merge import BasicMergeAction
-from ptero_petri.implementation.petri.net import Net, ColorGroup, Token
-from ptero_petri.implementation.petri.net import PlaceNotFoundError, ForeignTokenError
+from ptero_petri.implementation.petri.net import Net
+from ptero_petri.implementation.petri.net import ForeignTokenError
+from ptero_petri.implementation.petri.net import PlaceNotFoundError
 from ptero_petri.implementation.petri.transitions.basic import BasicTransition
 from unittest import main
 
 
 class TestNet(NetTest):
+
     def setUp(self):
         NetTest.setUp(self)
         self.token = self.create_simple_token()
@@ -18,19 +19,15 @@ class TestNet(NetTest):
         return self.net.create_token(color_group.begin, color_group.idx, data)
 
     def test_put_token_place_not_found(self):
-        token_idx = self.token.index.value
-
-        self.assertRaises(PlaceNotFoundError, self.net.put_token, 0,
-                self.token)
+        self.assertRaises(PlaceNotFoundError, self.net.put_token, 0, self.token)
 
     def test_put_foreign_token(self):
         othernet = Net.create(self.conn, "net2")
-        place = othernet.add_place("home")
-        self.assertRaises(ForeignTokenError, othernet.put_token, 0,
-                self.token)
+        othernet.add_place("home")
+        self.assertRaises(ForeignTokenError, othernet.put_token, 0, self.token)
 
     def test_put_token(self):
-        start = self.net.add_place("start")
+        self.net.add_place("start")
 
         self.assertEqual(0, len(self.net.color_marking))
         self.assertEqual(0, len(self.net.group_marking))
@@ -58,7 +55,7 @@ class TestNet(NetTest):
 
         # make sure putting a new token is an error
         new_token = self.net.create_token(color=color,
-                color_group_idx=color_group_idx)
+                                          color_group_idx=color_group_idx)
 
         rv = self.net.put_token(place_idx, new_token)
         self.assertEqual(-1, rv)
@@ -73,7 +70,7 @@ class TestNet(NetTest):
         self.net.notify_place(place_idx, color)
 
         self.assertRaises(rom.NotInRedisError, getattr,
-                home.first_token_timestamp, "value")
+                          home.first_token_timestamp, "value")
 
     def test_notify_place_wrong_color(self):
         home = self.net.add_place("home")
@@ -82,17 +79,17 @@ class TestNet(NetTest):
         self.net.put_token(place_idx, self.token)
         color = self.token.color.value
 
-        self.net.notify_place(place_idx, color+1)
+        self.net.notify_place(place_idx, color + 1)
 
         self.assertRaises(rom.NotInRedisError, getattr,
-                home.first_token_timestamp, "value")
+                          home.first_token_timestamp, "value")
 
     def test_delete(self):
-        p = self.net.add_place('p')
+        self.net.add_place('p')
         trans = self.net.add_transition(BasicTransition)
-        a = BasicMergeAction.create(self.conn, key=trans.action_key)
+        BasicMergeAction.create(self.conn, key=trans.action_key)
         cg = self.net.add_color_group(3)
-        tok = self.net.create_token(cg.begin, cg.idx)
+        self.net.create_token(cg.begin, cg.idx)
 
         self.net.delete()
         print list(self.net.associated_iterkeys_for_attribute('place'))

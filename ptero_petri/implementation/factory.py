@@ -5,6 +5,7 @@ __all__ = ['Factory']
 
 
 class Factory(object):
+
     def __init__(self):
         self._initialized = False
 
@@ -19,4 +20,4 @@ class Factory(object):
             self._initialize_celery()
 
     def _initialize_celery(self):
-        from . import celery_app
+        from . import celery_app  # nopep8

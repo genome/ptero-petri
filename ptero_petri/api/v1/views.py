@@ -7,6 +7,7 @@ import uuid
 
 
 class NetView(Resource):
+
     def put(self, net_key):
         try:
             return _submit_net(net_key)
@@ -15,8 +16,9 @@ class NetView(Resource):
 
 
 class TokenListView(Resource):
+
     def post(self, net_key, place_idx):
-        color = g.backend.put_token.delay(net_key, place_idx)
+        g.backend.put_token.delay(net_key, place_idx)
         return {}, 201
 
     def put(self, net_key, place_idx):
@@ -24,13 +26,14 @@ class TokenListView(Resource):
         color = int(request.args['color'])
 
         g.backend.put_token.delay(net_key=net_key, place_idx=place_idx,
-                color=color, color_group_idx=color_group_idx,
-                data=request.json)
+                                  color=color, color_group_idx=color_group_idx,
+                                  data=request.json)
 
         return {}, 201
 
 
 class NetListView(Resource):
+
     def post(self):
         net_key = _generate_net_key()
         try:

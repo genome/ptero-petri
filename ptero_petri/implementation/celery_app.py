@@ -1,4 +1,4 @@
-from . import celery_tasks
+from . import celery_tasks  # nopep8
 from . import storage
 from celery.signals import worker_init
 import celery
@@ -6,7 +6,7 @@ import os
 
 
 app = celery.Celery('PTero-petri-celery',
-        include='ptero_petri.implementation.celery_tasks')
+                    include='ptero_petri.implementation.celery_tasks')
 
 
 _DEFAULT_CELERY_CONFIG = {
@@ -23,6 +23,7 @@ for var, default in _DEFAULT_CELERY_CONFIG.iteritems():
         app.conf[var] = os.environ[var]
     else:
         app.conf[var] = default
+
 
 @worker_init.connect
 def initialize_sqlalchemy_session(signal, sender):

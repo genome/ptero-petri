@@ -11,6 +11,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Builder(object):
+
     def __init__(self, connection):
         self.connection = connection
 
@@ -18,7 +19,7 @@ class Builder(object):
         future_places, future_transitions = gather_nodes(future_net)
 
         stored_net = self.create_stored_net(future_net, variables, constants,
-                net_key=net_key)
+                                            net_key=net_key)
 
         for place, index in future_places.iteritems():
             self.store_place(stored_net, place, index, future_transitions)
@@ -36,7 +37,6 @@ class Builder(object):
 
         return stored_net
 
-
     def create_stored_net(self, future_net, variables, constants, net_key=None):
         stored_net = Net.create(connection=self.connection, key=net_key)
         stored_net.name = future_net.name
@@ -48,11 +48,10 @@ class Builder(object):
 
         return stored_net
 
-
     def store_place(self, stored_net, future_place, index, future_transitions):
         key = stored_net.place_key(index)
         stored_place = Place.create(self.connection, key,
-                name=future_place.name, index=index)
+                                    name=future_place.name, index=index)
 
         for arc in future_place.arcs_in:
             stored_place.arcs_in.append(future_transitions[arc])
@@ -63,7 +62,7 @@ class Builder(object):
         return stored_place
 
     def store_transition(self, stored_net, future_transition,
-            index, future_places):
+                         index, future_places):
         if isinstance(future_transition, FutureBasicTransition):
             cls = BasicTransition
         elif isinstance(future_transition, FutureBarrierTransition):
@@ -73,15 +72,14 @@ class Builder(object):
 
         key = stored_net.transition_key(index)
         stored_transition = cls.create(self.connection, key,
-                name=future_transition.name, index=index)
+                                       name=future_transition.name, index=index)
 
         if future_transition.action is not None:
+            response_places = convert_response_places(
+                future_transition.action.response_places, future_places)
             stored_transition.set_action(future_transition.action.cls,
-                    args=future_transition.action.args,
-                    response_places=convert_response_places(
-                        future_transition.action.response_places,
-                        future_places))
-
+                                         args=future_transition.action.args,
+                                         response_places=response_places)
 
         for arc in future_transition.arcs_in:
             stored_transition.arcs_in.append(future_places[arc])
@@ -99,6 +97,7 @@ def gather_nodes(future_net):
     _gather_nodes_recursive(future_net, future_places, future_transitions)
 
     return future_places, future_transitions
+
 
 def _gather_nodes_recursive(future_net, future_places, future_transitions):
     for p in future_net.places:

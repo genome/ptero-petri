@@ -8,7 +8,6 @@ import hashlib
 import redis
 import json
 import re
-import time
 
 
 KEY_DELIM = '|'
@@ -60,6 +59,7 @@ class NotInRedisError(KeyError):
 
 
 class Script(object):
+
     def __init__(self, script_body=None):
         self.script_body = script_body
         self.script_hash = hashlib.sha1(script_body).hexdigest()
@@ -72,12 +72,13 @@ class Script(object):
         keys_and_args = keys + args
         try:
             return connection.evalsha(self.script_hash,
-                    num_keys, *keys_and_args)
+                                      num_keys, *keys_and_args)
         except redis.exceptions.ResponseError:
             return connection.eval(self.script_body, num_keys, *keys_and_args)
 
 
 class Property(object):
+
     def __init__(self, cls, **kwargs):
         if not issubclass(cls, Value):
             raise TypeError("Unknown redisom class %s" % str(cls))
@@ -87,9 +88,12 @@ class Property(object):
 
 
 UNINITIALIZED = object()
+
+
 class Value(object):
+
     def __init__(self, connection=None, key=None,
-            cacheable=False, immutable=False):
+                 cacheable=False, immutable=False):
         if connection is None or key is None:
             raise TypeError("You must specify a connection and a key")
 
@@ -118,19 +122,17 @@ class Value(object):
     def delete(self):
         return self.connection.delete(self.key)
 
-
     def _encode(self, value):
         return value
 
     def _decode(self, value):
         return value
 
-
     def _get_decoded_value(self):
         result = self._get_raw_value()
         if result is None:
             raise NotInRedisError("Redis has no data for key (%s)."
-                    % (self.key))
+                                  % (self.key))
         else:
             return self._decode(result)
 
@@ -140,12 +142,10 @@ class Value(object):
     def _set_raw_value(self, new_value):
         return self.connection.set(self.key, self._encode(new_value))
 
-
     def _validate_immutable(self):
         if self.immutable:
             raise ValueError("Cannot modify immutable object %s(key=%s)"
-                    % (self.__class__, self.key))
-
+                             % (self.__class__, self.key))
 
     def _value_getter(self):
         if self.cacheable:
@@ -160,7 +160,6 @@ class Value(object):
         self._validate_immutable()
         return self._set_raw_value(new_value)
 
-
     def __int__(self):
         return int(self.value)
 
@@ -170,14 +169,14 @@ class Value(object):
     def __str__(self):
         return str(self.value)
 
-
     value = property(_value_getter, _value_setter)
 
 
 class Timestamp(Value):
     # Force timestamps to be immutable
+
     def __init__(self, *args, **kwargs):
-        immutable = kwargs.pop("immutable", False)
+        kwargs.pop("immutable", False)
         Value.__init__(self, *args, immutable=True, **kwargs)
 
     def _decode(self, value):
@@ -199,6 +198,7 @@ class Timestamp(Value):
 
 
 class Int(Value):
+
     def incr(self, *args, **kwargs):
         self._validate_immutable()
         return self.connection.incr(self.key, *args, **kwargs)
@@ -215,11 +215,13 @@ class Int(Value):
 
 
 class String(Value):
+
     def _encode(self, value):
         return str(value)
 
 
 class Set(Value):
+
     def _get_raw_value(self):
         return self.connection.smembers(self.key)
 
@@ -244,7 +246,7 @@ class Set(Value):
         removed, size = self.discard(val)
         if not removed:
             raise KeyError("Set (%s) doesn't contain value %s" %
-                    (self.key, val))
+                           (self.key, val))
         return removed, size
 
     def discard(self, val):
@@ -265,6 +267,7 @@ class Set(Value):
 
 
 class EncodableContainer(Value):
+
     def __init__(self, *args, **kwargs):
         self._value_encoder = kwargs.pop("value_encoder", None)
         self._value_decoder = kwargs.pop("value_decoder", None)
@@ -274,18 +277,18 @@ class EncodableContainer(Value):
 
         if cacheable:
             raise NotImplementedError(
-                    "Cacheable containers are not supported")
+                "Cacheable containers are not supported")
         if immutable:
             raise NotImplementedError(
-                    "Immutable containers are not supported")
+                "Immutable containers are not supported")
 
         Value.__init__(self, *args, **kwargs)
 
     def copy(self, dst_key):
         copy_key(self.connection, self.key, dst_key)
         return self.__class__(value_encoder=self._value_encoder,
-                value_decoder=self._value_decoder,
-                connection=self.connection, key=dst_key)
+                              value_decoder=self._value_decoder,
+                              connection=self.connection, key=dst_key)
 
     def _encode_value(self, v):
         if self._value_encoder is None:
@@ -301,6 +304,7 @@ class EncodableContainer(Value):
 
 
 class List(EncodableContainer):
+
     def _encode_values(self, values):
         if self._value_encoder is None:
             return values
@@ -325,15 +329,16 @@ class List(EncodableContainer):
         # NOTE We accept the constraint that list values cannot be None here
         if result is None:
             raise RomIndexError("list index out of range "
-                    "(key=%s, index=%d)" % (self.key, idx))
+                                "(key=%s, index=%d)" % (self.key, idx))
         return self._decode_value(result)
 
     def __setitem__(self, idx, val):
         try:
             return self.connection.lset(self.key, idx, self._encode_value(val))
         except redis.ResponseError:
-            raise RomIndexError ("list index out of range "
-                    "(key=%s, size=%d, index=%d)" % (self.key, len(self), idx))
+            raise RomIndexError("list index out of range "
+                                "(key=%s, size=%d, index=%d)"
+                                % (self.key, len(self), idx))
 
     def __len__(self):
         return self.connection.llen(self.key)
@@ -358,6 +363,7 @@ class List(EncodableContainer):
 
 
 class Hash(EncodableContainer):
+
     def _encode(self, d):
         if self._value_encoder is None:
             return d
@@ -372,7 +378,6 @@ class Hash(EncodableContainer):
             decoder = self._value_decoder
             return dict((k, decoder(v)) for k, v in d.iteritems())
 
-
     def _decode_values(self, values):
         if self._value_decoder is None:
             return values
@@ -380,10 +385,8 @@ class Hash(EncodableContainer):
             decoder = self._value_decoder
             return [decoder(v) for v in values]
 
-
     def incrby(self, key, n):
         return self.connection.hincrby(self.key, key, n)
-
 
     def _get_raw_value(self):
         return self.connection.hgetall(self.key)
@@ -397,13 +400,11 @@ class Hash(EncodableContainer):
         else:
             return self.connection.delete(self.key)
 
-
     def __setitem__(self, hkey, val):
         return self.connection.hset(self.key, hkey, self._encode_value(val))
 
     def setnx(self, hkey, val):
         return self.connection.hsetnx(self.key, hkey, self._encode_value(val))
-
 
     def __getitem__(self, hkey):
         result = self._get_raw(hkey)
@@ -462,6 +463,7 @@ def _make_key(*args):
 class ObjectMeta(type):
     _class_registry = {}
     _class_info_re = re.compile(r"^[A-Za-z0-9_.]+:[A-Za-z0-9_]+$")
+
     def __new__(mcs, class_name, bases, class_dict):
         cls = type.__new__(mcs, class_name, bases, class_dict)
 
@@ -471,9 +473,9 @@ class ObjectMeta(type):
         members.update(class_dict)
 
         rom_dict = {
-                "_rom_scripts": Script,
-                "_rom_properties": Property,
-                }
+            "_rom_scripts": Script,
+            "_rom_properties": Property,
+        }
 
         for hidden_variable, hidden_class in rom_dict.items():
             setattr(cls, hidden_variable, {})
@@ -491,7 +493,6 @@ class ObjectMeta(type):
         mcs._class_registry[class_info] = cls
         cls._info = class_info
 
-
         return cls
 
     def get_class(cls, class_info):
@@ -500,7 +501,8 @@ class ObjectMeta(type):
         except KeyError:
             if cls._class_info_re.match(class_info) is None:
                 raise TypeError("Improperly formatted class_info (%s) must "
-                        "be formatted as <module>:<class_name>" % class_info)
+                                "be formatted as <module>:<class_name>"
+                                % class_info)
 
             class_module, class_name = class_info.split(':')
             __import__(class_module)
@@ -508,7 +510,8 @@ class ObjectMeta(type):
                 result = cls._class_registry[class_info]
             except KeyError:
                 raise ImportError("Expected to register class %s when loading "
-                        "module %s but failed to." % (class_name, class_module))
+                                  "module %s but failed to."
+                                  % (class_name, class_module))
         return result
 
 
@@ -547,11 +550,12 @@ class Object(object):
                 propdef = self._rom_properties[name]
             except KeyError:
                 raise AttributeError("No such property or relation '%s'"
-                        " on class %s" % (name, self.__class__.__name__))
+                                     " on class %s"
+                                     % (name, self.__class__.__name__))
             else:
                 cls = propdef.cls
                 prop = cls.create(connection=self.connection,
-                        key=self.subkey(name), **propdef.kwargs)
+                                  key=self.subkey(name), **propdef.kwargs)
                 self._cache[name] = prop
 
             result = prop
@@ -580,14 +584,15 @@ class Object(object):
 
         if class_info != self._info:
             raise TypeError("Classinfo for %s isn't correct, found '%s' "
-                    "expected '%s'" % (self.key, class_info, self._info))
+                            "expected '%s'"
+                            % (self.key, class_info, self._info))
 
         return True
 
     @classmethod
     def make_default_key(cls):
         return _make_key(KEY_DELIM + cls.__module__, cls.__name__,
-                        uuid4().hex)
+                         uuid4().hex)
 
     def _on_create(self):
         pass
@@ -634,8 +639,8 @@ class Object(object):
         key_groups = grouper(_EXPIRE_CHUNK_SIZE, self.associated_iterkeys())
         for group in key_groups:
             _EXPIRE_KEY_SCRIPT(connection=self.connection,
-                    keys=[key for key in group if key is not None],
-                    args=[seconds])
+                               keys=[key for key in group if key is not None],
+                               args=[seconds])
 
 
 def get_object(connection=None, key=None):
@@ -673,10 +678,10 @@ def create_object(cls, connection=None, key=None, **kwargs):
 def invoke_instance_method(connection, method_descriptor, **kwargs):
     obj = get_object(connection, method_descriptor['object_key'])
     method = getattr(obj, method_descriptor['method_name'], None)
-    if method == None:
+    if method is None:
         raise AttributeError("Invalid method for class %s: %s"
                              % (obj.__class__.__name__,
-                             method_descriptor["method_name"]))
+                                method_descriptor["method_name"]))
     return method(**kwargs)
 
 

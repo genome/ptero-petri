@@ -3,6 +3,7 @@ import celery
 
 
 class StorageMixin(object):
+
     def get_net(self, net_key):
         return get_object(self.storage, net_key)
 

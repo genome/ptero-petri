@@ -20,8 +20,10 @@ _TERMINATE_WAIT_TIME = 0.05
 _MAX_RETRIES = 10
 _RETRY_DELAY = 0.15
 
+
 def validate_json(text):
-    data = json.loads(text)
+    json.loads(text)
+
 
 class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
@@ -42,7 +44,6 @@ class TestCaseMixin(object):
     def test_name(self):
         pass
 
-
     def test_got_expected_callbacks(self):
         self._submit_net()
 
@@ -50,7 +51,6 @@ class TestCaseMixin(object):
         self._print_callback_server_output()
 
         self._verify_expected_callbacks()
-
 
     def setUp(self):
         super(TestCaseMixin, self).setUp()
@@ -62,10 +62,9 @@ class TestCaseMixin(object):
         super(TestCaseMixin, self).tearDown()
         self._stop_callback_receipt_webserver()
 
-
     def _submit_net(self):
         response = _retry(requests.post, self._submit_url, self._net_body,
-                headers={'content-type': 'application/json'})
+                          headers={'content-type': 'application/json'})
         self.assertEqual(201, response.status_code)
 
     @property
@@ -96,30 +95,30 @@ class TestCaseMixin(object):
 
     def _verify_expected_callbacks(self):
         self._verify_callback_order(self.expected_callbacks,
-                self.actual_callbacks)
+                                    self.actual_callbacks)
         self._verify_callback_counts(self.expected_callbacks,
-                self.actual_callbacks)
+                                     self.actual_callbacks)
 
     def _verify_callback_order(self, expected_callbacks, actual_callbacks):
         seen_callbacks = set()
 
         for callback in actual_callbacks:
             for prereq_callback in _get_prereq_callbacks(expected_callbacks,
-                    callback):
+                                                         callback):
                 if prereq_callback not in seen_callbacks:
                     self.fail("Have not yet seen callback '%s' "
-                            "depended on by callback '%s'."
-                            "  Seen callbacks:  %s" % (
-                                prereq_callback,
-                                callback,
-                                seen_callbacks
-                    ))
+                              "depended on by callback '%s'."
+                              "  Seen callbacks:  %s" % (
+                                  prereq_callback,
+                                  callback,
+                                  seen_callbacks
+                              ))
             seen_callbacks.add(callback)
 
     def _verify_callback_counts(self, expected_callbacks, actual_callbacks):
         actual_callback_counts = _get_actual_callback_counts(actual_callbacks)
         expected_callback_counts = _get_expected_callback_counts(
-                expected_callbacks)
+            expected_callbacks)
         self.assertEqual(expected_callback_counts, actual_callback_counts)
 
     @property
@@ -173,27 +172,26 @@ class TestCaseMixin(object):
         return sum(_get_expected_callback_counts(
             self.expected_callbacks).itervalues())
 
-
     def _clear_memoized_data(self):
         self._actual_callbacks = None
         self._expected_callbacks = None
 
-
     def _start_callback_receipt_webserver(self):
         self._callback_webserver = subprocess.Popen(
-                [self._callback_webserver_path,
-                    '--expected-callbacks', str(self._total_expected_callbacks),
-                    '--stop-after', str(self._max_wait_time),
-                    '--port', str(self.callback_port),
-                    ],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            [self._callback_webserver_path,
+             '--expected-callbacks', str(
+                 self._total_expected_callbacks),
+             '--stop-after', str(self._max_wait_time),
+             '--port', str(self.callback_port),
+             ],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self._wait_for_callback_webserver()
 
     def _wait_for_callback_webserver(self):
         response = _retry(requests.get, self._callback_ping_url())
         if response.status_code != 200:
             raise RuntimeError('Failed to spin up callback webserver: %s'
-                    % response.text)
+                               % response.text)
 
     def _callback_ping_url(self):
         return 'http://localhost:%d/ping' % self.callback_port
@@ -212,7 +210,7 @@ class TestCaseMixin(object):
     @property
     def _repository_root_path(self):
         return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                '..', '..', '..', '..'))
+                                            '..', '..', '..', '..'))
 
     @property
     def _max_wait_time(self):
@@ -246,6 +244,7 @@ def _get_expected_callback_counts(expected_callbacks):
     return {callback: data['count']
             for callback, data in expected_callbacks.iteritems()}
 
+
 def _retry(func, *args, **kwargs):
     for attempt in xrange(_MAX_RETRIES):
         try:
@@ -253,5 +252,5 @@ def _retry(func, *args, **kwargs):
         except:
             time.sleep(_RETRY_DELAY)
     error_msg = "Failed (%s) with args (%s) and kwargs (%s) %d times" % (
-            func.__name__, args, kwargs, _MAX_RETRIES)
+        func.__name__, args, kwargs, _MAX_RETRIES)
     raise RuntimeError(error_msg)

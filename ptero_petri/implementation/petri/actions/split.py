@@ -1,8 +1,8 @@
-from ...container_utils import head
 from .base import BasicActionBase
 
 
 class SplitAction(BasicActionBase):
+
     def execute(self, net, color_descriptor, active_tokens):
         merged_data = self.get_merged_token_data(net, active_tokens)
 
@@ -17,6 +17,6 @@ class SplitAction(BasicActionBase):
         tokens = []
         for color in color_group.color_iter:
             tokens.append(net.create_token(color=color,
-                color_group_idx=color_group.idx))
+                                           color_group_idx=color_group.idx))
 
         return tokens

@@ -1,4 +1,5 @@
 class FutureNet(object):
+
     def __init__(self, name=''):
         self.name = name
         self.places = set()
@@ -25,7 +26,6 @@ class FutureNet(object):
         subnet = cls(**kwargs)
         self.subnets.add(subnet)
         return subnet
-
 
     def bridge_places(self, src, dest, name=''):
         trans = self.add_basic_transition(name)
@@ -64,6 +64,7 @@ class FutureNet(object):
 
 
 class FutureNode(object):
+
     def __init__(self, name=''):
         self.name = name
         self.arcs_in = set()
@@ -78,6 +79,7 @@ class FutureNode(object):
 
 
 class FuturePlace(FutureNode):
+
     def __init__(self, has_lookup=False, *args, **kwargs):
         FutureNode.__init__(self, *args, **kwargs)
         self.has_lookup = has_lookup
@@ -92,6 +94,7 @@ class FuturePlace(FutureNode):
 
 
 class FutureTransition(FutureNode):
+
     def __init__(self, name='', action=None):
         FutureNode.__init__(self, name)
         self.action = action
@@ -114,6 +117,7 @@ class FutureBarrierTransition(FutureTransition):
 
 
 class FutureAction(object):
+
     def __init__(self, cls=None, args=None, response_places=None):
         self.cls = cls
 

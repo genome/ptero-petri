@@ -14,11 +14,11 @@ def create_test_cases(target_module, test_case_directory):
         if test_case_name in _TEST_DIR_BLACKLIST:
             continue
         _create_and_attach_test_case(target_module, test_case_directory,
-                test_case_name)
+                                     test_case_name)
 
 
 def _create_and_attach_test_case(target_module, test_case_directory,
-        test_case_name):
+                                 test_case_name):
     tc = _create_test_case(test_case_directory, test_case_name)
     _attach_test_case(target_module, tc)
 
@@ -30,7 +30,7 @@ def _create_test_case(test_case_directory, test_case_name):
         'test_name': test_case_name,
     }
     return type(test_case_name, (TestCaseMixin, unittest.TestCase),
-            class_dict)
+                class_dict)
 
 
 def _attach_test_case(target_module, test_case):

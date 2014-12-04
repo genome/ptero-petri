@@ -4,6 +4,7 @@ import sys
 
 
 class DotVisualizer(object):
+
     def __init__(self, net_data):
         self.net_data = net_data
 
@@ -49,7 +50,7 @@ class DotVisualizer(object):
     def _format_entry_points(self):
         result = ['{', 'rank=source']
         result.extend([_quote(ep)
-            for ep in self.net_data.get('entry_places', [])])
+                       for ep in self.net_data.get('entry_places', [])])
         result.append('}')
         return result
 
@@ -73,7 +74,7 @@ class DotVisualizer(object):
 
     def _get_transition_line(self, i, t):
         return '%s [color=%s]' % (
-                self._transition_name(i), self._get_transition_color(t))
+            self._transition_name(i), self._get_transition_color(t))
 
     _ACTION_COLOR_MAP = {
         'convert-to-parent-color': 'green',
@@ -82,10 +83,10 @@ class DotVisualizer(object):
         'notify': 'blue',
         'split': 'red',
     }
+
     def _get_transition_color(self, t):
         return self._ACTION_COLOR_MAP.get(
-                t.get('action', {}).get('type'), 'black')
-
+            t.get('action', {}).get('type'), 'black')
 
     def _get_arc_lines(self):
         arcs = []

@@ -4,7 +4,7 @@ from .color import ColorDescriptor
 
 class Token(rom.Object):
     data = rom.Property(rom.Hash, value_encoder=rom.json_enc,
-            value_decoder=rom.json_dec)
+                        value_decoder=rom.json_dec)
 
     net_key = rom.Property(rom.String)
 

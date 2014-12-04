@@ -4,14 +4,16 @@ import unittest
 
 
 class FakeRedisAdapter(fakeredis.FakeRedis):
+
     def time(self):
         now = time.time()
         sec = int(now)
-        usec = int((now - sec)*1e6)
+        usec = int((now - sec) * 1e6)
         return sec, usec
 
 
 class FakeRedisTest(unittest.TestCase):
+
     def setUp(self):
         self.conn = FakeRedisAdapter()
 

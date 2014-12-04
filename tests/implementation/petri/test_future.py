@@ -6,6 +6,7 @@ from mock import Mock
 
 
 class TestFutureNet(TestCase):
+
     def setUp(self):
         self.net = future.FutureNet('net')
 
@@ -23,7 +24,6 @@ class TestFutureNet(TestCase):
 
         self.assertItemsEqual([trans], self.net.transitions)
         self.assertIsInstance(trans, future.FutureBasicTransition)
-
 
     def test_add_place(self):
         place = self.net.add_place('p')
@@ -44,7 +44,6 @@ class TestFutureNet(TestCase):
         self.assertEqual(expected_subnet, subnet)
         self.assertItemsEqual([subnet], self.net.subnets)
         subnet_class.assert_called_once_with(**kwargs)
-
 
     def test_bridge_places(self):
         p1 = self.net.add_place()
@@ -104,10 +103,12 @@ class TestFutureNet(TestCase):
         num_sources = 3
 
         destination = self.net.add_basic_transition()
-        sources = [self.net.add_basic_transition() for x in xrange(num_sources)]
+        sources = [self.net.add_basic_transition()
+                   for x in xrange(num_sources)]
 
         place = self.net.join_transitions_as_or(destination=destination,
-                sources=sources, name='test_name')
+                                                sources=sources,
+                                                name='test_name')
 
         self.assertEqual(num_sources + 1, len(self.net.transitions))
         self.assertEqual(1, len(self.net.places))
@@ -119,6 +120,7 @@ class TestFutureNet(TestCase):
 
 
 class TestFutureNode(TestCase):
+
     def setUp(self):
         self.node = future.FutureNode('tweedle dee')
         self.other = future.FutureNode('tweedle dum')
