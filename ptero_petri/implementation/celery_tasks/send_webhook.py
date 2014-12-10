@@ -3,10 +3,10 @@ import requests
 import json
 
 
-__all__ = ['HTTPCallbackTask']
+__all__ = ['SendWebhookTask']
 
 
-class HTTPCallbackTask(celery.Task):
+class SendWebhookTask(celery.Task):
     ignore_result = True
 
     def run(self, url, **kwargs):
