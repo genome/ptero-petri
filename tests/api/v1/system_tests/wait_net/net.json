@@ -6,7 +6,7 @@
             "outputs": ["wait"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('step_one', response_name='foo') }},
+                "url": {{ webhook_url('step_one', response_name='foo') }},
                 "response_places": {
                     "foo": "go"
                 }
@@ -17,7 +17,7 @@
             "outputs": ["end"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('step_two') }}
+                "url": {{ webhook_url('step_two') }}
             }
         }
     ]

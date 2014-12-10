@@ -6,7 +6,7 @@
             "outputs": ["middle"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('step_one') }}
+                "url": {{ webhook_url('step_one') }}
             }
         },
         {
@@ -14,7 +14,7 @@
             "outputs": ["end"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('step_two') }}
+                "url": {{ webhook_url('step_two') }}
             }
         }
     ]

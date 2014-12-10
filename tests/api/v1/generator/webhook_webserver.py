@@ -14,14 +14,14 @@ _REMAINING_CALLBACKS_EXPECTED = None
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--expected-callbacks', type=int, default=1)
+    parser.add_argument('--expected-webhooks', type=int, default=1)
     parser.add_argument('--port', type=int, default=5113)
     parser.add_argument('--stop-after', type=int, default=10)
 
     arguments = parser.parse_args()
 
     global _REMAINING_CALLBACKS_EXPECTED
-    _REMAINING_CALLBACKS_EXPECTED = arguments.expected_callbacks
+    _REMAINING_CALLBACKS_EXPECTED = arguments.expected_webhooks
 
     return arguments
 
@@ -34,10 +34,10 @@ def ping():
     return 'PONG'
 
 
-@app.route('/callbacks/<path:callback_name>', methods=['PUT'])
-def log_request(callback_name):
+@app.route('/webhooks/<path:webhook_name>', methods=['PUT'])
+def log_request(webhook_name):
     try:
-        print callback_name
+        print webhook_name
         sys.stdout.flush()
 
         sys.stderr.write("URL: %s\n" % request.url)
@@ -48,7 +48,7 @@ def log_request(callback_name):
         sys.stderr.write("  ARGS: %s\n" % request.args)
         sys.stderr.write("  JSON:\n    %s\n" % request.get_json())
 
-        decrement_callback_count()
+        decrement_webhook_count()
         send_request(request.args)
 
         return ''
@@ -57,7 +57,7 @@ def log_request(callback_name):
         raise
 
 
-def decrement_callback_count():
+def decrement_webhook_count():
     global _REMAINING_CALLBACKS_EXPECTED
     _REMAINING_CALLBACKS_EXPECTED -= 1
     if _REMAINING_CALLBACKS_EXPECTED <= 0:

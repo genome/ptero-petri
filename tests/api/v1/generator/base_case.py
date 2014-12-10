@@ -33,7 +33,7 @@ class TestCaseMixin(object):
         return int(os.environ['PTERO_PETRI_PORT'])
 
     @abc.abstractproperty
-    def callback_port(self):
+    def webhook_port(self):
         pass
 
     @abc.abstractproperty
@@ -44,23 +44,23 @@ class TestCaseMixin(object):
     def test_name(self):
         pass
 
-    def test_got_expected_callbacks(self):
+    def test_got_expected_webhooks(self):
         self._submit_net()
 
-        self._wait_for_callback_output()
-        self._print_callback_server_output()
+        self._wait_for_webhook_output()
+        self._print_webhook_server_output()
 
-        self._verify_expected_callbacks()
+        self._verify_expected_webhooks()
 
     def setUp(self):
         super(TestCaseMixin, self).setUp()
         self._clear_memoized_data()
 
-        self._start_callback_receipt_webserver()
+        self._start_webhook_receipt_webserver()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
-        self._stop_callback_receipt_webserver()
+        self._stop_webhook_receipt_webserver()
 
     def _submit_net(self):
         response = _retry(requests.post, self._submit_url, self._net_body,
@@ -71,82 +71,81 @@ class TestCaseMixin(object):
     def _submit_url(self):
         return 'http://localhost:%d/v1/nets' % self.api_port
 
-    def _wait_for_callback_output(self):
+    def _wait_for_webhook_output(self):
         done = False
         while not done:
-            stuff = self._callback_webserver.poll()
+            stuff = self._webhook_webserver.poll()
             if stuff is not None:
                 done = True
-                stdout, stderr = self._callback_webserver.communicate()
-                self._callback_stdout = stdout
-                self._callback_stderr = stderr
+                stdout, stderr = self._webhook_webserver.communicate()
+                self._webhook_stdout = stdout
+                self._webhook_stderr = stderr
 
             if not done:
                 time.sleep(_POLLING_DELAY)
 
-    def _print_callback_server_output(self):
-        self._write_with_banner('STDOUT', self._callback_stdout)
-        self._write_with_banner('STDERR', self._callback_stderr)
+    def _print_webhook_server_output(self):
+        self._write_with_banner('STDOUT', self._webhook_stdout)
+        self._write_with_banner('STDERR', self._webhook_stderr)
 
     def _write_with_banner(self, label, data):
-        sys.stdout.write('--- Begin callback server %s ---\n' % label)
+        sys.stdout.write('--- Begin webhook server %s ---\n' % label)
         sys.stdout.write(data)
-        sys.stdout.write('--- End callback server %s ---\n' % label)
+        sys.stdout.write('--- End webhook server %s ---\n' % label)
 
-    def _verify_expected_callbacks(self):
-        self._verify_callback_order(self.expected_callbacks,
-                                    self.actual_callbacks)
-        self._verify_callback_counts(self.expected_callbacks,
-                                     self.actual_callbacks)
+    def _verify_expected_webhooks(self):
+        self._verify_webhook_order(self.expected_webhooks, self.actual_webhooks)
+        self._verify_webhook_counts(self.expected_webhooks,
+                                    self.actual_webhooks)
 
-    def _verify_callback_order(self, expected_callbacks, actual_callbacks):
-        seen_callbacks = set()
+    def _verify_webhook_order(self, expected_webhooks, actual_webhooks):
+        seen_webhooks = set()
 
-        for callback in actual_callbacks:
-            for prereq_callback in _get_prereq_callbacks(expected_callbacks,
-                                                         callback):
-                if prereq_callback not in seen_callbacks:
-                    self.fail("Have not yet seen callback '%s' "
-                              "depended on by callback '%s'."
-                              "  Seen callbacks:  %s" % (
-                                  prereq_callback,
-                                  callback,
-                                  seen_callbacks
+        for webhook in actual_webhooks:
+            for prereq_webhook in _get_prereq_webhooks(expected_webhooks,
+                                                       webhook):
+                if prereq_webhook not in seen_webhooks:
+                    self.fail("Have not yet seen webhook '%s' "
+                              "depended on by webhook '%s'."
+                              "  Seen webhooks:  %s" % (
+                                  prereq_webhook,
+                                  webhook,
+                                  seen_webhooks
                               ))
-            seen_callbacks.add(callback)
+            seen_webhooks.add(webhook)
 
-    def _verify_callback_counts(self, expected_callbacks, actual_callbacks):
-        actual_callback_counts = _get_actual_callback_counts(actual_callbacks)
-        expected_callback_counts = _get_expected_callback_counts(
-            expected_callbacks)
-        self.assertEqual(expected_callback_counts, actual_callback_counts)
+    def _verify_webhook_counts(self, expected_webhooks, actual_webhooks):
+        actual_webhook_counts = _get_actual_webhook_counts(actual_webhooks)
+        expected_webhook_counts = _get_expected_webhook_counts(
+            expected_webhooks)
+        self.assertEqual(expected_webhook_counts, actual_webhook_counts)
 
     @property
-    def actual_callbacks(self):
-        if self._actual_callbacks is None:
-            self._actual_callbacks = self._callback_stdout.splitlines()
-        return self._actual_callbacks
+    def actual_webhooks(self):
+        if self._actual_webhooks is None:
+            self._actual_webhooks = self._webhook_stdout.splitlines()
+        return self._actual_webhooks
 
     @property
     def _net_body(self):
         body = None
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
-            body = template.render(callback_url=self._callback_url)
+            body = template.render(webhook_url=self._webhook_url)
             validate_json(body)
         return body
 
-    def _callback_url(self, callback_name, request_name=None, **request_data):
+    def _webhook_url(self, webhook_name, request_name=None, **request_data):
         if request_name is not None:
             request_data['request_name'] = request_name
 
-        return '"%s"' % self._assemble_callback_url(callback_name, request_data)
+        return '"%s"' % self._assemble_webhook_url(webhook_name, request_data)
 
-    def _assemble_callback_url(self, callback_name, request_data):
+    def _assemble_webhook_url(self, webhook_name, request_data):
         return urlparse.urlunparse((
             'http',
-            'localhost:%d' % self.callback_port,
-            '/callbacks/' + callback_name,
+            'localhost:%d' % self.webhook_port,
+            '/webhooks/' + webhook_name,
             '',
             urllib.urlencode(request_data),
             '',
@@ -157,51 +156,51 @@ class TestCaseMixin(object):
         return os.path.join(self.directory, 'net.json')
 
     @property
-    def expected_callbacks(self):
-        if not self._expected_callbacks:
-            with open(self._expected_callbacks_path) as f:
-                self._expected_callbacks = yaml.load(f)
-        return self._expected_callbacks
+    def expected_webhooks(self):
+        if not self._expected_webhooks:
+            with open(self._expected_webhooks_path) as f:
+                self._expected_webhooks = yaml.load(f)
+        return self._expected_webhooks
 
     @property
-    def _expected_callbacks_path(self):
-        return os.path.join(self.directory, 'expected_callbacks.yaml')
+    def _expected_webhooks_path(self):
+        return os.path.join(self.directory, 'expected_webhooks.yaml')
 
     @property
-    def _total_expected_callbacks(self):
-        return sum(_get_expected_callback_counts(
-            self.expected_callbacks).itervalues())
+    def _total_expected_webhooks(self):
+        return sum(_get_expected_webhook_counts(
+            self.expected_webhooks).itervalues())
 
     def _clear_memoized_data(self):
-        self._actual_callbacks = None
-        self._expected_callbacks = None
+        self._actual_webhooks = None
+        self._expected_webhooks = None
 
-    def _start_callback_receipt_webserver(self):
-        self._callback_webserver = subprocess.Popen(
-            [self._callback_webserver_path,
-             '--expected-callbacks', str(
-                 self._total_expected_callbacks),
+    def _start_webhook_receipt_webserver(self):
+        self._webhook_webserver = subprocess.Popen(
+            [self._webhook_webserver_path,
+             '--expected-webhooks', str(
+                 self._total_expected_webhooks),
              '--stop-after', str(self._max_wait_time),
-             '--port', str(self.callback_port),
+             '--port', str(self.webhook_port),
              ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._wait_for_callback_webserver()
+        self._wait_for_webhook_webserver()
 
-    def _wait_for_callback_webserver(self):
-        response = _retry(requests.get, self._callback_ping_url())
+    def _wait_for_webhook_webserver(self):
+        response = _retry(requests.get, self._webhook_ping_url())
         if response.status_code != 200:
-            raise RuntimeError('Failed to spin up callback webserver: %s'
+            raise RuntimeError('Failed to spin up webhook webserver: %s'
                                % response.text)
 
-    def _callback_ping_url(self):
-        return 'http://localhost:%d/ping' % self.callback_port
+    def _webhook_ping_url(self):
+        return 'http://localhost:%d/ping' % self.webhook_port
 
-    def _stop_callback_receipt_webserver(self):
-        _stop_subprocess(self._callback_webserver)
+    def _stop_webhook_receipt_webserver(self):
+        _stop_subprocess(self._webhook_webserver)
 
     @property
-    def _callback_webserver_path(self):
-        return os.path.join(os.path.dirname(__file__), 'callback_webserver.py')
+    def _webhook_webserver_path(self):
+        return os.path.join(os.path.dirname(__file__), 'webhook_webserver.py')
 
     @property
     def _logdir(self):
@@ -228,21 +227,21 @@ def _stop_subprocess(process):
             raise
 
 
-def _get_prereq_callbacks(expected_callbacks, callback):
-    expected_callback_data = expected_callbacks.get(callback, {})
-    return expected_callback_data.get('depends', [])
+def _get_prereq_webhooks(expected_webhooks, webhook):
+    expected_webhook_data = expected_webhooks.get(webhook, {})
+    return expected_webhook_data.get('depends', [])
 
 
-def _get_actual_callback_counts(actual_callbacks):
+def _get_actual_webhook_counts(actual_webhooks):
     counts = collections.defaultdict(int)
-    for cb in actual_callbacks:
+    for cb in actual_webhooks:
         counts[cb] += 1
     return dict(counts)
 
 
-def _get_expected_callback_counts(expected_callbacks):
-    return {callback: data['count']
-            for callback, data in expected_callbacks.iteritems()}
+def _get_expected_webhook_counts(expected_webhooks):
+    return {webhook: data['count']
+            for webhook, data in expected_webhooks.iteritems()}
 
 
 def _retry(func, *args, **kwargs):
