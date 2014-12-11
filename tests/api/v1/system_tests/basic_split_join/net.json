@@ -6,7 +6,7 @@
             "outputs": ["wait_for_split_size"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url("get_split_size",
+                "url": {{ webhook_url("get_split_size",
                             response_name="send_data",
                             color_group_size=3) }},
                 "requested_data": ["color_group_size"],
@@ -26,7 +26,7 @@
             "action": {
                 "type": "create-color-group",
                 "url": {{
-                    callback_url("notify/cg_created",
+                    webhook_url("notify/cg_created",
                             response_name="continue")
                 }},
                 "response_places": {
@@ -52,7 +52,7 @@
             "outputs": ["join_in"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('notify/middle') }}
+                "url": {{ webhook_url('notify/middle') }}
             }
         },
 
@@ -68,7 +68,7 @@
             "inputs": ["join_out"],
             "action": {
                 "type": "notify",
-                "url": {{ callback_url('notify/final') }}
+                "url": {{ webhook_url('notify/final') }}
             }
         }
     ]

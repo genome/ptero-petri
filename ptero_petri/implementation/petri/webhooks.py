@@ -5,14 +5,14 @@ import os
 __all__ = ['send_webhook']
 
 
-HTTP_TASK = 'ptero_petri.implementation.celery_tasks'\
-    '.http_callback.HTTPCallbackTask'
+SEND_WEBHOOK_TASK = 'ptero_petri.implementation.celery_tasks'\
+    '.send_webhook.SendWebhookTask'
 
 
 def send_webhook(url, response_data=None, data=None):
     body_data = dict(data)
     body_data['response_links'] = _response_links(**response_data)
-    task = celery.current_app.tasks[HTTP_TASK]
+    task = celery.current_app.tasks[SEND_WEBHOOK_TASK]
 
     task.delay(url, **body_data)
 
