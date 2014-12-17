@@ -37,7 +37,7 @@ def procfile_path():
 
 
 def service_command_line():
-    return ['honcho', '-f', procfile_path(), 'start',
+    return ['honcho', 'start', '-f', procfile_path(),
             '-c', 'worker=%d' % NUM_WORKERS]
 
 
