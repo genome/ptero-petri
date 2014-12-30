@@ -5,3 +5,4 @@ jsonschema == 2.4.0
 librabbitmq == 1.6.1
 redis == 2.10.3
 requests == 2.4.3
+gunicorn

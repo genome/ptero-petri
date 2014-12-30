@@ -1,2 +1,2 @@
-web: gunicorn ptero_petri.api.wsgi:app
-orchestrator: petri-orchestrator
+web: gunicorn ptero_petri.api.wsgi:app --access-logfile - --error-logfile -
+worker: celery worker --loglevel=INFO -A ptero_petri.implementation.celery_app
