@@ -1,18 +1,10 @@
 from ptero_petri.api import application
-from ptero_common.logging_configuration import configure_logging
+from ptero_common.logging_configuration import configure_web_logging
 import argparse
-import logging
-import os
 
 app = application.create_app()
 
-configure_logging('PTERO_PETRI_LOG_LEVEL', 'PTERO_PETRI_LOG_WITH_TIMESTAMPS')
-logging.getLogger('pika').setLevel(
-    os.environ.get('PTERO_PETRI_PIKA_LOG_LEVEL', 'WARN'))
-logging.getLogger('requests').setLevel(
-    os.environ.get('PTERO_PETRI_REQUESTS_LOG_LEVEL', 'WARN'))
-logging.getLogger('werkzeug').setLevel(
-    os.environ.get('PTERO_PETRI_WERKZEUG_LOG_LEVEL', 'WARN'))
+configure_web_logging("PETRI")
 
 
 def parse_args():
