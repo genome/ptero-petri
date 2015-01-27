@@ -20,7 +20,7 @@ class NetView(Resource):
             LOG.exception(
                 "JSON body does not pass validation for PUT %s: %s",
                 request.url, str(e))
-            return {'error': str(e)}, 400
+            return {'error': e.message}, 400
 
 
 class TokenListView(Resource):
