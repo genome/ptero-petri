@@ -32,5 +32,5 @@ def setup_celery_logging(**kwargs):
 
 
 @worker_init.connect
-def initialize_sqlalchemy_session(signal, sender):
+def initialize_sqlalchemy_session(**kwargs):
     app.storage = storage.get_connection()
