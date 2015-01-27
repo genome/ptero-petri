@@ -6,7 +6,7 @@ from .base import TransitionBase
 import logging
 
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 class BarrierTransition(TransitionBase):

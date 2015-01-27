@@ -5,7 +5,7 @@ from itertools import product
 import logging
 
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 class TransitionBase(rom.Object):
