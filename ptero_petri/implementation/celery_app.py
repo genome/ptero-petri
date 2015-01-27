@@ -1,6 +1,7 @@
 from . import celery_tasks  # nopep8
 from . import storage
-from celery.signals import worker_init
+from celery.signals import worker_init, setup_logging
+from ptero_common.logging_configuration import configure_celery_logging
 import celery
 import os
 
@@ -23,6 +24,11 @@ for var, default in _DEFAULT_CELERY_CONFIG.iteritems():
         app.conf[var] = os.environ[var]
     else:
         app.conf[var] = default
+
+
+@setup_logging.connect
+def setup_celery_logging(**kwargs):
+    configure_celery_logging('PETRI')
 
 
 @worker_init.connect

@@ -4,23 +4,38 @@ from flask.ext.restful import Resource
 from jsonschema import ValidationError
 import base64
 import uuid
+import logging
+from ptero_common.logging_configuration import log_response
+
+LOG = logging.getLogger(__name__)
 
 
 class NetView(Resource):
 
+    @log_response(logger=LOG)
     def put(self, net_key):
         try:
             return _submit_net(net_key)
         except ValidationError as e:
-            return {'error': e.message}, 400
+            LOG.exception(
+                "JSON body does not pass validation for PUT %s: %s",
+                request.url, str(e))
+            return {'error': str(e)}, 400
+        except Exception as e:
+            LOG.exception(
+                "Unexpected exception while handling PUT %s: %s",
+                request.url, str(e))
+            return {'error': str(e)}, 400
 
 
 class TokenListView(Resource):
 
+    @log_response(logger=LOG)
     def post(self, net_key, place_idx):
         g.backend.put_token.delay(net_key, place_idx)
         return {}, 201
 
+    @log_response(logger=LOG)
     def put(self, net_key, place_idx):
         color_group_idx = int(request.args['color_group'])
         color = int(request.args['color'])
@@ -34,6 +49,7 @@ class TokenListView(Resource):
 
 class NetListView(Resource):
 
+    @log_response(logger=LOG)
     def post(self):
         net_key = _generate_net_key()
         try:
