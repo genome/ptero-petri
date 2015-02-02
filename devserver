@@ -1,126 +1,21 @@
 #!/usr/bin/env python
 
 import argparse
-import errno
 import os
-import psutil
-import redis
-import signal
-import subprocess
+from ptero_common import devserver
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--max-run-time', type=int)
-    parser.add_argument('--port', type=int)
-    parser.add_argument('--debug', action='store_true', default=False)
-    parser.add_argument('--logdir')
-    parser.add_argument('--cover', action='store_true', default=False)
-
+    parser.add_argument('--num-workers', type=int, default=2)
+    parser.add_argument('--logdir', default='-')
     return parser.parse_args()
 
-
-def handler(signum, frame):
-    p = psutil.Process()
-    for child in p.children():
-        child.send_signal(signum)
-
-
-def _api_webserver_path():
-    return os.path.join(os.path.dirname(__file__), 'ptero_petri/api/wsgi.py')
-
-
-def _purge_rabbitmq():
-    pass
-
-
-def _purge_redis():
-    conn = redis.Redis()
-    conn.flushall()
-
-
-def _start_api_server(port, debug, logdir, cover):
-    env = os.environ.data
-    env['PYTHONPATH'] = os.path.dirname(__file__)
-
-    if cover:
-        command_line = ['coverage', 'run', _api_webserver_path()]
-    else:
-        command_line = ['python', _api_webserver_path()]
-
-    if port is not None:
-        command_line.extend(['--port', str(port)])
-
-    if debug:
-        command_line.append('--debug')
-
-    return _subprocess_with_logs(logdir, 'api',
-            command_line, env=env)
-
-
-def _start_petri_worker(logdir, cover):
-    if cover:
-        command_line = ['coverage', 'run',
-                'ptero_petri/implementation/orchestrator/main.py']
-    else:
-        command_line = ['petri-orchestrator']
-
-    return _subprocess_with_logs(logdir, 'orchestrator', command_line)
-
-
-def _ptero_config_path():
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), 'config'))
-
-
-def _subprocess_with_logs(logdir, name, command_line, **kwargs):
-    if logdir:
-        mkdir_p(logdir)
-        stdout = open(os.path.join(logdir, '%s.out' % name), 'w')
-        stderr = open(os.path.join(logdir, '%s.err' % name), 'w')
-    else:
-        stdout = None
-        stderr = None
-    return subprocess.Popen(command_line, close_fds=True, stdout=stdout,
-            stderr=stderr, **kwargs)
-
-
-# This is form a stackoverflow answer:
-# http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
-def mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as exc: # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
-
-
-def main(port, debug, logdir, cover):
-    os.environ['PTERO_CONFIG_PATH'] = _ptero_config_path()
-    os.environ['PETRI_PORT'] = str(port)
-    _purge_rabbitmq()
-    _purge_redis()
-
-    api_server = _start_api_server(port=port, debug=debug, logdir=logdir,
-            cover=cover)
-    petri_worker = _start_petri_worker(logdir, cover=cover)
-    api_server.wait()
-    petri_worker.wait()
-
+def procfile_path():
+    this_dir = os.path.dirname(__file__)
+    return os.path.join(this_dir, 'tests', 'scripts', 'Procfile')
 
 if __name__ == '__main__':
     arguments = parse_args()
-
-    signal.signal(signal.SIGINT, handler)
-    signal.signal(signal.SIGTERM, handler)
-
-    if arguments.max_run_time:
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(arguments.max_run_time)
-
-    os.environ.setdefault('PTERO_CONFIG_PATH',
-            os.path.join(os.path.dirname(__file__), 'config'))
-
-    main(port=arguments.port, debug=arguments.debug, logdir=arguments.logdir,
-            cover=arguments.cover)
+    devserver.run(logdir=arguments.logdir, procfile_path=procfile_path(),
+            workers={'worker':arguments.num_workers})
