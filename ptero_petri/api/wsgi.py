@@ -17,6 +17,6 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     app.run(
-        host=os.environ.get('PTERO_PETRI_HOST'),
-        port=os.environ.get('PTERO_PETRI_PORT'),
+        host=os.environ['PTERO_PETRI_HOST'],
+        port=os.environ['PTERO_PETRI_PORT'],
         debug=args.debug)
