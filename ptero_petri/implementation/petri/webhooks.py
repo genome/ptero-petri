@@ -5,8 +5,7 @@ import os
 __all__ = ['send_webhook']
 
 
-SEND_WEBHOOK_TASK = 'ptero_petri.implementation.celery_tasks'\
-    '.send_webhook.SendWebhookTask'
+SEND_WEBHOOK_TASK = 'ptero_common.celery.http.HTTP'
 
 
 def send_webhook(url, response_data=None, data=None):
@@ -14,7 +13,7 @@ def send_webhook(url, response_data=None, data=None):
     body_data['response_links'] = _response_links(**response_data)
     task = celery.current_app.tasks[SEND_WEBHOOK_TASK]
 
-    task.delay(url, **body_data)
+    task.delay('PUT', url, **body_data)
 
 
 def _response_links(net_key, response_places, color_descriptor):
