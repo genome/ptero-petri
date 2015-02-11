@@ -2,4 +2,5 @@ web: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTE
 persistance_redis: redis-server --port $PTERO_PETRI_REDIS_PORT
 celery_redis: redis-server --port $PTERO_PETRI_CELERY_REDIS_PORT
 rabbit: RABBITMQ_NODE_PORT=$PTERO_PETRI_AMQP_PORT RABBITMQ_NODENAME=ptero-petri-rabbitmq RABBITMQ_LOG_BASE=$PWD/var/log RABBITMQ_MNESIA_BASE=$PWD/var/rabbitmq-data rabbitmq-server
-worker: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTERO_PETRI_CELERY_RESULT_BACKEND coverage run $(which celery) worker -n petri_worker.%h.$PORT --pool=eventlet --concurrency 1 -A ptero_petri.implementation.celery_app
+worker: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTERO_PETRI_CELERY_RESULT_BACKEND coverage run $(which celery) worker -n petri_worker.%h.$PORT --pool=eventlet -A ptero_petri.implementation.celery_app -Q worker
+http_worker: CELERY_BROKER_URL=$PTERO_PETRI_CELERY_BROKER_URL CELERY_RESULT_BACKEND=$PTERO_PETRI_CELERY_RESULT_BACKEND coverage run $(which celery) worker -n petri_http_worker.%h.$PORT --pool=eventlet -A ptero_petri.implementation.celery_app -Q http

@@ -6,9 +6,19 @@ import celery
 import os
 
 
-app = celery.Celery('PTero-petri-celery',
-                    include='ptero_petri.implementation.celery_tasks')
+TASK_PATH = 'ptero_petri.implementation.celery_tasks'
 
+app = celery.Celery('PTero-petri-celery', include=TASK_PATH)
+
+app.conf['CELERY_ROUTES'] = (
+    {
+        TASK_PATH + '.create_token.CreateToken': {'queue': 'worker'},
+        TASK_PATH + '.notify_place.NotifyPlace': {'queue': 'worker'},
+        TASK_PATH + '.notify_transition.NotifyTransition': {'queue': 'worker'},
+        TASK_PATH + '.submit_net.SubmitNet': {'queue': 'worker'},
+        'ptero_common.celery.http.HTTP': {'queue': 'http'},
+    },
+)
 
 _DEFAULT_CELERY_CONFIG = {
     'CELERY_BROKER_URL': 'amqp://localhost',
