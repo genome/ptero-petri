@@ -14,4 +14,4 @@ The API is currently described
 To run tests:
 
     pip install tox
-    tox -e py27
+    tox
