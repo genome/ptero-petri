@@ -2,7 +2,7 @@ language: python
 python: "2.7"
 
 env:
-    - PTERO_PETRI_TEST_STARTUP_WAIT=15
+    - TRAVIS_WAIT_TIME=30
 
 install: pip install tox
 
