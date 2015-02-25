@@ -89,4 +89,4 @@ def shutdown_server():
 if __name__ == '__main__':
     arguments = parse_arguments()
     signal.alarm(arguments.stop_after)
-    app.run(port=arguments.port)
+    app.run(host='0.0.0.0', port=arguments.port)

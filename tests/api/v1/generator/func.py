@@ -39,7 +39,7 @@ def _attach_test_case(target_module, test_case):
 
 def _get_available_port():
     s = socket.socket()
-    s.bind(('127.0.0.1', 0))
+    s.bind(('0.0.0.0', 0))
     port = s.getsockname()[1]
     s.close()
 
