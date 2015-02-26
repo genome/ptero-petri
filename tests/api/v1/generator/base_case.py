@@ -29,8 +29,16 @@ class TestCaseMixin(object):
     __metaclass__ = abc.ABCMeta
 
     @property
+    def api_host(self):
+        return os.environ['PTERO_PETRI_HOST']
+
+    @property
     def api_port(self):
         return int(os.environ['PTERO_PETRI_PORT'])
+
+    @property
+    def webhook_host(self):
+        return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
 
     @abc.abstractproperty
     def webhook_port(self):
@@ -69,7 +77,7 @@ class TestCaseMixin(object):
 
     @property
     def _submit_url(self):
-        return 'http://localhost:%d/v1/nets' % self.api_port
+        return 'http://%s:%d/v1/nets' % (self.api_host, self.api_port)
 
     def _wait_for_webhook_output(self):
         done = False
@@ -144,7 +152,7 @@ class TestCaseMixin(object):
     def _assemble_webhook_url(self, webhook_name, request_data):
         return urlparse.urlunparse((
             'http',
-            'localhost:%d' % self.webhook_port,
+            '%s:%d' % (self.webhook_host, self.webhook_port),
             '/webhooks/' + webhook_name,
             '',
             urllib.urlencode(request_data),
@@ -193,7 +201,8 @@ class TestCaseMixin(object):
                                % response.text)
 
     def _webhook_ping_url(self):
-        return 'http://localhost:%d/ping' % self.webhook_port
+        return 'http://%s:%d/ping' % (
+                self.webhook_host, self.webhook_port)
 
     def _stop_webhook_receipt_webserver(self):
         _stop_subprocess(self._webhook_webserver)
