@@ -202,7 +202,7 @@ class TestCaseMixin(object):
 
     def _webhook_ping_url(self):
         return 'http://%s:%d/ping' % (
-                self.webhook_host, self.webhook_port)
+            self.webhook_host, self.webhook_port)
 
     def _stop_webhook_receipt_webserver(self):
         _stop_subprocess(self._webhook_webserver)
