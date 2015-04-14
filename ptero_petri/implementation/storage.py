@@ -25,7 +25,7 @@ class ExpiringConnection(object):
             def wrapper(key, *args, **kwargs):
                 rv = getattr(self.connection, name)(key, *args, **kwargs)
                 if rv and not self.connection.expire(key, self.default_ttl):
-                    raise RunTimeError(
+                    raise RuntimeError(
                         "Failed to set expriration of key %s to %s seconds" %
                         key, self.default_ttl)
                 return rv
