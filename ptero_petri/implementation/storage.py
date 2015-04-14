@@ -30,8 +30,25 @@ class ExpiringConnection(object):
                         key, self.default_ttl)
                 return rv
             return wrapper
+        elif name == 'pipeline':
+            return lambda :ExpiringPipeline(self.connection.pipeline(), self.default_ttl)
         else:
             return getattr(self.connection, name)
+
+
+class ExpiringPipeline(object):
+    def __init__(self, pipe, default_ttl):
+        self.pipe = pipe
+        self.default_ttl = default_ttl
+
+    def __getattr__(self, name):
+        if name in COMMANDS_THAT_CAN_ADD_KEYS:
+            def wrapper(key, *args, **kwargs):
+                getattr(self.pipe, name)(key, *args, **kwargs)
+                self.pipe.expire(key, self.default_ttl)
+            return wrapper
+        else:
+            return getattr(self.pipe, name)
 
 
 def get_connection():
