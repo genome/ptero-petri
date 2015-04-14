@@ -10,6 +10,7 @@ _PASSWORD = os.environ.get('PTERO_PETRI_REDIS_PASSWORD')
 _PORT = int(os.environ.get('PTERO_PETRI_REDIS_PORT', 6379))
 _SOCKET_PATH = os.environ.get('PTERO_PETRI_REDIS_PATH')
 
+DEFAULT_TTL = int(os.environ['PTERO_PETRI_REDIS_DEFAULT_TTL'])
 COMMANDS_THAT_CAN_ADD_KEYS = set(['lpush', 'rpush', 'set', 'setnx',
         'incr', 'decr', 'incrby', 'decrby', 'hincrby', 'hset',
         'hsetnx', 'hmset', 'sadd'])
@@ -37,8 +38,9 @@ def get_connection():
     if _SOCKET_PATH:
         return ExpiringConnection(connection=redis.Redis(
             unix_socket_path=_SOCKET_PATH, password=_PASSWORD),
-            default_ttl=(90 * 24 * 3600))
+            default_ttl=DEFAULT_TTL)
 
     else:
         return ExpiringConnection(connection=redis.Redis(
-            host=_HOST, port=_PORT, password=_PASSWORD), default_ttl=(90 * 24 * 3600))
+            host=_HOST, port=_PORT, password=_PASSWORD),
+            default_ttl=DEFAULT_TTL)
