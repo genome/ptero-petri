@@ -1,9 +1,16 @@
 import os
 import redis
+import sys
 
 connection = redis.StrictRedis(host=os.environ['PTERO_PETRI_REDIS_HOST'],
     port=os.environ['PTERO_PETRI_REDIS_PORT'])
 
+count = 0
+bad = 0
 for key in connection.keys('*'):
+    count += 1
     if connection.ttl(key) == -1:
+        bad += 1
         print key
+sys.stderr.write("Found %s of %s keys had no expiration set\n" % (bad, count))
+
