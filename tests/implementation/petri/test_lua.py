@@ -13,13 +13,7 @@ class TestLoadLua(unittest.TestCase):
         with mock.patch('ptero_petri.implementation.petri.lua.BASE_PATH',
                         self.base_path):
             script = lua.load('alpha')
-        self.assertEqual(script, 'AAA\n')
-
-    def test_multiple_files(self):
-        with mock.patch('ptero_petri.implementation.petri.lua.BASE_PATH',
-                        self.base_path):
-            script = lua.load('alpha', 'bravo')
-        self.assertEqual(script, 'AAA\n\nBBB\n')
+        self.assertEqual(script, 'AAA')
 
 
 if __name__ == "__main__":
