@@ -14,6 +14,10 @@ local marking_key = function(color_tag, place_id)
     return string.format("%s:%s", color_tag, place_id)
 end
 
+local expire_key = function(key)
+    redis.call('EXPIRE', key, 90 * 24 * 3600)
+end
+
 redis.call('SREM', state_set_key, place_key)
 local remaining_places = redis.call('SCARD', state_set_key)
 if remaining_places > 0 then
@@ -51,6 +55,7 @@ if remaining_places > 0 then
 end
 
 redis.call('HSET', enablers_key, color, place_key)
+expire_key(enablers_key)
 
 for place_id, token_key in pairs(token_keys) do
     local cp_key = marking_key(color, place_id)
@@ -59,6 +64,7 @@ for place_id, token_key in pairs(token_keys) do
     redis.call('SADD', active_tokens_key, token_key)
     redis.call('HDEL', color_marking_key, cp_key)
     local res = redis.call('HINCRBY', group_marking_key, gp_key, -1)
+    expire_key(group_marking_key)
     if res == 0 then
         redis.call("HDEL", group_marking_key, gp_key)
     end
