@@ -10,17 +10,17 @@ _PASSWORD = os.environ.get('PTERO_PETRI_REDIS_PASSWORD')
 _PORT = int(os.environ.get('PTERO_PETRI_REDIS_PORT', 6379))
 _SOCKET_PATH = os.environ.get('PTERO_PETRI_REDIS_PATH')
 
+COMMANDS_THAT_CAN_ADD_KEYS = set(['lpush', 'rpush', 'set', 'setnx',
+        'incr', 'decr', 'incrby', 'decrby', 'hincrby', 'hset',
+        'hsetnx', 'hmset', 'sadd'])
 
 class ExpiringConnection(object):
     def __init__(self, connection, default_ttl):
         self.connection = connection
         self.default_ttl = default_ttl
-        self.target_functions = set(['lpush', 'rpush', 'set', 'setnx',
-            'incr', 'decr', 'incrby', 'decrby',
-            'hincrby,' 'hset', 'hsetnx', 'hmset'])
 
     def __getattr__(self, name):
-        if name in self.target_functions:
+        if name in COMMANDS_THAT_CAN_ADD_KEYS:
             def wrapper(key, *args, **kwargs):
                 rv = getattr(self.connection, name)(key, *args, **kwargs)
                 if rv and not self.connection.expire(key, self.default_ttl):
