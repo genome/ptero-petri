@@ -11,9 +11,34 @@ _PORT = int(os.environ.get('PTERO_PETRI_REDIS_PORT', 6379))
 _SOCKET_PATH = os.environ.get('PTERO_PETRI_REDIS_PATH')
 
 
+class ExpiringConnection(object):
+    def __init__(self, connection, default_ttl):
+        self.connection = connection
+        self.default_ttl = default_ttl
+        self.target_functions = set(['lpush', 'rpush', 'set', 'setnx',
+            'incr', 'decr', 'incrby', 'decrby',
+            'hincrby,' 'hset', 'hsetnx', 'hmset'])
+
+    def __getattr__(self, name):
+        if name in self.target_functions:
+            def wrapper(key, *args, **kwargs):
+                rv = getattr(self.connection, name)(key, *args, **kwargs)
+                if rv and not self.connection.expire(key, self.default_ttl):
+                    raise RunTimeError(
+                        "Failed to set expriration of key %s to %s seconds" %
+                        key, self.default_ttl)
+                return rv
+            return wrapper
+        else:
+            return getattr(self.connection, name)
+
+
 def get_connection():
     if _SOCKET_PATH:
-        return redis.Redis(unix_socket_path=_SOCKET_PATH, password=_PASSWORD)
+        return ExpiringConnection(connection=redis.Redis(
+            unix_socket_path=_SOCKET_PATH, password=_PASSWORD),
+            default_ttl=(90 * 24 * 3600))
 
     else:
-        return redis.Redis(host=_HOST, port=_PORT, password=_PASSWORD)
+        return ExpiringConnection(connection=redis.Redis(
+            host=_HOST, port=_PORT, password=_PASSWORD), default_ttl=(90 * 24 * 3600))
