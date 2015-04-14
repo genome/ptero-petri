@@ -9,9 +9,7 @@ local color_group_idx = ARGV[4]
 local color_key = string.format("%s:%s", color, place_id)
 local group_key = string.format("%s:%s", color_group_idx, place_id)
 
-local expire_key = function(key)
-    redis.call('EXPIRE', key, 90 * 24 * 3600)
-end
+{{expire_key}}
 
 local set = redis.call('HSETNX', color_marking_key, color_key, token_idx)
 expire_key(color_marking_key)

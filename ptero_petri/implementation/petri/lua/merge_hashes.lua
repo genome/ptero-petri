@@ -1,8 +1,6 @@
 local dest_hash_key = KEYS[1]
 
-local expire_key = function(key)
-    redis.call('EXPIRE', key, 90 * 24 * 3600)
-end
+{{expire_key}}
 
 for i = 2, #KEYS do
     local src_hash_key = KEYS[i]

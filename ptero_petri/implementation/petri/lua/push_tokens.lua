@@ -18,9 +18,7 @@ local get_token_key = function(idx)
     return ARGV[4 + (idx-1)*3]
 end
 
-local expire_key = function(key)
-    redis.call('EXPIRE', key, 90 * 24 * 3600)
-end
+{{expire_key}}
 
 local n_active_tok = redis.call('SCARD', active_tokens_key)
 if n_active_tok == 0 then

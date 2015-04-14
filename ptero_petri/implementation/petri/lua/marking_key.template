@@ -1,0 +1,3 @@
+local marking_key = function(color_tag, place_id)
+    return string.format("%s:%s", color_tag, place_id)
+end

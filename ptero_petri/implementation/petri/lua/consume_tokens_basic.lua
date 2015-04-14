@@ -10,13 +10,8 @@ local place_key = ARGV[1]
 local cg_id = ARGV[2]
 local color = ARGV[3]
 
-local marking_key = function(color_tag, place_id)
-    return string.format("%s:%s", color_tag, place_id)
-end
-
-local expire_key = function(key)
-    redis.call('EXPIRE', key, 90 * 24 * 3600)
-end
+{{marking_key}}
+{{expire_key}}
 
 redis.call('SREM', state_set_key, place_key)
 local remaining_places = redis.call('SCARD', state_set_key)

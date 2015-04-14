@@ -11,13 +11,8 @@ local cg_id = ARGV[2]
 local cg_first = ARGV[3]
 local cg_end = ARGV[4]
 
-local marking_key = function(color_tag, place_id)
-    return string.format("%s:%s", color_tag, place_id)
-end
-
-local expire_key = function(key)
-    redis.call('EXPIRE', key, 90 * 24 * 3600)
-end
+{{marking_key}}
+{{expire_key}}
 
 local cg_last = cg_end - 1
 local expected_count = cg_end - cg_first
