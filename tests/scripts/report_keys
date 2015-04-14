@@ -1,0 +1,9 @@
+import os
+import redis
+
+connection = redis.StrictRedis(host=os.environ['PTERO_PETRI_REDIS_HOST'],
+    port=os.environ['PTERO_PETRI_REDIS_PORT'])
+
+for key in connection.keys('*'):
+    if connection.ttl(key) == -1:
+        print key
