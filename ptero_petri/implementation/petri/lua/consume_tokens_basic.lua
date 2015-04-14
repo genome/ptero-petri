@@ -45,12 +45,14 @@ for i, place_id in pairs(arcs_in) do
     token_keys[place_id] = redis.call('HGET', color_marking_key, key)
     if token_keys[place_id] == false then
         redis.call('SADD', state_set_key, place_id)
+        expire_key(state_set_key)
         remaining_places = remaining_places + 1
     end
 end
 
 if remaining_places > 0 then
     redis.call('SADD', transient_keys_key, state_set_key)
+    expire_key(transient_keys_key)
     return {remaining_places, "Waiting for places (after full check)"}
 end
 
@@ -62,6 +64,7 @@ for place_id, token_key in pairs(token_keys) do
     local gp_key = marking_key(cg_id, place_id)
 
     redis.call('SADD', active_tokens_key, token_key)
+    expire_key(active_tokens_key)
     redis.call('HDEL', color_marking_key, cp_key)
     local res = redis.call('HINCRBY', group_marking_key, gp_key, -1)
     expire_key(group_marking_key)
@@ -71,5 +74,6 @@ for place_id, token_key in pairs(token_keys) do
 end
 
 redis.call('SADD', transient_keys_key, active_tokens_key)
+expire_key(transient_keys_key)
 
 return {0, "Transition enabled"}
