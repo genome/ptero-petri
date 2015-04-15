@@ -1,0 +1,3 @@
+A
+{{example}}
+C

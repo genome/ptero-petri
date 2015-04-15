@@ -11,9 +11,8 @@ local cg_id = ARGV[2]
 local cg_first = ARGV[3]
 local cg_end = ARGV[4]
 
-local marking_key = function(color_tag, place_id)
-    return string.format("%s:%s", color_tag, place_id)
-end
+{{marking_key}}
+{{expire_key}}
 
 local cg_last = cg_end - 1
 local expected_count = cg_end - cg_first
@@ -59,10 +58,12 @@ end
 
 if remaining_places > 0 then
     redis.call('SADD', transient_keys_key, state_set_key)
+    expire_key(transient_keys_key)
     return {remaining_places, "Waiting for places (after full check)"}
 end
 
 redis.call('HSET', enablers_key, cg_id, place_key)
+expire_key(enablers_key)
 
 local token_keys = {}
 for i, place_id in pairs(arcs_in) do
@@ -86,13 +87,16 @@ for i, token_info in pairs(token_keys) do
     local gp_key = marking_key(cg_id, place_id)
 
     redis.call('SADD', active_tokens_key, token_key)
+    expire_key(active_tokens_key)
     redis.call('HDEL', color_marking_key, cp_key)
     local res = redis.call('HINCRBY', group_marking_key, gp_key, -1)
+    expire_key(group_marking_key)
     if res == 0 then
         redis.call("HDEL", group_marking_key, gp_key)
     end
 end
 
 redis.call('SADD', transient_keys_key, active_tokens_key)
+expire_key(transient_keys_key)
 
 return {0, "Transition enabled"}

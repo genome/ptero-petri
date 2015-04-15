@@ -18,6 +18,8 @@ local get_token_key = function(idx)
     return ARGV[4 + (idx-1)*3]
 end
 
+{{expire_key}}
+
 local n_active_tok = redis.call('SCARD', active_tokens_key)
 if n_active_tok == 0 then
     return {-1, "No active tokens"}
@@ -34,10 +36,12 @@ for i, place_id in pairs(arcs_out) do
         local group_key = string.format("%s:%s", color_group, place_id)
 
         local result = redis.call('HSETNX', color_marking_key, color_key, token_key)
+        expire_key(color_marking_key)
         if result == 0 then
             return {-1, "Place " .. place_id .. "is full"}
         end
         redis.call('HINCRBY', group_marking_key, group_key, 1)
+        expire_key(group_marking_key)
     end
 end
 
