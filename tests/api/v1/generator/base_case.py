@@ -72,15 +72,6 @@ class TestCaseMixin(object):
     def _net_file_path(self):
         return os.path.join(self.directory, 'net.json')
 
-    @property
-    def _logdir(self):
-        return os.path.join(self._repository_root_path, 'logs', self.test_name)
-
-    @property
-    def _repository_root_path(self):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            '..', '..', '..', '..'))
-
 
 
 class TestWebhooksMixin(TestCaseMixin):
