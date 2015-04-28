@@ -4,6 +4,7 @@ import errno
 import jinja2
 import json
 import os
+import redis
 import requests
 import signal
 import subprocess
@@ -44,8 +45,14 @@ class TestCaseMixin(object):
     def test_name(self):
         pass
 
+    @property
+    def connection(self):
+        return redis.Redis(host=os.environ['PTERO_PETRI_REDIS_HOST'],
+                port=os.environ['PTERO_PETRI_REDIS_PORT'])
+
     def setUp(self):
         super(TestCaseMixin, self).setUp()
+        self.connection.flushall()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
