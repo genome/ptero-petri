@@ -36,14 +36,6 @@ class TestCaseMixin(object):
     def api_port(self):
         return int(os.environ['PTERO_PETRI_PORT'])
 
-    @property
-    def webhook_host(self):
-        return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
-
-    @abc.abstractproperty
-    def webhook_port(self):
-        pass
-
     @abc.abstractproperty
     def directory(self):
         pass
@@ -52,23 +44,11 @@ class TestCaseMixin(object):
     def test_name(self):
         pass
 
-    def test_got_expected_webhooks(self):
-        self._submit_net()
-
-        self._wait_for_webhook_output()
-        self._print_webhook_server_output()
-
-        self._verify_expected_webhooks()
-
     def setUp(self):
         super(TestCaseMixin, self).setUp()
-        self._clear_memoized_data()
-
-        self._start_webhook_receipt_webserver()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
-        self._stop_webhook_receipt_webserver()
 
     def _submit_net(self):
         response = _retry(requests.post, self._submit_url, self._net_body,
@@ -78,6 +58,49 @@ class TestCaseMixin(object):
     @property
     def _submit_url(self):
         return 'http://%s:%d/v1/nets' % (self.api_host, self.api_port)
+
+    @property
+    def _net_body(self):
+        body = None
+        with open(self._net_file_path) as f:
+            template = jinja2.Template(f.read())
+            body = template.render(webhook_url=self._webhook_url)
+            validate_json(body)
+        return body
+
+    @property
+    def _net_file_path(self):
+        return os.path.join(self.directory, 'net.json')
+
+    @property
+    def _logdir(self):
+        return os.path.join(self._repository_root_path, 'logs', self.test_name)
+
+    @property
+    def _repository_root_path(self):
+        return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            '..', '..', '..', '..'))
+
+
+
+class TestWebhooksMixin(TestCaseMixin):
+    @property
+    def webhook_host(self):
+        return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
+
+    @abc.abstractproperty
+    def webhook_port(self):
+        pass
+
+    def setUp(self):
+        super(TestWebhooksMixin, self).setUp()
+        self._clear_memoized_data()
+
+        self._start_webhook_receipt_webserver()
+
+    def tearDown(self):
+        super(TestWebhooksMixin, self).tearDown()
+        self._stop_webhook_receipt_webserver()
 
     def _wait_for_webhook_output(self):
         done = False
@@ -134,15 +157,6 @@ class TestCaseMixin(object):
             self._actual_webhooks = self._webhook_stdout.splitlines()
         return self._actual_webhooks
 
-    @property
-    def _net_body(self):
-        body = None
-        with open(self._net_file_path) as f:
-            template = jinja2.Template(f.read())
-            body = template.render(webhook_url=self._webhook_url)
-            validate_json(body)
-        return body
-
     def _webhook_url(self, webhook_name, request_name=None, **request_data):
         if request_name is not None:
             request_data['request_name'] = request_name
@@ -158,10 +172,6 @@ class TestCaseMixin(object):
             urllib.urlencode(request_data),
             '',
         ))
-
-    @property
-    def _net_file_path(self):
-        return os.path.join(self.directory, 'net.json')
 
     @property
     def expected_webhooks(self):
@@ -212,17 +222,16 @@ class TestCaseMixin(object):
         return os.path.join(os.path.dirname(__file__), 'webhook_webserver.py')
 
     @property
-    def _logdir(self):
-        return os.path.join(self._repository_root_path, 'logs', self.test_name)
-
-    @property
-    def _repository_root_path(self):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            '..', '..', '..', '..'))
-
-    @property
     def _max_wait_time(self):
         return 20
+
+    def test_got_expected_webhooks(self):
+        self._submit_net()
+
+        self._wait_for_webhook_output()
+        self._print_webhook_server_output()
+
+        self._verify_expected_webhooks()
 
 
 def _stop_subprocess(process):
