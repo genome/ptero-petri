@@ -73,8 +73,24 @@ class TestCaseMixin(object):
         return os.path.join(self.directory, 'net.json')
 
 
-
 class TestWebhooksMixin(TestCaseMixin):
+    @staticmethod
+    def _get_prereq_webhooks(expected_webhooks, webhook):
+        expected_webhook_data = expected_webhooks.get(webhook, {})
+        return expected_webhook_data.get('depends', [])
+
+    @staticmethod
+    def _get_actual_webhook_counts(actual_webhooks):
+        counts = collections.defaultdict(int)
+        for cb in actual_webhooks:
+            counts[cb] += 1
+        return dict(counts)
+
+    @staticmethod
+    def _get_expected_webhook_counts(expected_webhooks):
+        return {webhook: data['count']
+                for webhook, data in expected_webhooks.iteritems()}
+
     @property
     def webhook_host(self):
         return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
@@ -124,7 +140,7 @@ class TestWebhooksMixin(TestCaseMixin):
         seen_webhooks = set()
 
         for webhook in actual_webhooks:
-            for prereq_webhook in _get_prereq_webhooks(expected_webhooks,
+            for prereq_webhook in self._get_prereq_webhooks(expected_webhooks,
                                                        webhook):
                 if prereq_webhook not in seen_webhooks:
                     self.fail("Have not yet seen webhook '%s' "
@@ -137,8 +153,8 @@ class TestWebhooksMixin(TestCaseMixin):
             seen_webhooks.add(webhook)
 
     def _verify_webhook_counts(self, expected_webhooks, actual_webhooks):
-        actual_webhook_counts = _get_actual_webhook_counts(actual_webhooks)
-        expected_webhook_counts = _get_expected_webhook_counts(
+        actual_webhook_counts = self._get_actual_webhook_counts(actual_webhooks)
+        expected_webhook_counts = self._get_expected_webhook_counts(
             expected_webhooks)
         self.assertEqual(expected_webhook_counts, actual_webhook_counts)
 
@@ -177,7 +193,7 @@ class TestWebhooksMixin(TestCaseMixin):
 
     @property
     def _total_expected_webhooks(self):
-        return sum(_get_expected_webhook_counts(
+        return sum(self._get_expected_webhook_counts(
             self.expected_webhooks).itervalues())
 
     def _clear_memoized_data(self):
@@ -234,23 +250,6 @@ def _stop_subprocess(process):
     except OSError as e:
         if e.errno != errno.ESRCH:  # ESRCH: no such pid
             raise
-
-
-def _get_prereq_webhooks(expected_webhooks, webhook):
-    expected_webhook_data = expected_webhooks.get(webhook, {})
-    return expected_webhook_data.get('depends', [])
-
-
-def _get_actual_webhook_counts(actual_webhooks):
-    counts = collections.defaultdict(int)
-    for cb in actual_webhooks:
-        counts[cb] += 1
-    return dict(counts)
-
-
-def _get_expected_webhook_counts(expected_webhooks):
-    return {webhook: data['count']
-            for webhook, data in expected_webhooks.iteritems()}
 
 
 def _retry(func, *args, **kwargs):
