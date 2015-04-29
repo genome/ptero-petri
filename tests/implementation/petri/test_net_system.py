@@ -112,7 +112,11 @@ class TestNet(NetTest):
         self.net.expire(0)
 
         for key in associated_keys:
-            self.assertFalse(self.net.connection.exists(key))
+            self.assertFalse(self.conn.exists(key))
+
+        for key in self.conn.keys('*'):
+            self.assertFalse(self.conn.exists(key))
+
 
 if __name__ == "__main__":
     main()
