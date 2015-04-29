@@ -1,5 +1,6 @@
 from .petri.actions.convert_to_parent_color import ConvertToParentColorAction
 from .petri.actions.create_color_group import CreateColorGroupAction
+from .petri.actions.expire import ExpireAction
 from .petri.actions.join import JoinAction
 from .petri.actions.notify import NotifyAction
 from .petri.actions.split import SplitAction
@@ -9,6 +10,7 @@ from .petri.future import FutureAction, FutureNet
 _ACTION_CLASSES = {
     'convert-to-parent-color': ConvertToParentColorAction,
     'create-color-group': CreateColorGroupAction,
+    'expire': ExpireAction,
     'join': JoinAction,
     'notify': NotifyAction,
     'split': SplitAction,

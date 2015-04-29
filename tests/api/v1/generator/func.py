@@ -1,4 +1,4 @@
-from .base_case import TestWebhooksMixin
+from .base_case import TestWebhooksMixin, TestExpireNetKeysMixin
 import os
 import socket
 import unittest
@@ -29,7 +29,12 @@ def _create_test_case(test_case_directory, test_case_name):
         'directory': os.path.join(test_case_directory, test_case_name),
         'test_name': test_case_name,
     }
-    return type(test_case_name, (TestWebhooksMixin, unittest.TestCase),
+
+    if test_case_name == 'expire_net':
+        return type(test_case_name, (TestExpireNetKeysMixin, unittest.TestCase),
+                class_dict)
+    else:
+        return type(test_case_name, (TestWebhooksMixin, unittest.TestCase),
                 class_dict)
 
 

@@ -12,6 +12,7 @@
                         "oneOf": [
                             { "$ref": "#/definitions/actions/basic/convert_to_parent_color" },
                             { "$ref": "#/definitions/actions/basic/create_color_group" },
+                            { "$ref": "#/definitions/actions/basic/expire" },
                             { "$ref": "#/definitions/actions/basic/notify" },
                             { "$ref": "#/definitions/actions/basic/split" }
                         ]
@@ -96,6 +97,21 @@
                         "url": {
                             "type": "string",
                             "format": "uri"
+                        }
+                    },
+                    "required": ["type"],
+                    "additionalProperties": false
+                },
+                "expire": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "pattern": "expire"
+                        },
+                        "ttl_seconds": {
+                            "type": "integer",
+                            "minimum": 0
                         }
                     },
                     "required": ["type"],

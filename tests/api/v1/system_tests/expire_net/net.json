@@ -1,0 +1,21 @@
+{
+    "initialMarking": ["start"],
+    "transitions": [
+        {
+            "inputs": ["start"],
+            "outputs": ["middle"],
+            "action": {
+                "type": "notify",
+                "url": {{ webhook_url('step_one') }}
+            }
+        },
+        {
+            "inputs": ["middle"],
+            "outputs": ["end"],
+            "action": {
+                "type": "expire",
+                "ttl_seconds": {{ net_expire_ttl }}
+            }
+        }
+    ]
+}

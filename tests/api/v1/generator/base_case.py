@@ -21,6 +21,8 @@ _TERMINATE_WAIT_TIME = 0.05
 _MAX_RETRIES = 100
 _RETRY_DELAY = 0.15
 
+_NET_EXPIRE_TTL = int(os.environ['PTERO_PETRI_REDIS_DEFAULT_TTL']) / 2
+
 
 def validate_json(text):
     json.loads(text)
@@ -71,7 +73,8 @@ class TestCaseMixin(object):
         body = None
         with open(self._net_file_path) as f:
             template = jinja2.Template(f.read())
-            body = template.render(webhook_url=self._webhook_url)
+            body = template.render(webhook_url=self._webhook_url,
+                    net_expire_ttl=_NET_EXPIRE_TTL)
             validate_json(body)
         return body
 
@@ -246,6 +249,18 @@ class TestWebhooksMixin(TestCaseMixin):
         self._print_webhook_server_output()
 
         self._verify_expected_webhooks()
+
+
+class TestExpireNetKeysMixin(TestWebhooksMixin):
+    def test_got_expected_webhooks(self):
+        super(TestExpireNetKeysMixin, self).test_got_expected_webhooks()
+
+        unexpired_keys = set()
+        for key in self.connection.keys('*'):
+            if self.connection.ttl(key) > _NET_EXPIRE_TTL:
+                unexpired_keys.add(key)
+
+        self.assertEqual(unexpired_keys, set())
 
 
 def _stop_subprocess(process):
