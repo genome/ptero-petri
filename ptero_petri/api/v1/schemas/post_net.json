@@ -12,7 +12,6 @@
                         "oneOf": [
                             { "$ref": "#/definitions/actions/basic/convert_to_parent_color" },
                             { "$ref": "#/definitions/actions/basic/create_color_group" },
-                            { "$ref": "#/definitions/actions/basic/expire" },
                             { "$ref": "#/definitions/actions/basic/notify" },
                             { "$ref": "#/definitions/actions/basic/split" }
                         ]
@@ -25,6 +24,20 @@
                     }
                 },
                 "required": ["inputs"],
+                "additionalProperties": false
+            },
+            "basic_expire": {
+                "type": "object",
+                "description": "Limit the expire action to basic transitions without outputs",
+                "properties": {
+                    "action": { "$ref": "#/definitions/actions/basic/expire" },
+                    "inputs": { "$ref": "#/definitions/places" },
+                    "type": {
+                        "type": "string",
+                        "pattern": "basic"
+                    }
+                },
+                "required": ["action", "inputs"],
                 "additionalProperties": false
             },
             "barrier": {
@@ -176,6 +189,7 @@
                 "type": "object",
                 "oneOf": [
                     { "$ref": "#/definitions/transitions/basic" },
+                    { "$ref": "#/definitions/transitions/basic_expire" },
                     { "$ref": "#/definitions/transitions/barrier" }
                 ]
             },
