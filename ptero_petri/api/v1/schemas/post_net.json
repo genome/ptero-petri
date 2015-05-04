@@ -26,6 +26,20 @@
                 "required": ["inputs"],
                 "additionalProperties": false
             },
+            "basic_expire": {
+                "type": "object",
+                "description": "Limit the expire action to basic transitions without outputs",
+                "properties": {
+                    "action": { "$ref": "#/definitions/actions/basic/expire" },
+                    "inputs": { "$ref": "#/definitions/places" },
+                    "type": {
+                        "type": "string",
+                        "pattern": "basic"
+                    }
+                },
+                "required": ["action", "inputs"],
+                "additionalProperties": false
+            },
             "barrier": {
                 "type": "object",
                 "description": "TODO write a description",
@@ -101,6 +115,21 @@
                     "required": ["type"],
                     "additionalProperties": false
                 },
+                "expire": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "pattern": "expire"
+                        },
+                        "ttl_seconds": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "required": ["type", "ttl_seconds"],
+                    "additionalProperties": false
+                },
                 "notify": {
                     "type": "object",
                     "properties": {
@@ -160,6 +189,7 @@
                 "type": "object",
                 "oneOf": [
                     { "$ref": "#/definitions/transitions/basic" },
+                    { "$ref": "#/definitions/transitions/basic_expire" },
                     { "$ref": "#/definitions/transitions/barrier" }
                 ]
             },

@@ -4,6 +4,7 @@ import errno
 import jinja2
 import json
 import os
+import redis
 import requests
 import signal
 import subprocess
@@ -19,6 +20,8 @@ _TERMINATE_WAIT_TIME = 0.05
 
 _MAX_RETRIES = 100
 _RETRY_DELAY = 0.15
+
+_NET_EXPIRE_TTL = int(os.environ['PTERO_PETRI_REDIS_DEFAULT_TTL']) / 2
 
 
 def validate_json(text):
@@ -36,14 +39,6 @@ class TestCaseMixin(object):
     def api_port(self):
         return int(os.environ['PTERO_PETRI_PORT'])
 
-    @property
-    def webhook_host(self):
-        return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
-
-    @abc.abstractproperty
-    def webhook_port(self):
-        pass
-
     @abc.abstractproperty
     def directory(self):
         pass
@@ -52,23 +47,17 @@ class TestCaseMixin(object):
     def test_name(self):
         pass
 
-    def test_got_expected_webhooks(self):
-        self._submit_net()
-
-        self._wait_for_webhook_output()
-        self._print_webhook_server_output()
-
-        self._verify_expected_webhooks()
+    @property
+    def connection(self):
+        return redis.Redis(host=os.environ['PTERO_PETRI_REDIS_HOST'],
+                port=os.environ['PTERO_PETRI_REDIS_PORT'])
 
     def setUp(self):
         super(TestCaseMixin, self).setUp()
-        self._clear_memoized_data()
-
-        self._start_webhook_receipt_webserver()
+        self.connection.flushall()
 
     def tearDown(self):
         super(TestCaseMixin, self).tearDown()
-        self._stop_webhook_receipt_webserver()
 
     def _submit_net(self):
         response = _retry(requests.post, self._submit_url, self._net_body,
@@ -78,6 +67,57 @@ class TestCaseMixin(object):
     @property
     def _submit_url(self):
         return 'http://%s:%d/v1/nets' % (self.api_host, self.api_port)
+
+    @property
+    def _net_body(self):
+        body = None
+        with open(self._net_file_path) as f:
+            template = jinja2.Template(f.read())
+            body = template.render(webhook_url=self._webhook_url,
+                    net_expire_ttl=_NET_EXPIRE_TTL)
+            validate_json(body)
+        return body
+
+    @property
+    def _net_file_path(self):
+        return os.path.join(self.directory, 'net.json')
+
+
+class TestWebhooksMixin(TestCaseMixin):
+    @staticmethod
+    def _get_prereq_webhooks(expected_webhooks, webhook):
+        expected_webhook_data = expected_webhooks.get(webhook, {})
+        return expected_webhook_data.get('depends', [])
+
+    @staticmethod
+    def _get_actual_webhook_counts(actual_webhooks):
+        counts = collections.defaultdict(int)
+        for cb in actual_webhooks:
+            counts[cb] += 1
+        return dict(counts)
+
+    @staticmethod
+    def _get_expected_webhook_counts(expected_webhooks):
+        return {webhook: data['count']
+                for webhook, data in expected_webhooks.iteritems()}
+
+    @property
+    def webhook_host(self):
+        return os.environ['PTERO_PETRI_TEST_WEBHOOK_CALLBACK_HOST']
+
+    @abc.abstractproperty
+    def webhook_port(self):
+        pass
+
+    def setUp(self):
+        super(TestWebhooksMixin, self).setUp()
+        self._clear_memoized_data()
+
+        self._start_webhook_receipt_webserver()
+
+    def tearDown(self):
+        super(TestWebhooksMixin, self).tearDown()
+        self._stop_webhook_receipt_webserver()
 
     def _wait_for_webhook_output(self):
         done = False
@@ -110,7 +150,7 @@ class TestCaseMixin(object):
         seen_webhooks = set()
 
         for webhook in actual_webhooks:
-            for prereq_webhook in _get_prereq_webhooks(expected_webhooks,
+            for prereq_webhook in self._get_prereq_webhooks(expected_webhooks,
                                                        webhook):
                 if prereq_webhook not in seen_webhooks:
                     self.fail("Have not yet seen webhook '%s' "
@@ -123,8 +163,8 @@ class TestCaseMixin(object):
             seen_webhooks.add(webhook)
 
     def _verify_webhook_counts(self, expected_webhooks, actual_webhooks):
-        actual_webhook_counts = _get_actual_webhook_counts(actual_webhooks)
-        expected_webhook_counts = _get_expected_webhook_counts(
+        actual_webhook_counts = self._get_actual_webhook_counts(actual_webhooks)
+        expected_webhook_counts = self._get_expected_webhook_counts(
             expected_webhooks)
         self.assertEqual(expected_webhook_counts, actual_webhook_counts)
 
@@ -133,15 +173,6 @@ class TestCaseMixin(object):
         if self._actual_webhooks is None:
             self._actual_webhooks = self._webhook_stdout.splitlines()
         return self._actual_webhooks
-
-    @property
-    def _net_body(self):
-        body = None
-        with open(self._net_file_path) as f:
-            template = jinja2.Template(f.read())
-            body = template.render(webhook_url=self._webhook_url)
-            validate_json(body)
-        return body
 
     def _webhook_url(self, webhook_name, request_name=None, **request_data):
         if request_name is not None:
@@ -160,10 +191,6 @@ class TestCaseMixin(object):
         ))
 
     @property
-    def _net_file_path(self):
-        return os.path.join(self.directory, 'net.json')
-
-    @property
     def expected_webhooks(self):
         if not self._expected_webhooks:
             with open(self._expected_webhooks_path) as f:
@@ -176,7 +203,7 @@ class TestCaseMixin(object):
 
     @property
     def _total_expected_webhooks(self):
-        return sum(_get_expected_webhook_counts(
+        return sum(self._get_expected_webhook_counts(
             self.expected_webhooks).itervalues())
 
     def _clear_memoized_data(self):
@@ -212,17 +239,28 @@ class TestCaseMixin(object):
         return os.path.join(os.path.dirname(__file__), 'webhook_webserver.py')
 
     @property
-    def _logdir(self):
-        return os.path.join(self._repository_root_path, 'logs', self.test_name)
-
-    @property
-    def _repository_root_path(self):
-        return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            '..', '..', '..', '..'))
-
-    @property
     def _max_wait_time(self):
         return 20
+
+    def test_got_expected_webhooks(self):
+        self._submit_net()
+
+        self._wait_for_webhook_output()
+        self._print_webhook_server_output()
+
+        self._verify_expected_webhooks()
+
+
+class TestExpireNetKeysMixin(TestWebhooksMixin):
+    def test_got_expected_webhooks(self):
+        super(TestExpireNetKeysMixin, self).test_got_expected_webhooks()
+
+        unexpired_keys = set()
+        for key in self.connection.keys('*'):
+            if self.connection.ttl(key) > _NET_EXPIRE_TTL:
+                unexpired_keys.add(key)
+
+        self.assertEqual(unexpired_keys, set())
 
 
 def _stop_subprocess(process):
@@ -234,23 +272,6 @@ def _stop_subprocess(process):
     except OSError as e:
         if e.errno != errno.ESRCH:  # ESRCH: no such pid
             raise
-
-
-def _get_prereq_webhooks(expected_webhooks, webhook):
-    expected_webhook_data = expected_webhooks.get(webhook, {})
-    return expected_webhook_data.get('depends', [])
-
-
-def _get_actual_webhook_counts(actual_webhooks):
-    counts = collections.defaultdict(int)
-    for cb in actual_webhooks:
-        counts[cb] += 1
-    return dict(counts)
-
-
-def _get_expected_webhook_counts(expected_webhooks):
-    return {webhook: data['count']
-            for webhook, data in expected_webhooks.iteritems()}
 
 
 def _retry(func, *args, **kwargs):

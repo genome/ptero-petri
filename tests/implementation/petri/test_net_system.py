@@ -97,6 +97,26 @@ class TestNet(NetTest):
 
         self.assertEqual([], self.conn.keys())
 
+    def test_expire(self):
+        self.net.add_place('p')
+        trans = self.net.add_transition(BasicTransition)
+        BasicMergeAction.create(self.conn, key=trans.action_key)
+        cg = self.net.add_color_group(3)
+        self.net.create_token(cg.begin, cg.idx)
+
+        associated_keys = []
+        for key in self.net.associated_iterkeys():
+            associated_keys.append(key)
+        self.assertTrue(len(associated_keys) > 0)
+
+        self.net.expire(0)
+
+        for key in associated_keys:
+            self.assertFalse(self.conn.exists(key))
+
+        for key in self.conn.keys('*'):
+            self.assertFalse(self.conn.exists(key))
+
 
 if __name__ == "__main__":
     main()
