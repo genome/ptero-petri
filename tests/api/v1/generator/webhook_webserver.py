@@ -34,7 +34,7 @@ def ping():
     return 'PONG'
 
 
-@app.route('/webhooks/<path:webhook_name>', methods=['PUT'])
+@app.route('/webhooks/<path:webhook_name>', methods=['POST'])
 def log_request(webhook_name):
     try:
         print webhook_name
