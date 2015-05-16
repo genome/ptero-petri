@@ -13,7 +13,7 @@ def send_webhook(url, response_data=None, data=None):
     body_data['response_links'] = _response_links(**response_data)
     task = celery.current_app.tasks[SEND_WEBHOOK_TASK]
 
-    task.delay('PUT', url, **body_data)
+    task.delay('POST', url, **body_data)
 
 
 def _response_links(net_key, response_places, color_descriptor):
