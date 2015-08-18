@@ -9,20 +9,22 @@ import os
 def janitor_factory():
     janitors = []
 
-    janitors.append(RabbitMQJanitor(os.environ['CELERY_BROKER_URL']))
-    janitors.append(RedisJanitor(url=os.environ['CELERY_RESULT_BACKEND']))
+    janitors.append(RabbitMQJanitor(
+        os.environ['PTERO_PETRI_CELERY_BROKER_URL']))
+    janitors.append(RedisJanitor(
+        url=os.environ['PTERO_PETRI_CELERY_RESULT_BACKEND']))
 
     janitors.append(RedisJanitor(url='redis://%s:%s' % (
-        os.environ['PTERO_PETRI_REDIS_HOST'],
-        os.environ['PTERO_PETRI_REDIS_PORT'])))
+        os.environ['PTERO_PETRI_NET_REDIS_HOST'],
+        os.environ['PTERO_PETRI_NET_REDIS_PORT'])))
 
     return janitors
 
 
 if __name__ == '__main__':
     perform_cleanup(janitor_factory=janitor_factory, required_envvars=[
-        'CELERY_BROKER_URL',
-        'CELERY_RESULT_BACKEND',
-        'PTERO_PETRI_REDIS_HOST',
-        'PTERO_PETRI_REDIS_PORT',
+        'PTERO_PETRI_CELERY_BROKER_URL',
+        'PTERO_PETRI_CELERY_RESULT_BACKEND',
+        'PTERO_PETRI_NET_REDIS_HOST',
+        'PTERO_PETRI_NET_REDIS_PORT',
     ])

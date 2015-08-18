@@ -21,7 +21,7 @@ _TERMINATE_WAIT_TIME = 0.05
 _MAX_RETRIES = 100
 _RETRY_DELAY = 0.15
 
-_NET_EXPIRE_TTL = int(os.environ['PTERO_PETRI_REDIS_DEFAULT_TTL']) / 2
+_NET_EXPIRE_TTL = int(os.environ['PTERO_PETRI_NET_REDIS_DEFAULT_TTL']) / 2
 
 
 def validate_json(text):
@@ -49,8 +49,8 @@ class TestCaseMixin(object):
 
     @property
     def connection(self):
-        return redis.Redis(host=os.environ['PTERO_PETRI_REDIS_HOST'],
-                port=os.environ['PTERO_PETRI_REDIS_PORT'])
+        return redis.Redis(host=os.environ['PTERO_PETRI_NET_REDIS_HOST'],
+                port=os.environ['PTERO_PETRI_NET_REDIS_PORT'])
 
     def setUp(self):
         super(TestCaseMixin, self).setUp()

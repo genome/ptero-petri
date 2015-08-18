@@ -7,8 +7,8 @@ class TestAllKeysExpire(TestCase):
 
     def setUp(self):
         self.connection = redis.StrictRedis(
-            host=os.environ['PTERO_PETRI_REDIS_HOST'],
-            port=os.environ['PTERO_PETRI_REDIS_PORT'])
+            host=os.environ['PTERO_PETRI_NET_REDIS_HOST'],
+            port=os.environ['PTERO_PETRI_NET_REDIS_PORT'])
 
     def test_all_keys_expire(self):
         unexpired_keys = set()
