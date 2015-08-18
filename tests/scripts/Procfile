@@ -1,6 +1,6 @@
 web: tests/scripts/sigterm_wrapper coverage run ptero_petri/api/wsgi.py
-persistance_redis: redis-server --port $PTERO_PETRI_REDIS_PORT
-celery_redis: redis-server --port $PTERO_PETRI_CELERY_REDIS_PORT
+persistance_redis: redis-server --port $PTERO_PETRI_NET_REDIS_PORT
+celery_redis: redis-server --port $PTERO_PETRI_REDIS_PORT
 rabbit: RABBITMQ_NODE_PORT=$PTERO_PETRI_RABBITMQ_NODE_PORT RABBITMQ_NODENAME=ptero-petri-rabbitmq RABBITMQ_LOG_BASE=$PWD/var/log RABBITMQ_MNESIA_BASE=$PWD/var/rabbitmq-data rabbitmq-server
 worker: coverage run $(which celery) worker -n petri_worker.%h.$PORT --pool=eventlet -A ptero_petri.implementation.celery_app -Q worker
 http_worker: coverage run $(which celery) worker -n petri_http_worker.%h.$PORT --pool=eventlet -A ptero_petri.implementation.celery_app -Q http
