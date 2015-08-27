@@ -11,6 +11,9 @@ class NotifyAction(BasicActionBase, MergeMixin):
                                           color_group_idx=cd.group.idx,
                                           active_tokens=active_tokens)
 
+        data = {'net_key': net.key}
+        data.update(color_descriptor.as_dict)
+
         webhooks.send_webhook(
             url=self.notify_url,
             response_data={
@@ -18,7 +21,7 @@ class NotifyAction(BasicActionBase, MergeMixin):
                 'net_key': net.key,
                 'response_places': self.response_places,
             },
-            data=color_descriptor.as_dict)
+            data=data)
 
         return [new_token]
 
