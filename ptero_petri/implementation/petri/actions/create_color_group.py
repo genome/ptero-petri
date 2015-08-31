@@ -29,7 +29,8 @@ class CreateColorGroupAction(BasicActionBase):
                     'response_places': self.response_places,
                 },
                 data={
-                    'group': new_color_group.as_dict
+                    'group': new_color_group.as_dict,
+                    'net_key': net.key,
                 }
             )
 
