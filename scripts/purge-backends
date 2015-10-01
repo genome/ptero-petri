@@ -6,25 +6,23 @@ from ptero_common.janitors import perform_cleanup
 import os
 
 
-def janitor_factory():
-    janitors = []
-
-    janitors.append(RabbitMQJanitor(
-        os.environ['PTERO_PETRI_CELERY_BROKER_URL']))
-    janitors.append(RedisJanitor(
-        url=os.environ['PTERO_PETRI_CELERY_RESULT_BACKEND']))
-
-    janitors.append(RedisJanitor(url='redis://%s:%s' % (
-        os.environ['PTERO_PETRI_NET_REDIS_HOST'],
-        os.environ['PTERO_PETRI_NET_REDIS_PORT'])))
-
-    return janitors
-
-
 if __name__ == '__main__':
-    perform_cleanup(janitor_factory=janitor_factory, required_envvars=[
-        'PTERO_PETRI_CELERY_BROKER_URL',
-        'PTERO_PETRI_CELERY_RESULT_BACKEND',
-        'PTERO_PETRI_NET_REDIS_HOST',
-        'PTERO_PETRI_NET_REDIS_PORT',
-    ])
+    perform_cleanup(janitor_spec={
+        'rabbitmq': {
+            'required_envvars': ['PTERO_PETRI_CELERY_BROKER_URL'],
+            'cleanup_action': lambda: RabbitMQJanitor(
+                os.environ['PTERO_PETRI_CELERY_BROKER_URL']).clean(),
+            },
+        'redis': {
+            'required_envvars': ['PTERO_PETRI_CELERY_RESULT_BACKEND'],
+            'cleanup_action': lambda: RedisJanitor(
+                os.environ['PTERO_PETRI_CELERY_RESULT_BACKEND']).clean(),
+            },
+        'netredis': {
+            'required_envvars': ['PTERO_PETRI_NET_REDIS_HOST',
+                'PTERO_PETRI_NET_REDIS_PORT'],
+            'cleanup_action': lambda: RedisJanitor(url='redis://%s:%s' % (
+                os.environ['PTERO_PETRI_NET_REDIS_HOST'],
+                os.environ['PTERO_PETRI_NET_REDIS_PORT'])).clean(),
+            },
+        })
