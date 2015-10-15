@@ -4,10 +4,10 @@ from flask.ext.restful import Resource
 from jsonschema import ValidationError
 import base64
 import uuid
-import logging
-from ptero_common.logging_configuration import logged_response
+from ptero_common import nicer_logging
+from ptero_common.nicer_logging import logged_response
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class NetView(Resource):

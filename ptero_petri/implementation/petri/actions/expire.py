@@ -1,7 +1,7 @@
 from .base import BasicActionBase
-import logging
+from ptero_common import nicer_logging
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class ExpireAction(BasicActionBase):

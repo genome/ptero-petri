@@ -10,10 +10,10 @@ from uuid import uuid4
 
 import base64
 import itertools
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 _TOKEN_KEY = "t"

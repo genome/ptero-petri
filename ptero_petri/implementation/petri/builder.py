@@ -4,10 +4,10 @@ from .net import Net
 from .place import Place
 from .transitions.barrier import BarrierTransition
 from .transitions.basic import BasicTransition
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class Builder(object):
