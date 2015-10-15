@@ -3,10 +3,10 @@ from ... import rom
 from ..actions.base import BasicActionBase
 from ..actions.merge import BasicMergeAction
 from .base import TransitionBase
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class BasicTransition(TransitionBase):

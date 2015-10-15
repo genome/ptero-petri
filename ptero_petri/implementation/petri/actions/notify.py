@@ -1,6 +1,10 @@
 from .. import webhooks
 from .base import BasicActionBase
 from .merge import MergeMixin
+from ptero_common import nicer_logging
+
+
+LOG = nicer_logging.getLogger(__name__)
 
 
 class NotifyAction(BasicActionBase, MergeMixin):
@@ -14,6 +18,9 @@ class NotifyAction(BasicActionBase, MergeMixin):
         data = {'net_key': net.key}
         data.update(color_descriptor.as_dict)
 
+        LOG.info("Sending Webhook for net <%s> -- %s",
+                net.key, self.notify_url,
+                extra={'netKey': net.key})
         webhooks.send_webhook(
             url=self.notify_url,
             response_data={

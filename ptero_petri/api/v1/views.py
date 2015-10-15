@@ -4,16 +4,18 @@ from flask.ext.restful import Resource
 from jsonschema import ValidationError
 import base64
 import uuid
-import logging
-from ptero_common.logging_configuration import logged_response
+from ptero_common import nicer_logging
+from ptero_common.nicer_logging import logged_response
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class NetView(Resource):
 
     @logged_response(logger=LOG)
     def put(self, net_key):
+        LOG.info("Handling PUT of net <%s>",
+                net_key, extra={'netKey': net_key})
         try:
             return _submit_net(net_key)
         except ValidationError as e:
@@ -47,9 +49,15 @@ class NetListView(Resource):
     @logged_response(logger=LOG)
     def post(self):
         net_key = _generate_net_key()
+        LOG.info("Handling POST of net <%s>",
+                net_key, extra={'netKey': net_key})
         try:
             return _submit_net(net_key)
         except ValidationError as e:
+            LOG.exception("Net did not pass validation",
+                    extra={'netKey': net_key})
+            LOG.info("Responding 400 to submission of net <%s>",
+                    net_key, extra={'netKey': net_key})
             return {'error': e.message}, 400
 
 
@@ -58,6 +66,8 @@ def _submit_net(net_key):
 
     net_info = g.backend.create_net(net_data, net_key=net_key)
 
+    LOG.info("Responding 201 to submission of net <%s>",
+            net_key, extra={'netKey': net_key})
     return net_info, 201
 
 

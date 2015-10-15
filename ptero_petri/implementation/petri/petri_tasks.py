@@ -1,8 +1,8 @@
 import celery
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 def execute_task(name, *args, **kwargs):

@@ -10,10 +10,10 @@ from uuid import uuid4
 
 import base64
 import itertools
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 _TOKEN_KEY = "t"
@@ -218,6 +218,9 @@ class Net(rom.Object):
                             color_group_idx=color_group_idx)
 
     def create_put_notify(self, place_idx, color, color_group_idx, data=None):
+        LOG.info("Putting token of color (%s) in place (%s) of net <%s>",
+                color, place_idx, self.key,
+                extra={'netKey': self.key})
         token = self.create_token(color, color_group_idx, data)
         self.put_token(place_idx, token)
         self.notify_place(place_idx, color)

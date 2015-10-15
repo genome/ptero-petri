@@ -2,10 +2,10 @@ from .. import lua
 from ... import rom
 from ..petri_tasks import execute_task
 from itertools import product
-import logging
+from ptero_common import nicer_logging
 
 
-LOG = logging.getLogger(__name__)
+LOG = nicer_logging.getLogger(__name__)
 
 
 class TransitionBase(rom.Object):
