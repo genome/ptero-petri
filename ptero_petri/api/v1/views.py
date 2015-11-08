@@ -6,6 +6,7 @@ import base64
 import uuid
 from ptero_common import nicer_logging
 from ptero_common.nicer_logging import logged_response
+from ptero_common.server_info import get_server_info
 
 LOG = nicer_logging.getLogger(__name__)
 
@@ -73,3 +74,10 @@ def _submit_net(net_key):
 
 def _generate_net_key():
     return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2]
+
+
+class ServerInfo(Resource):
+    @logged_response(logger=LOG)
+    def get(self):
+        return get_server_info(
+                'ptero_petri.implementation.celery_app'), 200
