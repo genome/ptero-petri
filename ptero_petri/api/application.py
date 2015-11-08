@@ -10,6 +10,10 @@ def create_app():
     factory = Factory()
 
     app = _create_app_from_blueprints()
+    app.config['RESTFUL_JSON'] = {
+            'indent': 4,
+            'sort_keys': True,
+    }
 
     _attach_factory_to_app(factory, app)
 
