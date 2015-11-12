@@ -1,10 +1,10 @@
--e git+http://github.com/genome/ptero-common.git@fce2e6d#egg=ptero_common
-celery == 3.1.17
+-e git+http://github.com/genome/ptero-common.git@43b9503#egg=ptero_common
+celery == 3.1.18
 flask == 0.10.1
-flask-restful == 0.2.12
+flask-restful == 0.3.4
 gunicorn == 19.1.1
-jinja2 == 2.7.3
-jsonschema == 2.4.0
+jinja2 == 2.8
+jsonschema == 2.5.1
 librabbitmq == 1.6.1
 redis == 2.10.3
-requests == 2.4.3
+requests == 2.8.1
