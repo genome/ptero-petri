@@ -13,6 +13,10 @@ import time
 import urllib
 import urlparse
 import yaml
+import logging
+
+
+LOG = logging.getLogger(__name__)
 
 
 _POLLING_DELAY = 0.05
@@ -258,6 +262,14 @@ class TestExpireNetKeysMixin(TestWebhooksMixin):
         unexpired_keys = set()
         for key in self.connection.keys('*'):
             if self.connection.ttl(key) > _NET_EXPIRE_TTL:
+                # It could be that the worker process hasn't set the expire
+                # yet, but be patient. If it isn't set in a couple of seconds,
+                # then we can fail the test
+                time.sleep(2)
+
+            if self.connection.ttl(key) > _NET_EXPIRE_TTL:
+                LOG.warning("Key (%s) has ttl (%s) but it was expected <= %s",
+                        key, self.connection.ttl(key), _NET_EXPIRE_TTL)
                 unexpired_keys.add(key)
 
         self.assertEqual(unexpired_keys, set())
