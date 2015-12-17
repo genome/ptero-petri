@@ -1,6 +1,10 @@
 from . import v1
 from ..implementation.factory import Factory
+from ptero_common import nicer_logging
 import flask
+
+
+LOG = nicer_logging.getLogger(__name__)
 
 
 __all__ = ['create_app']
@@ -34,7 +38,9 @@ def _attach_factory_to_app(factory, app):
             flask.g.backend = factory.create_backend()
         except:
             LOG.exception("Exception occured while creating backend")
-            return jsonify({"error": "Internal Server Error: could not create backend"}), 500
+            return flask.jsonify({
+                "error": "Internal Server Error: could not create backend"
+                }), 500
 
     @app.teardown_request
     def teardown_request(exception):
