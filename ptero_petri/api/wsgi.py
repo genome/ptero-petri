@@ -6,19 +6,9 @@ app = application.create_app()
 configure_web_logging("PETRI")
 
 
-def handle_sigterm(signum, frame):
-    import sys
-    sys.stderr.write('Handling SIGTERM... shutting down the Flask Server')
-    shutdown_server()
-
-
-def shutdown_server():
-    raise RuntimeError('Forcefully shutting down the Flask Server')
-
-
 if __name__ == '__main__':
     import signal
-    signal.signal(signal.SIGTERM, handle_sigterm)
+    signal.signal(signal.SIGTERM, signal.getsignal(signal.SIGINT))
 
     app.run(
         host='0.0.0.0',
